@@ -4,3 +4,29 @@
 *.jar
 *.war
 *.ear
+
+# Maven #
+maven-classpath
+maven-classpath.properties
+target
+release.properties
+pom.xml.*
+
+#Eclipse
+.project
+.classpath
+.settings
+.checkstyle
+
+#IntelliJ IDEA
+.idea
+*.iml
+*.ipr
+*.iws
+
+#Other
+tmp
+.svn
+*/.svn/*
+logs
+*.swp
