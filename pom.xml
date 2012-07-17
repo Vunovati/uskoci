@@ -31,4 +31,10 @@
             </plugin>
         </plugins>
     </build>
+
+    <!--Dependency versions-->
+    <properties>
+        <atmosphere-version>0.9.7</atmosphere-version>
+        <jersey-version>1.10</jersey-version>
+    </properties>
 </project>

@@ -1,21 +1,61 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.randombit.uskoci</groupId>
-  <artifactId>frontend</artifactId>
-  <packaging>war</packaging>
-  <version>1.0-SNAPSHOT</version>
-  <name>Uskoci frontend</name>
-  <url>http://maven.apache.org</url>
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-  <build>
-    <finalName>frontend</finalName>
-  </build>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.randombit.uskoci</groupId>
+        <artifactId>design</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>frontend</artifactId>
+    <packaging>war</packaging>
+    <name>Uskoci frontend</name>
+    <url>http://maven.apache.org</url>
+
+    <!-- Sonatype repositories -->
+    <repositories>
+        <repository>
+            <id>Sonatype snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
+        <repository>
+            <id>Sonatype releases</id>
+            <url>https://oss.sonatype.org/content/repositories/releases</url>
+        </repository>
+    </repositories>
+    <dependencies>
+        <!-- Atmosphere -->
+        <dependency>
+            <!-- Atmosphere's Comet Portable Runtime (CPR) -->
+            <groupId>org.atmosphere</groupId>
+            <artifactId>atmosphere-runtime</artifactId>
+            <version>${atmosphere-version}</version>
+        </dependency>
+        <dependency>
+            <!-- Atmosphere's Jersey module -->
+            <!-- Transitivity will pull all necessary dependencies -->
+            <!-- ie. Jersey 1.10 core, server, etc... -->
+            <groupId>org.atmosphere</groupId>
+            <artifactId>atmosphere-jersey</artifactId>
+            <version>${atmosphere-version}</version>
+        </dependency>
+        <dependency>
+            <!-- Atmosphere's jQuery plugin -->
+            <groupId>org.atmosphere</groupId>
+            <artifactId>atmosphere-jquery</artifactId>
+            <!--<version>${atmosphere-version}</version>-->
+            <version>1.0.0-SNAPSHOT</version>
+            <type>war</type>
+        </dependency>
+        <!-- Jersey's JSON mapper -->
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-json</artifactId>
+            <version>${jersey-version}</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <finalName>uskoci-REST-API</finalName>
+    </build>
 </project>
