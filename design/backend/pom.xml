@@ -10,4 +10,26 @@
     <packaging>jar</packaging>
     <name>Uskoci backend</name>
     <url>http://maven.apache.org</url>
+    <dependencies>
+        <dependency>
+            <!-- Atmosphere's Jersey module -->
+            <!-- Transitivity will pull all necessary dependencies -->
+            <!-- ie. Jersey 1.10 core, server, etc... -->
+            <groupId>org.atmosphere</groupId>
+            <artifactId>atmosphere-jersey</artifactId>
+            <version>${atmosphere-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-json</artifactId>
+            <version>${jersey-version}</version>
+        </dependency>
+        <!--already in container so put to provided scope-->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>${servlet-api.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>

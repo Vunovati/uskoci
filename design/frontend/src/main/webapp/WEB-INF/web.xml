@@ -23,10 +23,26 @@
             <param-name>org.atmosphere.websocket.messageContentType</param-name>
             <param-value>application/json</param-value>
         </init-param>
+        <!--Add support for broadcasting in cluster-->
+        <param-name>org.atmosphere.cpr.broadcasterClassName</param-name>
+        <param-value>JMSBroadcaster</param-value>
         <load-on-startup>0</load-on-startup>
+    </servlet>
+    <servlet>
+        <servlet-name>Jersey REST Service</servlet-name>
+        <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+        <init-param>
+            <param-name>com.sun.jersey.config.property.packages</param-name>
+            <param-value>com.randombit.uskoci.card.rest</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>
         <servlet-name>AtmosphereServlet</servlet-name>
         <url-pattern>/chat/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Jersey REST Service</servlet-name>
+        <url-pattern>/rest/*</url-pattern>
     </servlet-mapping>
 </web-app>
