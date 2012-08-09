@@ -15,6 +15,20 @@ display: box;
 box-pack: center;
 box-align: center;
 }
+
+#status {
+
+text-align: left;
+color: #fff;
+background: #000;
+border: 2px solid #fff;
+width: 400px;
+margin: 0 auto;
+display: box;
+box-pack: right;
+box-align: right;
+}
+
 #game {
 border-radius: 10px;
 border: 1px solid #666;
@@ -74,6 +88,6 @@ z-index: 10;
 opacity: 0;
 }
 
-.Deèko {background-position: -800px 0;}
+.De?ko {background-position: -800px 0;}
 .Dama {background-position: -880px 0;}
 .Kralj {background-position: -960px 0;}

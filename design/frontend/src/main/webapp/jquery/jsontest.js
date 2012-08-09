@@ -24,7 +24,7 @@ $(function () {
 
     var content = $('#console');
     var socket = $.atmosphere;
-    var request = { url: document.location.toString() + 'chat', //ovaj url kasnije promijeniti u web.xml
+    var request = { url: document.location.toString() + 'rest', //ovaj url kasnije promijeniti u web.xml
                     contentType : "application/json",
                     logLevel : 'debug',
                     transport : 'websocket' ,
@@ -55,14 +55,47 @@ $(function () {
     };
 
     var subSocket = socket.subscribe(request);
+    var subSocket2 = socket.subscribe(controllerRequest);
 
     function selectCard() {
     		var msg = $(this).attr("data-pattern");
             subSocket.push(jQuery.stringifyJSON({message: msg}));
+            subSocket2.push(jQuery.stringifyJSON({userId: "1", action: "selectCard"}));
     }
 
     function addMessage(message) {
           $("#cards").find('*[data-pattern="' + message + '"]').toggleClass("card-flipped")
           $('#console').append("<p>Odabrano: " + message + "</p>");
+    }
+
+
+
+
+    var controllerRequest = { url: document.location.toString() + 'rest' + 'gameControl', //ovaj url kasnije promijeniti u web.xml
+                    contentType : "application/json",
+                    logLevel : 'debug',
+                    transport : 'websocket' ,
+                    fallbackTransport: 'long-polling'};
+
+    
+    controllerRequest.onOpen = function(response) {
+        content.html($('<p>', { text: 'controller connected using ' + response.transport }));
+    };
+
+    controllerRequest.onMessage = function (response) {
+        var message = response.responseBody;
+        try {
+            var json = jQuery.parseJSON(message);
+        } catch (e) {
+            console.log('This doesn\'t look like a valid JSON: ', message.data);
+            return;
+        }
+
+        modifyGameStatus(json.text);
+    }
+
+
+    function modifyGameStatus(gameStatusResponse) {
+          $('#status').append("<p>Na redu je igrač broj: " + gameStatusResponse + "</p>");
     }
 });
