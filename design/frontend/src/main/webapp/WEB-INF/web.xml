@@ -12,7 +12,7 @@
         <init-param>
             <!-- Jersey base package of your resources -->
             <param-name>com.sun.jersey.config.property.packages</param-name>
-            <param-value>com.randombit.uskoci.rest</param-value>
+            <param-value>com.randombit.uskoci.rest.card;com.randombit.uskoci.rest.game;com.randombit.uskoci.rest.gamecontrol</param-value>
         </init-param>
         <init-param>
             <!-- Enable Jersey's JSON mapping feature -->
@@ -28,7 +28,7 @@
         <param-value>JMSBroadcaster</param-value>
         <load-on-startup>0</load-on-startup>
     </servlet>
-    <servlet>
+    <!--<servlet>
         <servlet-name>Jersey REST Service</servlet-name>
         <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
         <init-param>
@@ -36,13 +36,13 @@
             <param-value>com.randombit.uskoci.card.rest</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
-    </servlet>
+    </servlet>-->
     <servlet-mapping>
         <servlet-name>AtmosphereServlet</servlet-name>
-        <url-pattern>/chat/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>Jersey REST Service</servlet-name>
         <url-pattern>/rest/*</url-pattern>
     </servlet-mapping>
+<!--    <servlet-mapping>
+        <servlet-name>Jersey REST Service</servlet-name>
+        <url-pattern>/rest/*</url-pattern>
+    </servlet-mapping>-->
 </web-app>
