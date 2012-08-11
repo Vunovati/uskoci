@@ -8,7 +8,9 @@ Deployable war can be found in uskoci/design/frontend/target/uskoci-REST-API.war
 backend is already added as jar dependency to classpath in WEB-INF/lib
 
 To deploy in an embedded jetty server automatically run:
+
 cd design/frontend
+
 mvn jetty:run-war
 
 visit: http://localhost:8080/
