@@ -27,7 +27,7 @@ $(function () {
     var request = { url: document.location.toString() + 'rest', //ovaj url kasnije promijeniti u web.xml
                     contentType : "application/json",
                     logLevel : 'debug',
-                    transport : 'websocket' ,
+                    transport : 'long-polling' ,
                     fallbackTransport: 'long-polling'};
 
 
