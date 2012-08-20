@@ -71,7 +71,7 @@ $(function () {
 
 
 
-    var controllerRequest = { url: document.location.toString() + 'rest' + 'gameControl', //ovaj url kasnije promijeniti u web.xml
+    var controllerRequest = { url: document.location.toString() + 'rest' + '/gameControl', //ovaj url kasnije promijeniti u web.xml
                     contentType : "application/json",
                     logLevel : 'debug',
                     transport : 'websocket' ,
