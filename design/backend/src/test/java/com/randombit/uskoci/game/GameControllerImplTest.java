@@ -13,7 +13,6 @@ import java.util.List;
 public class GameControllerImplTest {
 
     private static final int STARTING_NUMBER_OF_CARDS = 4;
-    // TODO create basic tests
     GameController gameController = new GameControllerImpl();
     CardDAO cardDAOMock;
     private static final int INITIAL_NUMBER_OF_CARDS_IN_THE_DECK = 60;
@@ -33,29 +32,6 @@ public class GameControllerImplTest {
 //        gameController.setCardDAO(cardDAOMock);
         Assert.assertTrue("Deck is not empty", !gameController.getCardsInTheDeck().isEmpty());
     }
-
-//    @Test
-//    public void testPutCardOnTheTable() throws Exception {
-//
-//        int testCardId = 2;
-//        gameController.putCardOnTheTable(testCardId);
-//
-//        List<Card> cardsOnTheTable = gameController.getCardsInTheDeck();
-//        Assert.assertFalse("Card size", cardsOnTheTable.isEmpty());
-//
-//        Assert.assertEquals("expected list contains a card with provided id", String.valueOf(testCardId), cardsOnTheTable.get(0).getId());
-//    }
-
-//    @Test
-//    public void testGetCards() throws Exception {
-//        gameController.resetGame();
-//
-//        int testPlayerId = 1;
-//        List<Card> actualCards = gameController.getCards(testPlayerId);
-//
-//        Assert.assertEquals("Player has default amount of playing cards", STARTING_NUMBER_OF_CARDS, actualCards.size());
-//    }
-
 
     //    Na početku igre, promiješa se špil karata (ili špilovi karata)
     //    Svakom igraču se podijeli n karata (za Uskoke (USK) n=4)
@@ -96,8 +72,6 @@ public class GameControllerImplTest {
         gameController.startGame(testNumberOfPlayers);
         Assert.assertTrue("First player is re-set", firstPlayer > 0);
     }
-
-
 
     // Opcionalno: Na početku poteza vuče se n karata (USK: da, n=1)
     @Test

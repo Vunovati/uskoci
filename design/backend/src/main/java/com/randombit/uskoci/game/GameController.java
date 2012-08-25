@@ -21,8 +21,6 @@ public interface GameController {
 
     public List<Card> getCardsInTheDeck();
 
-    public void putCardOnTheTable(int id);
-
     public String resetGame();
 
     public boolean startGame(int numberOfPlayers);

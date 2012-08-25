@@ -72,15 +72,6 @@ public class GameControllerImpl implements GameController {
         return cardDeck;
     }
 
-    public void putCardOnTheTable(int id) {
-        Card card = SingletonCardDB.instance.getModel().get(String.valueOf(id));
-
-        if (cardsOnTheTable.isEmpty())
-            cardsOnTheTable = new ArrayList<Card>();
-
-        cardsOnTheTable.add(card);
-    }
-
     private void dealCards(int numberOfPlayers) {
         Collections.shuffle(cardDeck);
         for (int i = 1; i < numberOfPlayers + 1; i++) {
