@@ -1,11 +1,10 @@
 package com.randombit.uskoci.rest.card;
 
-import com.randombit.uskoci.card.dao.CardDAO;
+import com.randombit.uskoci.card.dao.SingletonCardDB;
 import com.randombit.uskoci.card.model.Card;
 import org.atmosphere.annotation.Suspend;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.*;
 
 @Path("/card")
 public class CardResource {
@@ -30,7 +29,7 @@ public class CardResource {
     @Path("{id}")
     @Produces("application/json")
     public Card getCard(@PathParam("id") String id) {
-        Card card = CardDAO.instance.getModel().get(id);
+        Card card = SingletonCardDB.instance.getModel().get(id);
         if(card==null)
             throw new RuntimeException("Get: Card with " + id +  " not found");
         return card;

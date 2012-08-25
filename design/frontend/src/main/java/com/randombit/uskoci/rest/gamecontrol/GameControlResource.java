@@ -1,5 +1,6 @@
 package com.randombit.uskoci.rest.gamecontrol;
 
+import com.randombit.uskoci.card.dao.CardDAOSimple;
 import com.randombit.uskoci.game.GameController;
 import com.randombit.uskoci.game.GameControllerImpl;
 import org.atmosphere.annotation.Broadcast;
