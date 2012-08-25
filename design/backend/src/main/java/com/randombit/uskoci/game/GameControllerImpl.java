@@ -77,7 +77,7 @@ public class GameControllerImpl implements GameController {
         for (int i = 1; i < numberOfPlayers + 1; i++) {
             List<Card> cardsDealtToPlayer = cardDeck.subList(0, BEGINNING_NUMBER_OF_CARDS);
             playerCardMap.put(String.valueOf(i), new ArrayList<Card>(cardsDealtToPlayer));
-            cardDeck.removeAll(cardsDealtToPlayer);
+            cardDeck.removeAll(playerCardMap.get(String.valueOf(i)));
         }
     }
 
@@ -90,8 +90,6 @@ public class GameControllerImpl implements GameController {
         Random randomGenerator = new Random();
 
         currentPlayerId = randomGenerator.nextInt(numberOfPlayersJoined - 1) + 1;
-
-        cardsOnTheTable = Collections.<Card>emptyList();
 
         currentPhase = 1;
 
