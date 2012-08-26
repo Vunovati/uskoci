@@ -1,6 +1,5 @@
 package com.randombit.uskoci.rest.gamecontrol;
 
-import com.randombit.uskoci.card.dao.CardDAOSimple;
 import com.randombit.uskoci.game.GameController;
 import com.randombit.uskoci.game.GameControllerImpl;
 import org.atmosphere.annotation.Broadcast;
@@ -41,7 +40,7 @@ public class GameControlResource {
         // TODO do some logic regarding player and the action
 
         /*Some action is performed by the player*/
-        gameController.setNextPlayer();
+        gameController.getNextPlayerId();
         String currentPlayerId = String.valueOf(gameController.getCurrentPlayerId());
 
         return new GameStatusResponse(currentPlayerId);

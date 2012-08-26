@@ -2,13 +2,19 @@ package com.randombit.uskoci.game;
 
 import com.randombit.uskoci.card.dao.CardDAO;
 import com.randombit.uskoci.card.dao.CardDAOSimple;
-import com.randombit.uskoci.card.dao.SingletonCardDB;
 import com.randombit.uskoci.card.model.Card;
 
 import java.util.*;
 
 public class GameControllerImpl implements GameController {
 
+
+    private static final int MAX_NUMBER_OF_PLAYERS = 6;
+    private static final int MIN_NUMBER_OF_PLAYERS = 3;
+    private static final int BEGINNING_NUMBER_OF_CARDS = 4;
+    private static final int NO_OF_CARDS_DRAWN_A_TURN = 1;
+    private static final int NO_OF_PHASES = 6;
+    private static final int MAX_NUMBER_OF_CARDS_IN_HAND = 5;
 
     private CardDAO cardDAO = new CardDAOSimple();
 
@@ -18,6 +24,12 @@ public class GameControllerImpl implements GameController {
     private Map<String, List<Card>> playerCardMap = new HashMap<String, List<Card>>();
 
     private int currentPlayerId;
+
+    private boolean beginningCardDrawn = false;
+
+    void setBeginningCardDrawn(boolean beginningCardDrawn) {
+        this.beginningCardDrawn = beginningCardDrawn;
+    }
 
     public void setCardDAO(CardDAO cardDAO) {
         this.cardDAO = cardDAO;
@@ -41,22 +53,43 @@ public class GameControllerImpl implements GameController {
     }
 
     public int setNextPhase() {
-        currentPhase++;
-        if (currentPhase > NO_OF_PHASES) {
-            currentPhase = 1;
-            currentPlayerId++;
+        if (!beginningCardDrawn && currentPhase == 1) {
+            return currentPhase;
+        } else if (currentPhase == NO_OF_PHASES && !isNoOfCardsInHandValid()) {
+            return currentPhase;
+        } else {
+            currentPhase += 1;
+            if (currentPhase > NO_OF_PHASES) {
+                currentPhase = 1;
+                this.currentPlayerId = getNextPlayerId();
+            }
+            return currentPhase;
         }
-        return currentPhase;
+
     }
 
+
+    /**
+     * Is number of cards in hand at the end of turn valid
+     *
+     * @return validity
+     */
+    private boolean isNoOfCardsInHandValid() {
+        return playerCardMap.get(String.valueOf(currentPlayerId)).size() < MAX_NUMBER_OF_CARDS_IN_HAND + 1;
+    }
+
+    @Override
+    public int setPhase(int phase) {
+        return this.currentPhase = phase;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public boolean getBeginningCardDrawn() {
+        return beginningCardDrawn;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+
     private int currentPhase;
-
-
-    private static final int MAX_NUMBER_OF_PLAYERS = 5;
-    private static final int MIN_NUMBER_OF_PLAYERS = 3;
-    private static final int BEGINNING_NUMBER_OF_CARDS = 4;
-    private static final int NO_OF_CARDS_DRAWN_A_TURN = 1;
-    private static final int NO_OF_PHASES = 6;
 
 
     // TODO implement methods
@@ -64,8 +97,15 @@ public class GameControllerImpl implements GameController {
         return currentPlayerId;
     }
 
-    public int setNextPlayer() {
-        return currentPlayerId++;
+    public int getNextPlayerId() {
+//        int nextPlayer = (this.currentPlayerId == numberOfPlayersJoined) ? 1 : currentPlayerId++;
+        int nextPlayer;
+        if (currentPlayerId == numberOfPlayersJoined) {
+            nextPlayer = 1;
+        } else {
+            nextPlayer = currentPlayerId + 1;
+        }
+        return nextPlayer;
     }
 
     public List<Card> getCardsInTheDeck() {
@@ -83,15 +123,17 @@ public class GameControllerImpl implements GameController {
 
     // Reset field values
     public String resetGame() {
-        cardDeck = new ArrayList<Card>(cardDAO.getAllCards());
+        this.cardDeck = new ArrayList<Card>(cardDAO.getAllCards());
 
-        playerCardMap = new HashMap<String, List<Card>>();
+        this.playerCardMap = new HashMap<String, List<Card>>();
 
         Random randomGenerator = new Random();
 
-        currentPlayerId = randomGenerator.nextInt(numberOfPlayersJoined - 1) + 1;
+        this.currentPlayerId = randomGenerator.nextInt(numberOfPlayersJoined - 1) + 1;
 
-        currentPhase = 1;
+        this.currentPhase = 1;
+
+        this.beginningCardDrawn = false;
 
         return "Game reset";
     }
@@ -102,7 +144,6 @@ public class GameControllerImpl implements GameController {
             this.numberOfPlayersJoined = numberOfPlayersJoined;
             resetGame();
             dealCards(this.numberOfPlayersJoined);
-            gameStarted = true;
         }
         return gameStarted;
     }
@@ -115,6 +156,10 @@ public class GameControllerImpl implements GameController {
     public Card drawCard(int playerId) {
         Card cardDrawn = cardDeck.remove(0);
         playerCardMap.get(String.valueOf(playerId)).add(cardDrawn);
+
+        if (!beginningCardDrawn)
+            beginningCardDrawn = true;
+
         return cardDrawn;
     }
 }
