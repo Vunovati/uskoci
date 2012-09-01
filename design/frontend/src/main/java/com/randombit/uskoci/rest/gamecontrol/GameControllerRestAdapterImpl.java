@@ -23,13 +23,17 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
 
         String action = message.action;
 
+/*
         switch (action.toLowerCase()) {
 
             case "drawcard":
                 gameController.drawCard(Integer.valueOf(message.userId));
                 break;
+        }
+        */
 
-
+        if ("drawcard".equals(action.toLowerCase())) {
+            gameController.drawCard(Integer.valueOf(message.userId));
         }
 
         GameStatusResponse gameResponse = new GameStatusResponse();
