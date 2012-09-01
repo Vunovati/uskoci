@@ -8,10 +8,10 @@ $(function () {
     var author = null;
     var logged = false;
     var socket = $.atmosphere;
-    var request = { url: document.location.toString() + 'chat',
+    var request = { url: document.location.toString() + 'rest/gamecontrol',
                     contentType : "application/json",
                     logLevel : 'debug',
-                    transport : 'websocket' ,
+                    transport : 'long-polling' ,
                     fallbackTransport: 'long-polling'};
 
 
@@ -80,3 +80,4 @@ $(function () {
             + ': ' + message + '</p>');
     }
 });
+

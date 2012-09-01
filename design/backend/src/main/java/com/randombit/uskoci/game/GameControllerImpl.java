@@ -27,6 +27,8 @@ public class GameControllerImpl implements GameController {
 
     private boolean beginningCardDrawn = false;
 
+    private boolean gameStarted = false;
+
     void setBeginningCardDrawn(boolean beginningCardDrawn) {
         this.beginningCardDrawn = beginningCardDrawn;
     }
@@ -37,6 +39,10 @@ public class GameControllerImpl implements GameController {
     }
 
     private List<Card> cardsOnTheTable = Collections.<Card>emptyList();
+
+    public int getNumberOfPlayersJoined() {
+        return numberOfPlayersJoined;
+    }
 
     private int numberOfPlayersJoined;
 
@@ -124,26 +130,24 @@ public class GameControllerImpl implements GameController {
     // Reset field values
     public String resetGame() {
         this.cardDeck = new ArrayList<Card>(cardDAO.getAllCards());
-
         this.playerCardMap = new HashMap<String, List<Card>>();
+        this.currentPhase = 1;
+        this.beginningCardDrawn = false;
+        this.gameStarted = false;
 
         Random randomGenerator = new Random();
-
         this.currentPlayerId = randomGenerator.nextInt(numberOfPlayersJoined - 1) + 1;
 
-        this.currentPhase = 1;
-
-        this.beginningCardDrawn = false;
-
         return "Game reset";
+
     }
 
     public boolean startGame(int numberOfPlayersJoined) {
-        boolean gameStarted = false;
         if (numberOfPlayersJoined <= MAX_NUMBER_OF_PLAYERS || numberOfPlayersJoined >= MIN_NUMBER_OF_PLAYERS) {
             this.numberOfPlayersJoined = numberOfPlayersJoined;
             resetGame();
             dealCards(this.numberOfPlayersJoined);
+            this.gameStarted = true;
         }
         return gameStarted;
     }
@@ -161,5 +165,9 @@ public class GameControllerImpl implements GameController {
             beginningCardDrawn = true;
 
         return cardDrawn;
+    }
+
+    public boolean isGameStarted() {
+        return gameStarted;
     }
 }

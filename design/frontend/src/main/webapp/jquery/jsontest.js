@@ -12,7 +12,7 @@ $(function () {
     $("#cards").children().each(function(index) {
 
         $(this).css({"left" : ($(this).width() + 20) * (index % 4), "top" : ($(this).height() + 20) * Math.floor(index / 4)
-        });
+    });
 
         //game.timer = setInterval(gameloop,5000);
 
@@ -24,11 +24,11 @@ $(function () {
 
     var content = $('#console');
     var socket = $.atmosphere;
-    var request = { url: document.location.toString() + 'rest', //ovaj url kasnije promijeniti u web.xml
-                    contentType : "application/json",
-                    logLevel : 'debug',
-                    transport : 'long-polling' ,
-                    fallbackTransport: 'long-polling'};
+    var request = { url: document.location.toString() + 'rest' + '/gamecontrol', //ovaj url kasnije promijeniti u web.xml
+    contentType : "application/json",
+    logLevel : 'debug',
+    transport : 'long-polling' ,
+    fallbackTransport: 'long-polling'};
 
 
     request.onOpen = function(response) {
@@ -44,7 +44,7 @@ $(function () {
             return;
         }
 
-        addMessage(json.text);
+        addMessage(json);
 
     };
 
@@ -55,27 +55,27 @@ $(function () {
     };
 
     var subSocket = socket.subscribe(request);
-    var subSocket2 = socket.subscribe(controllerRequest);
+    //var subSocket2 = socket.subscribe(controllerRequest);
 
     function selectCard() {
-    		var msg = $(this).attr("data-pattern");
-            subSocket.push(jQuery.stringifyJSON({message: msg}));
-            subSocket2.push(jQuery.stringifyJSON({userId: "1", action: "selectCard"}));
-    }
+      var msg = $(this).attr("data-pattern");
+      subSocket.push(jQuery.stringifyJSON({userId: "1", action: "drawCard", cardId: "", gameId: "0"}));
+      //      subSocket2.push(jQuery.stringifyJSON({userId: "1", action: "selectCard"}));
+  }
 
-    function addMessage(message) {
-          $("#cards").find('*[data-pattern="' + message + '"]').toggleClass("card-flipped")
-          $('#console').append("<p>Odabrano: " + message + "</p>");
-    }
-
-
+  function addMessage(message) {
+      $("#cards").find('*[data-pattern="' + message + '"]').toggleClass("card-flipped")
+      $('#console').append("<p>Current player: " + message.currentPlayerId + "<br />Current players cards: " + message.playersCards + "<br />Card drawn at beginning of turn: " + message.beginningCardDrawn + "<br />Game started: " + message.gameStarted + "<br />Current phase: " + message.currentPhase + "</p>");
+  }
 
 
-    var controllerRequest = { url: document.location.toString() + 'rest' + '/gameControl', //ovaj url kasnije promijeniti u web.xml
-                    contentType : "application/json",
-                    logLevel : 'debug',
-                    transport : 'websocket' ,
-                    fallbackTransport: 'long-polling'};
+
+
+    var controllerRequest = { url: document.location.toString() + 'rest' + '/gamecontrol', //ovaj url kasnije promijeniti u web.xml
+    contentType : "application/json",
+    logLevel : 'debug',
+    transport : 'long-polling' ,
+    fallbackTransport: 'long-polling'};
 
     
     controllerRequest.onOpen = function(response) {
@@ -96,6 +96,6 @@ $(function () {
 
 
     function modifyGameStatus(gameStatusResponse) {
-          $('#status').append("<p>Na redu je igrač broj: " + gameStatusResponse + "</p>");
-    }
+      $('#status').append("<p>Na redu je igrač broj: " + gameStatusResponse + "</p>");
+  }
 });

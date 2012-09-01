@@ -38,4 +38,8 @@ public interface GameController {
 
     public boolean getBeginningCardDrawn();
 
+    public boolean isGameStarted();
+
+    public int getNumberOfPlayersJoined();
+
 }
