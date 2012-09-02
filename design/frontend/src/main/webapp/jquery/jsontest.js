@@ -55,13 +55,13 @@ $(function () {
     };
 
     var subSocket = socket.subscribe(request);
-    var subSocket2 = socket.subscribe(controllerRequest);
+    //var subSocket2 = socket.subscribe(controllerRequest);
     var cardSummary = '';
 	      	  
     function selectCard() {
     		var msg = $(this).attr("data-pattern");
             subSocket.push(jQuery.stringifyJSON({message: msg}));
-            subSocket2.push(jQuery.stringifyJSON({userId: "1", action: "selectCard"}));
+            //subSocket2.push(jQuery.stringifyJSON({userId: "1", action: "selectCard"}));
     }
 
     function addMessage(message) {
@@ -82,10 +82,10 @@ $(function () {
 	}
 
 
-    var controllerRequest = { url: document.location.toString() + 'rest' + '/gameControl', //ovaj url kasnije promijeniti u web.xml
+    /*var controllerRequest = { url: document.location.toString() + 'rest' + '/gameControl', //ovaj url kasnije promijeniti u web.xml
                     contentType : "application/json",
                     logLevel : 'debug',
-                    transport : 'websocket' ,
+                    transport : 'long-polling' ,
                     fallbackTransport: 'long-polling'};
 
     
@@ -108,5 +108,5 @@ $(function () {
 
     function modifyGameStatus(gameStatusResponse) {
           $('#status').append("<p>Na redu je igrač broj: " + gameStatusResponse + "</p>");
-    }
+    }*/
 });

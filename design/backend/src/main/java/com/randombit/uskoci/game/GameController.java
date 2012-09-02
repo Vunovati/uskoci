@@ -3,7 +3,6 @@ package com.randombit.uskoci.game;
 import com.randombit.uskoci.card.dao.CardDAO;
 import com.randombit.uskoci.card.model.Card;
 
-import java.util.Collection;
 import java.util.List;
 
 public interface GameController {
@@ -17,7 +16,7 @@ public interface GameController {
      * Set the id of player on the move to the next player
      * @return playerOnTheMoveId
      */
-    public int setNextPlayer();
+    public int getNextPlayerId();
 
     public List<Card> getCardsInTheDeck();
 
@@ -34,5 +33,13 @@ public interface GameController {
     public int getCurrentPhase();
 
     public int setNextPhase();
+
+    int setPhase(int phase);
+
+    public boolean getBeginningCardDrawn();
+
+    public boolean isGameStarted();
+
+    public int getNumberOfPlayersJoined();
 
 }

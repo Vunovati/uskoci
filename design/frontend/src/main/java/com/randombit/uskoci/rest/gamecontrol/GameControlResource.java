@@ -1,8 +1,5 @@
 package com.randombit.uskoci.rest.gamecontrol;
 
-import com.randombit.uskoci.card.dao.CardDAOSimple;
-import com.randombit.uskoci.game.GameController;
-import com.randombit.uskoci.game.GameControllerImpl;
 import org.atmosphere.annotation.Broadcast;
 import org.atmosphere.annotation.Suspend;
 
@@ -11,9 +8,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
-@Path("/gameControl")
+@Path("/gamecontrol")
 public class GameControlResource {
-    GameController gameController = new GameControllerImpl();
+
 
     /**
      * Suspend the response without writing anything back to the client.
@@ -27,7 +24,6 @@ public class GameControlResource {
     }
 
 
-
     /**
      * Broadcast the received message object to all suspended response. Do not write back the message to the calling connection.
      *
@@ -38,12 +34,8 @@ public class GameControlResource {
     @POST
     @Produces("application/json")
     public GameStatusResponse broadcast(GameStatusMessage message) {
-        // TODO do some logic regarding player and the action
-
-        /*Some action is performed by the player*/
-        gameController.setNextPlayer();
-        String currentPlayerId = String.valueOf(gameController.getCurrentPlayerId());
-
-        return new GameStatusResponse(currentPlayerId);
+        GameControllerRestAdapter gameControllerRestAdapter = new GameControllerRestAdapterImpl();
+        GameStatusResponse statusResponse = gameControllerRestAdapter.getResponse(message, String.valueOf(1));
+        return statusResponse;
     }
 }
