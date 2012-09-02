@@ -1,5 +1,5 @@
 ﻿var game = {};
-game.deck = ['Kralj', 'Dama', 'Dečko'];
+game.deck = ['id1', 'id2', 'id3'];
 
 $(function () {
     "use strict";
@@ -56,7 +56,8 @@ $(function () {
 
     var subSocket = socket.subscribe(request);
     var subSocket2 = socket.subscribe(controllerRequest);
-
+    var cardSummary = '';
+	      	  
     function selectCard() {
     		var msg = $(this).attr("data-pattern");
             subSocket.push(jQuery.stringifyJSON({message: msg}));
@@ -65,10 +66,20 @@ $(function () {
 
     function addMessage(message) {
           $("#cards").find('*[data-pattern="' + message + '"]').toggleClass("card-flipped")
-          $('#console').append("<p>Odabrano: " + message + "</p>");
+		  getCardSummary(message);
+          $('#console').append("<p>Odabrano: " + cardSummary + "</p>");
     }
 
-
+	function getCardSummary(cardID) {
+		$.ajax({
+			url: document.location.toString() + 'rest/card/' + cardID,
+			async: false,
+			dataType: 'json',
+			success: function(card) {
+				cardSummary = card.summary;
+			}
+		});
+	}
 
 
     var controllerRequest = { url: document.location.toString() + 'rest' + '/gameControl', //ovaj url kasnije promijeniti u web.xml

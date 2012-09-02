@@ -3,8 +3,12 @@ text-align: center;
 background: #a46740 url(../images/bg.jpg);
 }
 
-#console {
+h1 {
+color: #EDAB5F;
+}
 
+#console {
+opacity: 0.7;
 text-align: left;
 color: #fff;
 background: #000;
@@ -17,7 +21,7 @@ box-align: center;
 }
 
 #status {
-
+opacity: 0.7;
 text-align: left;
 color: #fff;
 background: #000;
@@ -31,10 +35,10 @@ box-align: right;
 
 #game {
 border-radius: 10px;
-border: 1px solid #666;
+border: 1px solid #466;
 background: #232 url(../images/table.jpg);
-width: 400px;
-height: 170px;
+width: 650px;
+height: 280px;
 margin: 0 auto;
 display: box;
 box-pack: center;
@@ -48,8 +52,8 @@ height: 400px;
 }
 .card {
 -webkit-perspective: 600;
-width: 80px;
-height: 120px;
+width: 162.5px;
+height: 229px;
 position: absolute;
 -moz-transition: all .3s;
 -webkit-transition: all .3s;
@@ -65,11 +69,11 @@ position: absolute;
 -webkit-backface-visibility: hidden;
 }
 .front {
-background: #999 url(../images/deck.png) 0 -480px;
+background: #999 url(../images/uskociBack.png);
 z-index: 10;
 }
 .back {
-background: #efefef url(../images/deck.png);
+background: #efefef url(../images/uskociDeck.png);
 -webkit-transform: rotate3d(0,1,0,-180deg);
 z-index: 8;
 }
@@ -88,6 +92,6 @@ z-index: 10;
 opacity: 0;
 }
 
-.De?ko {background-position: -800px 0;}
-.Dama {background-position: -880px 0;}
-.Kralj {background-position: -960px 0;}
+.id1 {background-position: 0px 0px;}
+.id2 {background-position: -162.5px 0px;}
+.id3 {background-position: -325px 0px;}
