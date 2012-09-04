@@ -25,7 +25,7 @@ public class CardResource {
      * @param id
      * @return Card with requested ID
      */
-    @GET
+    @POST
     @Path("{id}")
     @Produces("application/json")
     public Card getCard(@PathParam("id") String id) {

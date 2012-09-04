@@ -34,7 +34,7 @@ $(function () {
   
   FB.api('/me', function(fbresponse) {
          fbsubSocket.push(jQuery.stringifyJSON({userID: fbresponse.id,
-                                             userName: fbresponse.name}));
+                                               userName: fbresponse.name}));
          });
   
   }
@@ -42,8 +42,8 @@ $(function () {
   
   function setelements(userID,userName){
   
-        $("#slika").attr('src','https://graph.facebook.com/' + userID + '/picture');
-        $('#status').append("<p>Na redu je igrač: " + userName + "</p>");
+  $("#slika").attr('src','https://graph.facebook.com/' + userID + '/picture');
+  $('#status').append("<p>Na redu je igrač: " + userName + "</p>");
   }
   
   });
