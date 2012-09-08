@@ -18,6 +18,6 @@ public class CardDAOSimple implements CardDAO{
     }
 
     public List<Card> getAllCards() {
-        return SingletonCardDB.instance.getAllCards();  //To change body of implemented methods use File | Settings | File Templates.
+        return MongoDBCard.instance.getAllCards();  //To change body of implemented methods use File | Settings | File Templates.
     }
 }

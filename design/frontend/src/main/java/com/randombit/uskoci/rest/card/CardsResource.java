@@ -1,6 +1,6 @@
 package com.randombit.uskoci.rest.card;
 
-import com.randombit.uskoci.card.dao.SingletonCardDB;
+import com.randombit.uskoci.card.dao.MongoDBCard;
 import com.randombit.uskoci.card.model.Card;
 
 import javax.ws.rs.*;
@@ -25,7 +25,7 @@ public class CardsResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<Card> getCards() {
         List<Card> cards = new ArrayList<Card>();
-        cards.addAll(SingletonCardDB.instance.getModel().values());
+        cards.addAll(MongoDBCard.instance.getModel().values());
         return cards;
     }
 
@@ -37,7 +37,7 @@ public class CardsResource {
     @Path("count")
     @Produces(MediaType.TEXT_PLAIN)
     public String getCount() {
-        int count = SingletonCardDB.instance.getModel().size();
+        int count = MongoDBCard.instance.getModel().size();
         return String.valueOf(count);
     }
 
@@ -49,7 +49,7 @@ public class CardsResource {
 
         String result = "Card saved :" + card;
 
-        SingletonCardDB.instance.getModel().put(card.getId(), card);
+        MongoDBCard.instance.getModel().put(card.getId(), card);
 
         Response.status(201).entity(result).build();
     }
