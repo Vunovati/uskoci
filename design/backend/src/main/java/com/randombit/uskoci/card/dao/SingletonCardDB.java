@@ -30,7 +30,11 @@ public enum SingletonCardDB implements CardDAO {
     }
 
     public List<Card> getAllCards() {
-        List<Card> allCards = new ArrayList<Card>(contentProvider.values());
-        return allCards;
+        return new ArrayList<Card>(contentProvider.values());
+    }
+
+    @Override
+    public Card getCard(int cardId) {
+        return contentProvider.get(String.valueOf(cardId));
     }
 }
