@@ -12,7 +12,7 @@
         <init-param>
             <!-- Jersey base package of your resources -->
             <param-name>com.sun.jersey.config.property.packages</param-name>
-            <param-value>com.randombit.uskoci.rest.card;com.randombit.uskoci.rest.game;com.randombit.uskoci.rest.gamecontrol</param-value>
+            <param-value>com.randombit.uskoci.rest.card;com.randombit.uskoci.rest.game;com.randombit.uskoci.rest.gamecontrol;com.randombit.uskoci.rest.fbresources</param-value>
         </init-param>
         <init-param>
             <!-- Enable Jersey's JSON mapping feature -->

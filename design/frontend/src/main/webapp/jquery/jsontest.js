@@ -43,7 +43,7 @@ $(function () {
             console.log('This doesn\'t look like a valid JSON: ', message.data);
             return;
         }
-
+        if(json.text != null && json.author !=null)
         addMessage(json.text);
 
     };
@@ -72,6 +72,7 @@ $(function () {
 
 	function getCardSummary(cardID) {
 		$.ajax({
+            type: 'POST',   
 			url: document.location.toString() + 'rest/card/' + cardID,
 			async: false,
 			dataType: 'json',

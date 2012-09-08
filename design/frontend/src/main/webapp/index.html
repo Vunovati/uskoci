@@ -3,9 +3,17 @@
 	<head>
 		<title>JSONTest</title>
 		<link rel="stylesheet" type="text/css" href="css/style.css" />
-		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+		<meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+        <meta property="fb:app_id" content="349684885089166" />
+        <meta property="og:url" content="http://apps.facebook.com/uskoci-game/" />
+        <meta property="og:site_name" content="Uskoci" />
+        <meta property="og:type" content="game" />
+        <meta property="og:image" content="http://photos-h.ak.fbcdn.net/photos-ak-snc7/v85005/130/349684885089166/app_1_349684885089166_375737506.gif" />
+        <meta property="og:title" content="Uskoci" />
+     
 	</head>
 	<body>
+        <div id="fb-root"></div>
 		<header>
 			<h1>JSON Test</h1>
 		</header>
@@ -16,6 +24,7 @@
 					<div class="face back"></div>
 				</div> <!-- .card -->
 			</div> <!-- #cards -->
+            
 		</section> <!-- #game -->
 		<br/>
 		<div id="console">
@@ -24,11 +33,24 @@
 		<div id="status">
 			<p style="font-weight:bold;">Raspoložive karte: </p>
 		</div>
+		<div id="fb-login">
+                <div class="fb-login-button" data-show-faces="true" data-width="200" data-max-rows="1"></div>
+        </div>
+            <div id="fb-tools">
+                <button class="facebook-button apprequests" onclick="Invite();">Invite Friends!</button>
+                <button class="facebook-button WallPost" onclick="PostToWall();">Post to Wall</button>
+                <button class="facebook-button speech-bubble" onclick="SendToFriend();">Send to Friends</button>
+                <button class="facebook-button speech-bubble" id ="join-button">Join game</button>
+	</div>
+	<img id="slika"/>
 		<footer>
 			<p>--RandomBit--</p>
 		</footer>
 		<script src="jquery/jquery-1.7.2.js"></script>
 		<script src="jquery/jsontest.js"></script>
+        <script src="jquery/facebook-api.js"></script>
+        <script src="jquery/fb-resource.js"></script>
+        <script src="//connect.facebook.net/en_US/all.js"></script>
         <script type="text/javascript" src="jquery/jquery.atmosphere.js"></script>
 	</body>
 </html>
