@@ -1,7 +1,7 @@
 package com.randombit.uskoci.card.dao;
 
+import com.mongodb.*;
 import com.randombit.uskoci.card.model.Card;
-
 import java.util.*;
 
 // Singleton DAO
@@ -12,17 +12,41 @@ public enum SingletonCardDB implements CardDAO {
 
     private SingletonCardDB() {
 
-        contentProvider.put("id1", new Card("id1", "food1", "Food resource, No.1", "resource"));
-        contentProvider.put("id2", new Card("id2", "money1", "Money resource, No.1", "resource"));
-
-        // Initialization block, fill with mock data
+        try
         {
-            for (int i = 3 ; i < 61; i++) {
-                String cardID = "id" + String.valueOf(i);
-                contentProvider.put(cardID, new Card(cardID, "weapon1", "Weapon resource, No.1", "resource"));
+            Mongo mongo = new Mongo("alex.mongohq.com", 10068);
+            DB db = mongo.getDB("UskociCards");
+            boolean authenticate = db.authenticate("uskociAdmin", "willofgod".toCharArray());
+
+            if(authenticate)
+            {
+                DBCollection cards = db.getCollection("cards");
+                DBCursor cursor = cards.find();
+                DBObject card;
+
+                while(cursor.hasNext())
+                {
+                    card = cursor.next();
+                    String cardID = card.get("shortID").toString();
+                    String cardSummary = card.get("summary").toString();
+                    String cardDescription = card.get("description").toString();
+                    String cardType = card.get("type").toString();
+
+                    contentProvider.put(cardID, new Card(cardID, cardSummary, cardDescription, cardType));
+                }
+
+                //preostale karte punimo dummy podacima
+                for(long i=cards.getCount(); i<61; i++)
+                {
+                    String cardID = "id" + String.valueOf(i);
+                    contentProvider.put(cardID, new Card(cardID, "dummy", "dummy", "dummy"));
+                }
             }
         }
+        catch(Exception ex)
+        {
 
+        }
 
     }
     public Map<String, Card> getModel(){
