@@ -7,57 +7,89 @@ import com.randombit.uskoci.card.model.Card;
 import java.util.*;
 
 public class GameControllerImpl implements GameController {
-
-
     private static final int MAX_NUMBER_OF_PLAYERS = 6;
     private static final int MIN_NUMBER_OF_PLAYERS = 3;
     private static final int BEGINNING_NUMBER_OF_CARDS = 4;
-    private static final int NO_OF_CARDS_DRAWN_A_TURN = 1;
-    private static final int NO_OF_PHASES = 6;
+    private static final int NO_OF_PHASES = 2;
     private static final int MAX_NUMBER_OF_CARDS_IN_HAND = 5;
 
-    private CardDAO cardDAO = new CardDAOSimple();
-
-    private List<Card> cardDeck = new ArrayList<Card>(cardDAO.getAllCards());
-
-    // Map of cards in all players hands
-    private Map<String, List<Card>> playerCardMap = new HashMap<String, List<Card>>();
-
+    private CardDAO cardDAO;
+    private List<Card> cardDeck;
+    private List<Card> discardedCards;
+    private Map<String, List<Card>> playerCardMap;
     private int currentPlayerId;
-
-    private boolean beginningCardDrawn = false;
-
-    private boolean gameStarted = false;
-
-    void setBeginningCardDrawn(boolean beginningCardDrawn) {
-        this.beginningCardDrawn = beginningCardDrawn;
-    }
+    private boolean beginningCardDrawn;
+    private boolean gameStarted;
+    private int numberOfPlayersJoined;
+    private int currentPhase;
+    private Map<String, List<Card>> playersResources;
 
     public void setCardDAO(CardDAO cardDAO) {
         this.cardDAO = cardDAO;
-        List<Card> cardDeck = new ArrayList<Card>(cardDAO.getAllCards());
     }
-
-    private List<Card> cardsOnTheTable = Collections.<Card>emptyList();
 
     public int getNumberOfPlayersJoined() {
         return numberOfPlayersJoined;
     }
 
-    private int numberOfPlayersJoined;
-
-    public List<Card> getCardDeck() {
-        return cardDeck;
+    @Override
+    public List<Card> getDiscardPile() {
+        if (discardedCards == null)
+            return Collections.<Card>emptyList();
+        return discardedCards;
     }
 
-    public void setCardDeck(List<Card> cardDeck) {
-        this.cardDeck = cardDeck;
+    @Override
+    public List<Card> getResources(int playerId) {
+        List<Card> playerResources = playersResources.get(String.valueOf(playerId));
+
+        if (playerResources == null)
+            playerResources = Collections.<Card>emptyList();
+        return playerResources;
     }
 
+    @Override
+    public int getPlayersPoints(int playerId) {
+        int playersPoints = 0;
+        List<Card> playersResources = getResources(playerId);
+        for (Card card:playersResources) {
+            if ("resource".equals(card.getType())) {
+                playersPoints += Integer.valueOf(card.getValue());
+            }
+        }
+
+        return playersPoints;
+    }
+
+    @Override
     public int getCurrentPhase() {
         return currentPhase;
     }
 
+    public void playCard(int playerId, int cardId) throws ActionNotAllowedException {
+        Card cardPlayed = cardDAO.getCard(cardId);
+        if (playerIsNotOnTheMove(playerId) && !cardIsEvent(cardPlayed)) {
+            throw new ActionNotAllowedException();
+        }
+
+        putCardInPlayersResources(cardPlayed, playerId);
+    }
+
+    private boolean cardIsEvent(Card cardPlayed) {
+        return "event".equals(cardPlayed.getType());
+    }
+
+
+    private boolean playerIsNotOnTheMove(int playerId) {
+        return playerId != currentPlayerId;
+    }
+
+    private void putCardInPlayersResources(Card card, int playerId) {
+        List<Card> playersCards = getResources(playerId);
+        playersCards.add(card);
+    }
+
+    // TODO: check if player on the move
     public int setNextPhase() {
         if (!beginningCardDrawn && currentPhase == 1) {
             return currentPhase;
@@ -74,7 +106,6 @@ public class GameControllerImpl implements GameController {
 
     }
 
-
     /**
      * Is number of cards in hand at the end of turn valid
      *
@@ -86,19 +117,15 @@ public class GameControllerImpl implements GameController {
 
     @Override
     public int setPhase(int phase) {
-        return this.currentPhase = phase;  //To change body of implemented methods use File | Settings | File Templates.
+        return this.currentPhase = phase;
     }
+
 
     @Override
     public boolean getBeginningCardDrawn() {
-        return beginningCardDrawn;  //To change body of implemented methods use File | Settings | File Templates.
+        return beginningCardDrawn;
     }
 
-
-    private int currentPhase;
-
-
-    // TODO implement methods
     public int getCurrentPlayerId() {
         return currentPlayerId;
     }
@@ -134,12 +161,20 @@ public class GameControllerImpl implements GameController {
         this.currentPhase = 1;
         this.beginningCardDrawn = false;
         this.gameStarted = false;
-
+        // TODO reset zones
+        this.playersResources = generateEmptyPlayersResources();
+        this.discardedCards = new ArrayList<Card>();
         Random randomGenerator = new Random();
         this.currentPlayerId = randomGenerator.nextInt(numberOfPlayersJoined - 1) + 1;
-
         return "Game reset";
+    }
 
+    private HashMap<String, List<Card>> generateEmptyPlayersResources() {
+        HashMap<String, List<Card>> playersResourcesHashMap = new HashMap<String, List<Card>>();
+        for (int playerId = 1; playerId <= numberOfPlayersJoined; playerId++) {
+            playersResourcesHashMap.put(String.valueOf(playerId), new ArrayList<Card>());
+        }
+        return playersResourcesHashMap;
     }
 
     public boolean startGame(int numberOfPlayersJoined) {
@@ -165,6 +200,19 @@ public class GameControllerImpl implements GameController {
             beginningCardDrawn = true;
 
         return cardDrawn;
+    }
+
+    @Override
+    public void setNextPlayersTurn(int playerId) throws ActionNotAllowedException {
+        if (beginningCardDrawn && playerOnTheMove(playerId)) {
+            currentPlayerId = getNextPlayerId();
+        } else {
+            throw new ActionNotAllowedException();
+        }
+    }
+
+    private boolean playerOnTheMove(int playerId) {
+        return playerId == currentPlayerId;
     }
 
     public boolean isGameStarted() {

@@ -42,4 +42,11 @@ public interface GameController {
 
     public int getNumberOfPlayersJoined();
 
+    public List<Card> getDiscardPile();
+
+    public List<Card> getResources(int playerId);
+
+    public int getPlayersPoints(int playerId);
+
+    public void playCard(int playerId, int cardId) throws ActionNotAllowedException;
 }
