@@ -17,17 +17,14 @@ public class GameControllerImpl implements GameController {
     private static final int MAX_NUMBER_OF_CARDS_IN_HAND = 5;
 
     private CardDAO cardDAO = new CardDAOSimple();
-
     private List<Card> cardDeck = new ArrayList<Card>(cardDAO.getAllCards());
-
-    // Map of cards in all players hands
     private Map<String, List<Card>> playerCardMap = new HashMap<String, List<Card>>();
-
     private int currentPlayerId;
-
     private boolean beginningCardDrawn = false;
-
     private boolean gameStarted = false;
+    private int numberOfPlayersJoined;
+    private List<Card> cardsOnTheTable = Collections.<Card>emptyList();
+    private int currentPhase;
 
     void setBeginningCardDrawn(boolean beginningCardDrawn) {
         this.beginningCardDrawn = beginningCardDrawn;
@@ -38,13 +35,9 @@ public class GameControllerImpl implements GameController {
         List<Card> cardDeck = new ArrayList<Card>(cardDAO.getAllCards());
     }
 
-    private List<Card> cardsOnTheTable = Collections.<Card>emptyList();
-
     public int getNumberOfPlayersJoined() {
         return numberOfPlayersJoined;
     }
-
-    private int numberOfPlayersJoined;
 
     public List<Card> getCardDeck() {
         return cardDeck;
@@ -58,6 +51,8 @@ public class GameControllerImpl implements GameController {
         return currentPhase;
     }
 
+
+    // TODO: check if player on the move
     public int setNextPhase() {
         if (!beginningCardDrawn && currentPhase == 1) {
             return currentPhase;
@@ -74,7 +69,6 @@ public class GameControllerImpl implements GameController {
 
     }
 
-
     /**
      * Is number of cards in hand at the end of turn valid
      *
@@ -89,13 +83,11 @@ public class GameControllerImpl implements GameController {
         return this.currentPhase = phase;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
+
     @Override
     public boolean getBeginningCardDrawn() {
         return beginningCardDrawn;  //To change body of implemented methods use File | Settings | File Templates.
     }
-
-
-    private int currentPhase;
 
 
     // TODO implement methods
