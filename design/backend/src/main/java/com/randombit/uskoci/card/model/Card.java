@@ -10,6 +10,7 @@ public class Card {
     private String summary = "";
     private String type = "";
     private String description = "";
+    private String position = "";
 
     public Card() {
     }
@@ -19,6 +20,14 @@ public class Card {
         this.summary = summary;
         this.description = description;
         this.type = type;
+    }
+
+    public Card(String id, String summary, String description, String type, String position) {
+        this.id = id;
+        this.summary = summary;
+        this.description = description;
+        this.type = type;
+        this.position = position;
     }
 
     @XmlElement
@@ -51,6 +60,11 @@ public class Card {
     @XmlElement
     public String getDescription() {
         return description;
+    }
+
+    @XmlElement
+    public String getPosition() {
+        return position;
     }
 
     public void setDescription(String description) {

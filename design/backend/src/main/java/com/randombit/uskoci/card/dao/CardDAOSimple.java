@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public class CardDAOSimple implements CardDAO{
     public Map<String, Card> getModel() {
-        return SingletonCardDB.instance.getModel();
+        return MongoDBCard.instance.getModel();
     }
 
     public List<Card> getAllCards() {
