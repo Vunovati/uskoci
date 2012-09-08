@@ -5,15 +5,10 @@ import com.randombit.uskoci.card.model.Card;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created with IntelliJ IDEA.
- * User: ovca
- * Date: 25.08.12.
- * Time: 15:23
- * To change this template use File | Settings | File Templates.
- */
 public interface CardDAO {
-    Map<String, Card> getModel();
+    public Map<String, Card> getModel();
 
-    List<Card> getAllCards();
+    public List<Card> getAllCards();
+
+    public Card getCard(int cardId);
 }
