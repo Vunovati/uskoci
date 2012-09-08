@@ -14,9 +14,9 @@ public enum SingletonCardDB implements CardDAO {
 
         try
         {
-            Mongo mongo = new Mongo("alex.mongohq.com", 10068);
+            Mongo mongo = new Mongo("alex.mongohq.com", 10068); //TODO: ubaciti URI i port u config
             DB db = mongo.getDB("UskociCards");
-            boolean authenticate = db.authenticate("uskociAdmin", "willofgod".toCharArray());
+            boolean authenticate = db.authenticate("uskociAdmin", "willofgod".toCharArray()); //TODO: credentials u config
 
             if(authenticate)
             {
@@ -36,7 +36,7 @@ public enum SingletonCardDB implements CardDAO {
                 }
 
                 //preostale karte punimo dummy podacima
-                for(long i=cards.getCount(); i<61; i++)
+                for(long i=cards.getCount()+1; i<61; i++)
                 {
                     String cardID = "id" + String.valueOf(i);
                     contentProvider.put(cardID, new Card(cardID, "dummy", "dummy", "dummy"));
