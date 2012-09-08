@@ -5,9 +5,10 @@ import com.randombit.uskoci.card.model.Card;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-//import org.easymock.EasyMock;
+import org.easymock.EasyMock;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class GameControllerImplTest {
@@ -15,11 +16,11 @@ public class GameControllerImplTest {
     private static final int STARTING_NUMBER_OF_CARDS = 4;
     private static final int MAX_NUMBER_OF_CARDS_IN_HAND = 5;
     GameController gameController;
-    CardDAO cardDAOMock;
+    CardDAO cardDAO;
     private static final int INITIAL_NUMBER_OF_CARDS_IN_THE_DECK = 60;
 
     int testNumberOfPlayers = 4;
-    private static final int NO_OF_PHASES = 6;
+    private static final int NO_OF_PHASES = 2;
     private static final int DRAW_CARD_PHASE_NUMBER = 1;
 
     @Before
@@ -47,26 +48,49 @@ public class GameControllerImplTest {
         for (int i = 1; i < testNumberOfPlayers + 1; i++) {
             allPlayersHands.addAll(gameController.getPlayerCards(i));
         }
+
+        cardsAreNotDuplicatedDuringShuffling(cardsInTheDeck, allPlayersHands);
+
+        gameController.startGame(testNumberOfPlayers);
+
+        cardsAreShuffledProperly(cardsInTheDeck, allPlayersHands);
+        eachPlayerHasEqualAmountOfCards();
+        gameResourcesAreInitialized();
+        discardPileIsInitialized();
+    }
+
+    private void cardsAreNotDuplicatedDuringShuffling(List<Card> cardsInTheDeck, List<Card> allPlayersHands) {
         Assert.assertFalse("Cards in players' hands are not the same as ones in the deck",
                 cardsInTheDeck.containsAll(allPlayersHands));
         Assert.assertFalse("Deck does not contain a card in players hand",
                 cardsInTheDeck.contains(allPlayersHands.get(0)));
+    }
 
-        gameController.startGame(testNumberOfPlayers);
+    private void cardsAreShuffledProperly(List<Card> cardsInTheDeck, List<Card> allPlayersHands) {
         Assert.assertFalse("After restart of the game, different cards are remaining in the deck", cardsInTheDeck.containsAll(gameController.getCardsInTheDeck()));
         Assert.assertFalse("After restart of the game, players have different cards in their hands",
                 allPlayersHands.containsAll(gameController.getPlayerCards(1))
                         && allPlayersHands.containsAll(gameController.getPlayerCards(2))
                         && allPlayersHands.containsAll(gameController.getPlayerCards(3))
                         && allPlayersHands.containsAll(gameController.getPlayerCards(4)));
+    }
 
-
-
+    private void eachPlayerHasEqualAmountOfCards() {
         Assert.assertEquals("Each player is dealt an equal amount of cards",
                 (gameController.getPlayerCards(1).size() == gameController.getPlayerCards(2).size()),
-                (gameController.getPlayerCards(3).size() == gameController.getPlayerCards(4).size())
-        )
-        ;
+                (gameController.getPlayerCards(3).size() == gameController.getPlayerCards(4).size()));
+    }
+
+    private void discardPileIsInitialized() {
+        Assert.assertTrue("After restart of the game discard pile is initialized", gameController.getDiscardPile() != Collections.<Card>emptyList());
+    }
+
+    private void gameResourcesAreInitialized() {
+        Assert.assertTrue("After restart of the game resource zones are initialized", gameController.getResources(1) != Collections.<Card>emptyList());
+        Assert.assertTrue("After restart of the game resource zones are empty", gameController.getResources(1) != Collections.<Card>emptyList());
+        Assert.assertTrue("After restart of the game resource zones are empty", gameController.getResources(2) != Collections.<Card>emptyList());
+        Assert.assertTrue("After restart of the game resource zones are empty", gameController.getResources(3) != Collections.<Card>emptyList());
+        Assert.assertTrue("After restart of the game resource zones are empty", gameController.getResources(4) != Collections.<Card>emptyList());
     }
 
     //    Početni igrač se odredi nasumično
@@ -96,9 +120,6 @@ public class GameControllerImplTest {
 
     @Test
     public void testBeginTurn() throws Exception {
-        int currentPhase = gameController.getCurrentPhase();
-
-
         Assert.assertEquals("Phase " + (DRAW_CARD_PHASE_NUMBER + 1) + " Does not begin if card is not drawn",
                 gameController.setNextPhase(), DRAW_CARD_PHASE_NUMBER);
 
@@ -106,10 +127,8 @@ public class GameControllerImplTest {
         Assert.assertEquals("Phase " + (DRAW_CARD_PHASE_NUMBER + 1) + " begins if card is drawn",
                 gameController.setNextPhase(), DRAW_CARD_PHASE_NUMBER + 1);
 
-
         gameController.startGame(testNumberOfPlayers);
         Assert.assertFalse("At the beginning of the game beginning card has not yet been drawn", gameController.getBeginningCardDrawn());
-//        Assert.assertTrue("At the phase "+ DRAW_CARD_PHASE_NUMBER + " draws a card", );
     }
 
     //    Igrač klikom na gumb prelazi iz faze u fazu, prelaskom iz završne faze,
@@ -121,9 +140,6 @@ public class GameControllerImplTest {
 
         gameController.setPhase(1);
         Assert.assertEquals("Phase 1 is not increased if beginning card has not been drawn", 1, gameController.setNextPhase());
-
-        gameController.setPhase(currentPhase + 1);
-        Assert.assertEquals("Phase is increased when set to next phase", currentPhase + 2, gameController.setNextPhase());
 
         gameController.startGame(testNumberOfPlayers);
 
@@ -143,13 +159,11 @@ public class GameControllerImplTest {
         int currentPlayer = gameController.getCurrentPlayerId();
         int expectedPlayer;
 
-        if (currentPlayer == 4 )
-        {
+        if (currentPlayer == 4) {
             expectedPlayer = 1;
         } else {
             expectedPlayer = currentPlayer + 1;
         }
-
         Assert.assertEquals("When previous player was " + currentPlayer + " next one is " + expectedPlayer, expectedPlayer, gameController.getNextPlayerId());
     }
 
@@ -180,12 +194,11 @@ public class GameControllerImplTest {
         //End last phase
         gameController.setNextPhase();
 
-        Assert.assertEquals("Player "+ testPlayerId +"  with "+ gameController.getPlayerCards(testPlayerId).size() +" cards in his hand cannot proceed from phase " + NO_OF_PHASES + " until players number of cards in hand is less or equal to " +
+        Assert.assertEquals("Player " + testPlayerId + "  with " + gameController.getPlayerCards(testPlayerId).size() + " cards in his hand cannot proceed from phase " + NO_OF_PHASES + " until players number of cards in hand is less or equal to " +
                 MAX_NUMBER_OF_CARDS_IN_HAND, testPlayerId, gameController.getCurrentPlayerId());
 
         Assert.assertEquals("Phase cannot proceed from phase " + NO_OF_PHASES + " until players number of cards in hand is less or equal to " +
                 MAX_NUMBER_OF_CARDS_IN_HAND, NO_OF_PHASES, gameController.getCurrentPhase());
-
 
 
         int numberOfPlayersWithTooManyCards = 0;
@@ -198,5 +211,60 @@ public class GameControllerImplTest {
         Assert.assertEquals("At the beginning of next players turn no other player has no more than" + MAX_NUMBER_OF_CARDS_IN_HAND +
                 "in his hand", 1, numberOfPlayersWithTooManyCards);
 
+    }
+
+
+    /*  5.  Opcionalno: Odigravanje karte – Igrač (opcionalno) mora platiti neke resurse ili se karta vraća u hand.
+            Nakon plaćanja, karta iz handa se odigrava licem prema gore tako da ju vide svi igrači.
+            Igrači imaju (opcionalno) mogućnost igranja drugih karata (samo određenog tipa, ako su odabrani svi tipovi,
+            onda se sve karte mogu igrati „u response“).
+            Nakon odigravanja, karat odlazi u određenu zonu (USK: nema cijene; da jedino za eventove vrijedi
+            „u response“ i „bilo kada“; eventovi – odbačene karte (discard pile), plijen - flota).
+    */
+
+    // TODO: event cards go to discard pile
+    @Test
+    public void testPlayCard() throws Exception {
+        int playerOnTheMove = gameController.getCurrentPlayerId();
+        String testCardId = "1";
+        Card testCard = EasyMock.createMock(Card.class);
+        cardDAO = EasyMock.createMock(CardDAO.class);
+        gameController.setCardDAO(cardDAO);
+        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard);
+        EasyMock.replay(cardDAO, testCard);
+
+        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+
+        Assert.assertTrue("Card is in the players resource zone", gameController.getResources(playerOnTheMove).contains(testCard));
+    }
+
+    @Test(expected = ActionNotAllowedException.class)
+    public void testPlayerNotOnTheMovePlayResourceCard() throws Exception {
+        int playerNotOnTheMove = gameController.getNextPlayerId();
+        String testCardId = "1";
+        Card testCard = EasyMock.createMock(Card.class);
+        cardDAO = EasyMock.createMock(CardDAO.class);
+        gameController.setCardDAO(cardDAO);
+        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard);
+        EasyMock.expect(testCard.getType()).andReturn("resource");
+        EasyMock.replay(cardDAO, testCard);
+
+        gameController.playCard(playerNotOnTheMove, Integer.valueOf(testCardId));
+    }
+
+    @Test
+    public void testPlayerNotOnTheMovePlayEventCard() throws Exception {
+        int playerNotOnTheMove = gameController.getNextPlayerId();
+        String testCardId = "1";
+        Card testCard = EasyMock.createMock(Card.class);
+        cardDAO = EasyMock.createMock(CardDAO.class);
+        gameController.setCardDAO(cardDAO);
+        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard);
+        EasyMock.expect(testCard.getType()).andReturn("event");
+        EasyMock.replay(cardDAO, testCard);
+
+        gameController.playCard(playerNotOnTheMove, Integer.valueOf(testCardId));
+
+        Assert.assertTrue("Card is in the players resource zone because it is an event card", gameController.getResources(playerNotOnTheMove).contains(testCard));
     }
 }
