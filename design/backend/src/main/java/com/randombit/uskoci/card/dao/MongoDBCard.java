@@ -32,17 +32,18 @@ public enum MongoDBCard implements CardDAO {
                     String cardDescription = card.get("description").toString();
                     String cardType = card.get("type").toString();
                     String cardPosition = card.get("position").toString();
+                    String cardValue = card.get("value").toString();
 
-                    contentProvider.put(cardID, new Card(cardID, cardSummary, cardDescription, cardType, cardPosition));
+                    contentProvider.put(cardID, new Card(cardID, cardSummary, cardDescription, cardType, cardPosition, cardValue));
                 }
 
                 //preostale karte punimo istim podacima
                 for(long i=cards.getCount()+1; i<61; i++)
                 {
-                    String cardID = "id" + String.valueOf(i);
-                    Card tempCard = contentProvider.get("id" + String.valueOf((i-1)%8 + 1));
+                    String cardID = String.valueOf(i);
+                    Card tempCard = contentProvider.get(String.valueOf((i-1)%8 + 1));
                     contentProvider.put(cardID, new Card(cardID, tempCard.getSummary(), tempCard.getDescription(),
-                            tempCard.getType(), tempCard.getPosition()));
+                            tempCard.getType(), tempCard.getPosition(), tempCard.getValue()));
                 }
             }
         }

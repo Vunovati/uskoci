@@ -11,6 +11,7 @@ public class Card {
     private String type = "";
     private String description = "";
     private String position = "";
+    private String value = "";
 
     public Card() {
     }
@@ -22,12 +23,13 @@ public class Card {
         this.type = type;
     }
 
-    public Card(String id, String summary, String description, String type, String position) {
+    public Card(String id, String summary, String description, String type, String position, String value) {
         this.id = id;
         this.summary = summary;
         this.description = description;
         this.type = type;
         this.position = position;
+        this.value = value;
     }
 
     @XmlElement
@@ -65,6 +67,11 @@ public class Card {
     @XmlElement
     public String getPosition() {
         return position;
+    }
+
+    @XmlElement
+    public String getValue() {
+        return value;
     }
 
     public void setDescription(String description) {
