@@ -1,6 +1,7 @@
 package com.randombit.uskoci.game;
 
 import com.randombit.uskoci.card.dao.CardDAO;
+import com.randombit.uskoci.card.dao.CardDAOSimple;
 import com.randombit.uskoci.card.model.Card;
 import org.junit.Assert;
 import org.junit.Before;
@@ -26,6 +27,7 @@ public class GameControllerImplTest {
     @Before
     public void setUp() throws Exception {
         gameController = new GameControllerImpl();
+        gameController.setCardDAO(new CardDAOSimple());
         gameController.startGame(testNumberOfPlayers);
     }
 
@@ -213,6 +215,21 @@ public class GameControllerImplTest {
 
     }
 
+    @Test
+    public void testSetNextPlayersTurn() throws Exception {
+        int currentPlayerId = gameController.getCurrentPlayerId();
+        gameController.drawCard(currentPlayerId);
+
+        int expectedPlayerOnTheMove = gameController.getNextPlayerId();
+        gameController.setNextPlayersTurn();
+
+        Assert.assertEquals("next player is on the move", expectedPlayerOnTheMove, gameController.getCurrentPlayerId());
+    }
+
+    @Test(expected = ActionNotAllowedException.class)
+    public void testSetNextPlayerTurnNoCardDrawn() throws Exception {
+        gameController.setNextPlayersTurn();
+    }
 
     /*  5.  Opcionalno: Odigravanje karte – Igrač (opcionalno) mora platiti neke resurse ili se karta vraća u hand.
             Nakon plaćanja, karta iz handa se odigrava licem prema gore tako da ju vide svi igrači.
@@ -266,5 +283,33 @@ public class GameControllerImplTest {
         gameController.playCard(playerNotOnTheMove, Integer.valueOf(testCardId));
 
         Assert.assertTrue("Card is in the players resource zone because it is an event card", gameController.getResources(playerNotOnTheMove).contains(testCard));
+    }
+
+/*    Spec 1
+      Kraj igre se događa kad igrač skupi 25 bodova (nevezano uz tip plijena) igrači imaju pravo odigrati eventove.
+      Ukoliko niti jedan od igrača ne odigra kartu događaja tijekom 5 sekundi (prikazan tajmer svim igračima),
+      igra završava. Igrač može zaustaviti tajmer da razmisli što bi igrao (maksimalno 15s?).
+      Ukoliko nitko ne odigra ništa, igra se završava. Ukoliko netko odigra nešto, karta se resolva
+      (vidi općenito pravilo 5) nakon čega se ponovo utvrđuje uvjet kraja igre.
+      Ukoliko više igrača skupi 25 bodova u istom trenutku, zajedno pobjeđuju.
+      */
+
+    @Test
+    public void testGetPlayersPoints() throws Exception {
+        int playerOnTheMove = gameController.getCurrentPlayerId();
+        String testCardId = "1";
+        Card testCard = EasyMock.createMock(Card.class);
+        cardDAO = EasyMock.createMock(CardDAO.class);
+        gameController.setCardDAO(cardDAO);
+        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard);
+        EasyMock.expect(testCard.getType()).andReturn("resource");
+        EasyMock.expect(testCard.getValue()).andReturn("5");
+        EasyMock.replay(cardDAO, testCard);
+
+        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+
+        Assert.assertTrue("Card is in the players resource zone because it is an event card", gameController.getResources(playerOnTheMove).contains(testCard));
+        int playersPoints = gameController.getPlayersPoints(gameController.getCurrentPlayerId());
+        Assert.assertTrue("Players points are increased when he plays an resource card", playersPoints > 0);
     }
 }
