@@ -26,7 +26,7 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
     }
 
     private GameController getGameController() {
-        // TODO: acces via factory
+        // TODO: acces the real database DAO
         GameController gameController = SingletonGameControllerDB.instance.getAllControllers().get(0);
         if (!gameController.isGameStarted()) {
             gameController.startGame(4);
@@ -49,7 +49,31 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
         gameResponse.numberOfPlayersJoined = gameController.getNumberOfPlayersJoined();
         gameResponse.currentPhase = gameController.getCurrentPhase();
         gameResponse.discardedCards = getDiscardedCardIds(gameController);
+        gameResponse.player1Resources = getPlayersResources(1, gameController);
+        gameResponse.player2Resources = getPlayersResources(2, gameController);
+        gameResponse.player3Resources = getPlayersResources(3, gameController);
+        gameResponse.player4Resources = getPlayersResources(4, gameController);
+        gameResponse.playersPoints = getPlayersPoints(gameController);
         return gameResponse;
+    }
+
+    private List<String> getPlayersPoints(GameController gameController) {
+        List<String> playerPoints = new ArrayList<String>();
+
+        for (int playerId=1; playerId<4; playerId++) {
+            playerPoints.add(String.valueOf(gameController.getPlayersPoints(playerId)));
+        }
+
+        return playerPoints;
+    }
+
+    private List<String> getPlayersResources(int playerId, GameController gameController) {
+        List<String> playerResourceIds = new ArrayList<String>();
+
+        for (Card cardInResources : gameController.getResources(playerId)) {
+            playerResourceIds.add(cardInResources.getId());
+        }
+        return playerResourceIds;
     }
 
     private List<String> getPlayersCardIds(GameStatusMessage message, GameController gameController) {
@@ -76,10 +100,8 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
         if ("drawcard".equals(action.toLowerCase()))
             gameController.drawCard(Integer.valueOf(message.userId));
 
-/*
         if ("setnextturn".equals(action.toLowerCase()))
-            gameController.setNextTurn(Integer.valueOf(message));
-*/
+            gameController.setNextPlayersTurn(Integer.valueOf(message.userId));
 
         /* TODO: discard card from hand
         if ("discardfromhand".equals(action.toLowerCase()))
