@@ -16,13 +16,6 @@ public class Card {
     public Card() {
     }
 
-    public Card(String id, String summary, String description, String type) {
-        this.id = id;
-        this.summary = summary;
-        this.description = description;
-        this.type = type;
-    }
-
     public Card(String id, String summary, String description, String type, String position, String value) {
         this.id = id;
         this.summary = summary;
