@@ -296,7 +296,7 @@ public class GameControllerImplTest {
         Assert.assertTrue("Card is in the players resource zone because it is an event card", gameController.getResources(playerNotOnTheMove).contains(testCard));
     }
 
-/*    Spec 1
+/*    Specijalna pravila 1
       Kraj igre se događa kad igrač skupi 25 bodova (nevezano uz tip plijena) igrači imaju pravo odigrati eventove.
       Ukoliko niti jedan od igrača ne odigra kartu događaja tijekom 5 sekundi (prikazan tajmer svim igračima),
       igra završava. Igrač može zaustaviti tajmer da razmisli što bi igrao (maksimalno 15s?).
