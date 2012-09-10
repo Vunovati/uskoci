@@ -13,16 +13,16 @@ public class GameControllerImpl implements GameController {
     private static final int NO_OF_PHASES = 2;
     private static final int MAX_NUMBER_OF_CARDS_IN_HAND = 5;
 
-    private CardDAO cardDAO = new CardDAOSimple();
-    private List<Card> cardDeck = new ArrayList<Card>(cardDAO.getAllCards());
+    private CardDAO cardDAO;
+    private List<Card> cardDeck;
     private List<Card> discardedCards;
-    private Map<String, List<Card>> playerCardMap = new HashMap<String, List<Card>>();
+    private Map<String, List<Card>> playerCardMap;
     private int currentPlayerId;
-    private boolean beginningCardDrawn = false;
-    private boolean gameStarted = false;
+    private boolean beginningCardDrawn;
+    private boolean gameStarted;
     private int numberOfPlayersJoined;
     private int currentPhase;
-    private Map<String, List<Card>> playersResources = new HashMap<String, List<Card>>();
+    private Map<String, List<Card>> playersResources;
 
     public void setCardDAO(CardDAO cardDAO) {
         this.cardDAO = cardDAO;
@@ -50,7 +50,15 @@ public class GameControllerImpl implements GameController {
 
     @Override
     public int getPlayersPoints(int playerId) {
-        return 0;
+        int playersPoints = 0;
+        List<Card> playersResources = getResources(playerId);
+        for (Card card:playersResources) {
+            if ("resource".equals(card.getType())) {
+                playersPoints += Integer.valueOf(card.getValue());
+            }
+        }
+
+        return playersPoints;
     }
 
     @Override
@@ -81,7 +89,6 @@ public class GameControllerImpl implements GameController {
         playersCards.add(card);
     }
 
-
     // TODO: check if player on the move
     public int setNextPhase() {
         if (!beginningCardDrawn && currentPhase == 1) {
@@ -110,17 +117,15 @@ public class GameControllerImpl implements GameController {
 
     @Override
     public int setPhase(int phase) {
-        return this.currentPhase = phase;  
+        return this.currentPhase = phase;
     }
 
 
     @Override
     public boolean getBeginningCardDrawn() {
-        return beginningCardDrawn;  
+        return beginningCardDrawn;
     }
 
-
-    // TODO implement methods
     public int getCurrentPlayerId() {
         return currentPlayerId;
     }
@@ -195,6 +200,15 @@ public class GameControllerImpl implements GameController {
             beginningCardDrawn = true;
 
         return cardDrawn;
+    }
+
+    @Override
+    public void setNextPlayersTurn() throws ActionNotAllowedException {
+        if (beginningCardDrawn) {
+            currentPlayerId = getNextPlayerId();
+        } else {
+            throw new ActionNotAllowedException();
+        }
     }
 
     public boolean isGameStarted() {

@@ -6,17 +6,11 @@ import com.randombit.uskoci.card.model.Card;
 import java.util.List;
 
 public interface GameController {
-    /**
-     * Get the Id of the player that is on the move
-     * @return playerOnTHeMoveId
-     */
     public int getCurrentPlayerId();
 
-    /**
-     * Set the id of player on the move to the next player
-     * @return playerOnTheMoveId
-     */
     public int getNextPlayerId();
+
+    public void setNextPlayersTurn() throws ActionNotAllowedException;
 
     public List<Card> getCardsInTheDeck();
 
