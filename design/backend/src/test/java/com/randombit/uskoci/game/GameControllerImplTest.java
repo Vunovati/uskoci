@@ -135,6 +135,7 @@ public class GameControllerImplTest {
 
     //    Igrač klikom na gumb prelazi iz faze u fazu, prelaskom iz završne faze,
 //    započinje potez sljedećeg igrača (USK: 1 faza, završetkom faze, pokreće se pravilo 6.)
+    // TODO: reevaluate rules !
     @Test
     public void testPhase() throws Exception {
         int currentPhase = gameController.getCurrentPhase();
@@ -221,14 +222,24 @@ public class GameControllerImplTest {
         gameController.drawCard(currentPlayerId);
 
         int expectedPlayerOnTheMove = gameController.getNextPlayerId();
-        gameController.setNextPlayersTurn();
+        gameController.setNextPlayersTurn(currentPlayerId);
 
         Assert.assertEquals("next player is on the move", expectedPlayerOnTheMove, gameController.getCurrentPlayerId());
     }
 
     @Test(expected = ActionNotAllowedException.class)
     public void testSetNextPlayerTurnNoCardDrawn() throws Exception {
-        gameController.setNextPlayersTurn();
+        int currentPlayerId = gameController.getCurrentPlayerId();
+        gameController.setNextPlayersTurn(currentPlayerId);
+    }
+
+    @Test(expected = ActionNotAllowedException.class)
+    public void testSetNextPlayerTurnPlayerNotOnTheMove() throws Exception {
+        int currentPlayerId = gameController.getCurrentPlayerId();
+        gameController.drawCard(currentPlayerId);
+
+        int playerNotOnTheMove = gameController.getNextPlayerId();
+        gameController.setNextPlayersTurn(playerNotOnTheMove);
     }
 
     /*  5.  Opcionalno: Odigravanje karte – Igrač (opcionalno) mora platiti neke resurse ili se karta vraća u hand.
