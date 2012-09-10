@@ -12,14 +12,14 @@ public enum SingletonCardDB implements CardDAO {
 
     private SingletonCardDB() {
 
-        contentProvider.put("id1", new Card("id1", "food1", "Food resource, No.1", "resource"));
-        contentProvider.put("id2", new Card("id2", "money1", "Money resource, No.1", "resource"));
+        contentProvider.put("id1", new Card("id1", "food1", "Food resource, No.1", "resource", "1", "1"));
+        contentProvider.put("id2", new Card("id2", "money1", "Money resource, No.1", "resource", "1", "1"));
 
         // Initialization block, fill with mock data
         {
             for (int i = 3 ; i < 61; i++) {
                 String cardID = "id" + String.valueOf(i);
-                contentProvider.put(cardID, new Card(cardID, "weapon1", "Weapon resource, No.1", "resource"));
+                contentProvider.put(cardID, new Card(cardID, "weapon1", "Weapon resource, No.1", "resource", "1", "5"));
             }
         }
 
