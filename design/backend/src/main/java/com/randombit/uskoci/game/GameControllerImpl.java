@@ -203,12 +203,16 @@ public class GameControllerImpl implements GameController {
     }
 
     @Override
-    public void setNextPlayersTurn() throws ActionNotAllowedException {
-        if (beginningCardDrawn) {
+    public void setNextPlayersTurn(int playerId) throws ActionNotAllowedException {
+        if (beginningCardDrawn && playerOnTheMove(playerId)) {
             currentPlayerId = getNextPlayerId();
         } else {
             throw new ActionNotAllowedException();
         }
+    }
+
+    private boolean playerOnTheMove(int playerId) {
+        return playerId == currentPlayerId;
     }
 
     public boolean isGameStarted() {

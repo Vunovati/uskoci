@@ -10,7 +10,7 @@ public interface GameController {
 
     public int getNextPlayerId();
 
-    public void setNextPlayersTurn() throws ActionNotAllowedException;
+    public void setNextPlayersTurn(int playerId) throws ActionNotAllowedException;
 
     public List<Card> getCardsInTheDeck();
 
