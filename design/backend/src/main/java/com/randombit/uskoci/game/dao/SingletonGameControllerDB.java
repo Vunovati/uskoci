@@ -1,5 +1,6 @@
 package com.randombit.uskoci.game.dao;
 
+import com.randombit.uskoci.card.dao.MongoDBCard;
 import com.randombit.uskoci.game.GameController;
 import com.randombit.uskoci.game.GameControllerImpl;
 
@@ -16,8 +17,8 @@ public enum SingletonGameControllerDB {
     private SingletonGameControllerDB() {
 
         GameController gameController = new GameControllerImpl();
+        gameController.setCardDAO(MongoDBCard.instance);
         gameControllerMap.put("1", gameController);
-
 
     }
 
