@@ -4,7 +4,18 @@ background: #a46740 url(../images/bg.jpg);
 }
 
 h1 {
-color: #EDAB5F;
+color: #C9771E;
+}
+
+#startGame {
+	width: 100px;
+	height: 50px;
+	margin-top: 100px;
+	border: 1px solid;
+	border-radius: 5px;
+	background: #fff;
+	color: #000;
+	opacity: 0.7;
 }
 
 #console {
@@ -37,7 +48,7 @@ box-align: right;
 border-radius: 10px;
 border: 1px solid #466;
 background: #232 url(../images/table.jpg);
-width: 650px;
+width: 830px;
 height: 280px;
 margin: 0 auto;
 display: box;
@@ -47,17 +58,24 @@ box-align: center;
 #cards {
 position: relative;
 -webkit-transform: translate3D(60px, 25px, 0);
+transform: translate3D(60px, 25px, 0);
+-moz-transform: translate3D(60px, 25px, 0);
+-o-transform: translate3D(60px, 25px, 0);
 width: 380px;
 height: 400px;
 }
 .card {
 -webkit-perspective: 600;
+perspective: 600;
+-moz-perspective: 600;
+-o-perspective: 600;
 width: 162.5px;
 height: 229px;
 position: absolute;
 -moz-transition: all .3s;
 -webkit-transition: all .3s;
 transition: all .3s;
+-o-transition: all .3s;
 }
 .face {
 border-radius: 10px;
@@ -67,6 +85,15 @@ position: absolute;
 -webkit-transition-property: opacity, transform, box-shadow;
 -webkit-transition-duration: .5s;
 -webkit-backface-visibility: hidden;
+transition-property: opacity, transform, box-shadow;
+transition-duration: .5s;
+backface-visibility: hidden;
+-moz-transition-property: opacity, transform, box-shadow;
+-moz-transition-duration: .5s;
+-moz-backface-visibility: hidden;
+-o-transition-property: opacity, transform, box-shadow;
+-o-transition-duration: .5s;
+-o-backface-visibility: hidden;
 }
 .front {
 background: #999 url(../images/uskociBack.png);
@@ -75,23 +102,29 @@ z-index: 10;
 .back {
 background: #efefef url(../images/uskociDeck.png);
 -webkit-transform: rotate3d(0,1,0,-180deg);
+transform: rotate3d(0,1,0,-180deg);
+-moz-transform: rotate3d(0,1,0,-180deg);
+-o-transform: rotate3d(0,1,0,-180deg);
 z-index: 8;
 }
 .card:hover .face, .card-flipped .face {
--webkit-box-shadow: 0 0 30px #aaf;
+box-shadow: 0 0 30px #aaf;
 }
 .card-flipped .front {
 -webkit-transform: rotate3d(0,1,0,180deg);
+transform: rotate3d(0,1,0,180deg);
+-moz-transform: rotate3d(0,1,0,180deg);
+-o-transform: rotate3d(0,1,0,180deg);
+box-shadow: 0 0 30px #aaf;
 z-index: 8;
 }
 .card-flipped .back {
 -webkit-transform: rotate3d(0,1,0,0deg);
+transform: rotate3d(0,1,0,0deg);
+-moz-transform: rotate3d(0,1,0,0deg);
+-o-transform: rotate3d(0,1,0,0deg);
 z-index: 10;
 }
 .card-removed {
 opacity: 0;
 }
-
-.id1 {background-position: 0px 0px;}
-.id2 {background-position: -162.5px 0px;}
-.id3 {background-position: -325px 0px;}

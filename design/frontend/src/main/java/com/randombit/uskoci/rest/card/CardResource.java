@@ -1,6 +1,6 @@
 package com.randombit.uskoci.rest.card;
 
-import com.randombit.uskoci.card.dao.SingletonCardDB;
+import com.randombit.uskoci.card.dao.MongoDBCard;
 import com.randombit.uskoci.card.model.Card;
 import org.atmosphere.annotation.Suspend;
 
@@ -29,7 +29,7 @@ public class CardResource {
     @Path("{id}")
     @Produces("application/json")
     public Card getCard(@PathParam("id") String id) {
-        Card card = SingletonCardDB.instance.getModel().get(id);
+        Card card = MongoDBCard.instance.getModel().get(id);
         if(card==null)
             throw new RuntimeException("Get: Card with " + id +  " not found");
         return card;

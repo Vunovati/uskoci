@@ -14,10 +14,10 @@ import java.util.Map;
  */
 public class CardDAOSimple implements CardDAO{
     public Map<String, Card> getModel() {
-        return SingletonCardDB.instance.getModel();
+        return MongoDBCard.instance.getModel();
     }
 
     public List<Card> getAllCards() {
-        return SingletonCardDB.instance.getAllCards();  //To change body of implemented methods use File | Settings | File Templates.
+        return MongoDBCard.instance.getAllCards();  //To change body of implemented methods use File | Settings | File Templates.
     }
 }
