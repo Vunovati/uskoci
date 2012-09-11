@@ -61,4 +61,9 @@ public enum MongoDBCard implements CardDAO {
         List<Card> allCards = new ArrayList<Card>(contentProvider.values());
         return allCards;
     }
+
+    @Override
+    public Card getCard(int cardId) {
+        return contentProvider.get(String.valueOf(cardId));
+    }
 }
