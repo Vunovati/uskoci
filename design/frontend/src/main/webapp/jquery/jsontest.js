@@ -25,7 +25,7 @@ $(function () {
             console.log('This doesn\'t look like a valid JSON: ', message.data);
             return;
         }
-        if(json.msgType == null){
+        if(json.currentPlayerId != null){
         game.playerCards = json.playersCards;
         modifyGameStatus(json.currentPlayerId + " / " + json.playersCards); 
         }
