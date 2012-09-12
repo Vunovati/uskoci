@@ -2,45 +2,32 @@ package com.randombit.uskoci.rest.gamecontrol;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
+import java.util.Map;
 
 @XmlRootElement
 public class GameStatusResponse {
-    public String currentPlayerId;
-    public List<String> discardedCards;
-
-    // TODO use hashmap if possible,
-    public List<String> player1Resources;
-    public List<String> player2Resources;
-    public List<String> player3Resources;
-    public List<String> player4Resources;
-
-    public List<String> player1Cards;
-    public List<String> player2Cards;
-    public List<String> player3Cards;
-    public List<String> player4Cards;
-    //  dirty hack, Fix asap
-
-    public boolean beginningCardDrawn;
     public boolean gameStarted;
     public int numberOfPlayersJoined;
-    public List<String> playersPoints;
+    public String currentPlayerId;
+    public boolean beginningCardDrawn;
     public int currentPhase;
-
-    public GameStatusResponse(String currentPlayerId, List<String> discardedCards, List<String> player1Resources, List<String> player2Resources, List<String> player3Resources, List<String> player4Resources, boolean beginningCardDrawn, boolean gameStarted, int numberOfPlayersJoined, List<String> playersPoints, int currentPhase) {
-        this.currentPlayerId = currentPlayerId;
-        this.discardedCards = discardedCards;
-        this.player1Resources = player1Resources;
-        this.player2Resources = player2Resources;
-        this.player3Resources = player3Resources;
-        this.player4Resources = player4Resources;
-        this.beginningCardDrawn = beginningCardDrawn;
-        this.gameStarted = gameStarted;
-        this.numberOfPlayersJoined = numberOfPlayersJoined;
-        this.playersPoints = playersPoints;
-        this.currentPhase = currentPhase;
-    }
+    public List<String> discardedCards;
+    public Map<String, List<String>> playersCards;
+    public Map<String, List<String>> playersResources;
+    public List<String> playersPoints;
 
     public GameStatusResponse() {
     }
 
+    public GameStatusResponse(boolean gameStarted, int numberOfPlayersJoined, String currentPlayerId, boolean beginningCardDrawn, int currentPhase, List<String> discardedCards, Map<String, List<String>> playersCards, Map<String, List<String>> playersResources, List<String> playersPoints) {
+        this.gameStarted = gameStarted;
+        this.numberOfPlayersJoined = numberOfPlayersJoined;
+        this.currentPlayerId = currentPlayerId;
+        this.beginningCardDrawn = beginningCardDrawn;
+        this.currentPhase = currentPhase;
+        this.discardedCards = discardedCards;
+        this.playersCards = playersCards;
+        this.playersResources = playersResources;
+        this.playersPoints = playersPoints;
+    }
 }

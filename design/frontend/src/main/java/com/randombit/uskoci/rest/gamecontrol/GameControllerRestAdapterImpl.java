@@ -6,7 +6,9 @@ import com.randombit.uskoci.game.GameController;
 import com.randombit.uskoci.game.dao.SingletonGameControllerDB;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Interprets game messages into game control method calls
@@ -48,15 +50,9 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
         gameResponse.numberOfPlayersJoined = gameController.getNumberOfPlayersJoined();
         gameResponse.currentPhase = gameController.getCurrentPhase();
         gameResponse.discardedCards = getDiscardedCardIds(gameController);
-        gameResponse.player1Resources = getPlayersResources(1, gameController);
-        gameResponse.player2Resources = getPlayersResources(2, gameController);
-        gameResponse.player3Resources = getPlayersResources(3, gameController);
-        gameResponse.player4Resources = getPlayersResources(4, gameController);
+        gameResponse.playersResources = getPlayersResourceIdMap(gameController);
+        gameResponse.playersCards = getPlayersCardIdMap(gameController);
         gameResponse.playersPoints = getPlayersPoints(gameController);
-        gameResponse.player1Cards = getPlayersCardIds(1, gameController);
-        gameResponse.player2Cards = getPlayersCardIds(2, gameController);
-        gameResponse.player3Cards = getPlayersCardIds(3, gameController);
-        gameResponse.player4Cards = getPlayersCardIds(4, gameController);
         return gameResponse;
     }
 
@@ -70,13 +66,33 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
         return playerPoints;
     }
 
-    private List<String> getPlayersResources(int playerId, GameController gameController) {
+    private Map<String, List<String>> getPlayersResourceIdMap(GameController gameController) {
+        Map<String, List<String>> playersResourceIdMap = new HashMap<String, List<String>>();
+
+        for (int playerId = 1; playerId <= gameController.getNumberOfPlayersJoined(); playerId++) {
+            playersResourceIdMap.put(String.valueOf(playerId), getPlayersResourceIds(playerId, gameController));
+        }
+
+        return playersResourceIdMap;
+    }
+
+    private List<String> getPlayersResourceIds(int playerId, GameController gameController) {
         List<String> playerResourceIds = new ArrayList<String>();
 
         for (Card cardInResources : gameController.getResources(playerId)) {
             playerResourceIds.add(cardInResources.getId());
         }
         return playerResourceIds;
+    }
+
+    private Map<String, List<String>> getPlayersCardIdMap(GameController gameController) {
+        Map<String, List<String>> playersResourceIdMap = new HashMap<String, List<String>>();
+
+        for (int playerId = 1; playerId <= gameController.getNumberOfPlayersJoined(); playerId++) {
+            playersResourceIdMap.put(String.valueOf(playerId), getPlayersCardIds(playerId, gameController));
+        }
+
+        return playersResourceIdMap;
     }
 
     private List<String> getPlayersCardIds(int userId, GameController gameController) {
