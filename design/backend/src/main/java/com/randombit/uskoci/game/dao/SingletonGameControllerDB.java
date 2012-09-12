@@ -16,8 +16,7 @@ public enum SingletonGameControllerDB {
 
     private SingletonGameControllerDB() {
 
-        GameController gameController = new GameControllerImpl();
-        gameController.setCardDAO(MongoDBCard.instance);
+        GameController gameController = new GameControllerImpl(MongoDBCard.instance);
         gameControllerMap.put("1", gameController);
 
     }

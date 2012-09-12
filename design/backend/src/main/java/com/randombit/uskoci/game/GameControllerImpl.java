@@ -1,7 +1,6 @@
 package com.randombit.uskoci.game;
 
 import com.randombit.uskoci.card.dao.CardDAO;
-import com.randombit.uskoci.card.dao.CardDAOSimple;
 import com.randombit.uskoci.card.model.Card;
 
 import java.util.*;
@@ -23,6 +22,10 @@ public class GameControllerImpl implements GameController {
     private int numberOfPlayersJoined;
     private int currentPhase;
     private Map<String, List<Card>> playersResources;
+
+    public GameControllerImpl(CardDAO cardDAO) {
+        this.cardDAO = cardDAO;
+    }
 
     public void setCardDAO(CardDAO cardDAO) {
         this.cardDAO = cardDAO;

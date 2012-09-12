@@ -26,8 +26,7 @@ public class GameControllerImplTest {
 
     @Before
     public void setUp() throws Exception {
-        gameController = new GameControllerImpl();
-        gameController.setCardDAO(new CardDAOSimple());
+        gameController = new GameControllerImpl(new CardDAOSimple());
         gameController.startGame(testNumberOfPlayers);
     }
 
