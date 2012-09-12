@@ -31,7 +31,7 @@ public class CardResource {
     public Card getCard(@PathParam("id") String id) {
         Card card = MongoDBCard.instance.getModel().get(id);
         if(card==null)
-            throw new RuntimeException("Get: Card with " + id +  " not found");
+            throw new RuntimeException("Get: Card with id " + id +  " not found");
         return card;
     }
 
