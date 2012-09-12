@@ -1,7 +1,5 @@
 $(function () {
   "use strict";
-  
-  $("#join-button").click(joingame);
                        
   var fbsocket = $.atmosphere;
   
@@ -21,8 +19,14 @@ $(function () {
   return;
   }
   
-  if (fbjson.userName != null)
-  setelements(fbjson.userID,fbjson.userName);
+  
+  if (fbjson.userID != null) {
+     if (fbjson.msgType == "chat")
+        setChatContent(fbjson.userID,fbjson.userName,fbjson.text);
+     else
+     if (fbjson.msgType == "joingame")  
+        setelements(fbjson.userID,fbjson.userName);
+  }   
    
   
   };
@@ -30,13 +34,46 @@ $(function () {
   var fbsubSocket = fbsocket.subscribe(fbrequest);
   
   
+  $("#join-button").click(joingame);
+  
+  $("#chatButton").click(sendMessage);
+  
+  $("#chatInput").keypress(function (e) {
+                               if (e.keyCode == 13) {
+                               
+                                  sendMessage();
+                               
+                               }  
+                                
+                              });
+  
+                        
+  
+  
+  
+  
   function joingame(){
   
-  FB.api('/me', function(fbresponse) {
+    FB.api('/me', function(fbresponse) {
          fbsubSocket.push(jQuery.stringifyJSON({userID: fbresponse.id,
-                                               userName: fbresponse.name}));
+                                               userName: fbresponse.name,
+                                               msgType: "joingame" }));
          });
   
+  }
+  
+  function sendMessage(){
+    var old = $("#chatTextarea").html();
+    var chatmessage = $("#chatInput").val(); 
+    $("#chatInput").val("");
+  
+    FB.api('/me', function(fbresponse) {
+         fbsubSocket.push(jQuery.stringifyJSON({userID: fbresponse.id,
+                                               userName: fbresponse.name,
+                                               text: chatmessage,
+                                               msgType: "chat"           
+                                               }));
+         }); 
   }
   
   
@@ -44,6 +81,18 @@ $(function () {
   
   $("#slika").attr('src','https://graph.facebook.com/' + userID + '/picture');
   $('#status').append("<p>Na redu je igrač: " + userName + "</p>");
+  }
+  
+  function setChatContent(userID,userName,text){
+  
+    var stringArray = userName.split(" ");
+
+    var firstName = stringArray[0];
+    
+    $("#chatTextarea").append("<p>" + firstName +" wrote: " + text + "</p>");
+  
+    $("#chatTextarea").scrollTop($("#chatTextarea")[0].scrollHeight);
+  
   }
   
   });

@@ -25,6 +25,7 @@ public class FbControlResource {
 	@Produces("application/json")
 	public ArrayList<FbUser> FbAddUserResource(FbUser user){
         
+           //user.playerID = fbListOfPlayers.size();
 		   fbListOfPlayers.add(user);	
 		   return fbListOfPlayers;	
 	} 

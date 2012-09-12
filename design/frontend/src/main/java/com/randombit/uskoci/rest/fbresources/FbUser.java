@@ -7,9 +7,13 @@ public class FbUser {
     
 	public String userID = "";
     
+    public String playerID = "";
+    
     public String userName = "";
     
     public String text = "";
+    
+    public String msgType = "";
     
 	public FbUser(){
 
@@ -21,10 +25,12 @@ public class FbUser {
         this.userName = userName;
     }
     
-    public FbUser(String userID, String userName, String text) {
+    public FbUser(String userID, String playerID, String userName, String text, String msgType) {
         this.userID = userID;
         this.userName = userName;
         this.text = text;
-    }   
+        this.msgType = msgType;
+    }
+    
     
 }

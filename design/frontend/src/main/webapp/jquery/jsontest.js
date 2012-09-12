@@ -1,5 +1,5 @@
-﻿var game = {};
-var playerID = "1";
+var game = {};
+var playerID = "X";
 
 $(function () {
     "use strict";
@@ -25,9 +25,10 @@ $(function () {
             console.log('This doesn\'t look like a valid JSON: ', message.data);
             return;
         }
-
+        if(json.msgType == null){
         game.playerCards = json.playersCards;
-        modifyGameStatus(json.currentPlayerId + " / " + json.playersCards);        
+        modifyGameStatus(json.currentPlayerId + " / " + json.playersCards); 
+        }
     };
 
 
@@ -39,7 +40,7 @@ $(function () {
     
     function selectCard() {
             var msg = $(this).attr("data-pattern");
-            //subSocket.push(jQuery.stringifyJSON({userId: playerID, action: "drawCard", cardId: "", gameId: "0"}));
+            subSocket.push(jQuery.stringifyJSON({userId: playerID, action: "drawCard", cardId: "", gameId: "0"}));
             flipCard(msg);
 
     }
