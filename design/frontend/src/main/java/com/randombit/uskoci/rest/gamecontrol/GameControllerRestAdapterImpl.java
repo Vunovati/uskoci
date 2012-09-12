@@ -43,7 +43,6 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
         GameStatusResponse gameResponse = new GameStatusResponse();
         gameResponse.currentPlayerId = String.valueOf(gameController.getCurrentPlayerId());
 
-        gameResponse.playersCards = getPlayersCardIds(message, gameController);
         gameResponse.beginningCardDrawn = gameController.getBeginningCardDrawn();
         gameResponse.gameStarted = gameController.isGameStarted();
         gameResponse.numberOfPlayersJoined = gameController.getNumberOfPlayersJoined();
@@ -54,13 +53,17 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
         gameResponse.player3Resources = getPlayersResources(3, gameController);
         gameResponse.player4Resources = getPlayersResources(4, gameController);
         gameResponse.playersPoints = getPlayersPoints(gameController);
+        gameResponse.player1Cards = getPlayersCardIds(1, gameController);
+        gameResponse.player2Cards = getPlayersCardIds(2, gameController);
+        gameResponse.player3Cards = getPlayersCardIds(3, gameController);
+        gameResponse.player4Cards = getPlayersCardIds(4, gameController);
         return gameResponse;
     }
 
     private List<String> getPlayersPoints(GameController gameController) {
         List<String> playerPoints = new ArrayList<String>();
 
-        for (int playerId=1; playerId<4; playerId++) {
+        for (int playerId=1; playerId<=4; playerId++) {
             playerPoints.add(String.valueOf(gameController.getPlayersPoints(playerId)));
         }
 
@@ -76,10 +79,10 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
         return playerResourceIds;
     }
 
-    private List<String> getPlayersCardIds(GameStatusMessage message, GameController gameController) {
+    private List<String> getPlayersCardIds(int userId, GameController gameController) {
         List<String> playerCardIds = new ArrayList<String>();
 
-        for (Card cardInHand : gameController.getPlayerCards(Integer.valueOf(message.userId))) {
+        for (Card cardInHand : gameController.getPlayerCards(userId)) {
             playerCardIds.add(cardInHand.getId());
         }
         return playerCardIds;
