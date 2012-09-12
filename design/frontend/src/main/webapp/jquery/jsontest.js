@@ -1,5 +1,7 @@
 ﻿var game = {};
 var playerID = "1";
+game.myTurn = false;
+game.resourcePiles = new Object();
 
 $(function () {
     "use strict";
@@ -27,6 +29,8 @@ $(function () {
         }
 
         game.playerCards = json.playersCards;
+        game.numberOfPlayers = json.numberOfPlayersJoined;
+        game.myTurn = json.currentPlayerId == playerID
         modifyGameStatus(json.currentPlayerId + " / " + json.playersCards);        
     };
 
@@ -58,17 +62,36 @@ $(function () {
         $('#startGame').remove();
     }
 
+    function nextTurn()
+    {
+        subSocket.push(jQuery.stringifyJSON({userId: playerID, action: "nextTurn", cardId: "", gameId: "0"}));        
+    }
+
+    //Button events
     $('#startGame').click(startGame);
 
     function renderTable() {
 
-        $("#cards").append('<div class="card"><div class="face front"></div><div class="face back"></div></div>'); <!-- .card -->
+        if(game.myTurn)
+            $("#turnInfo").append("Your turn!");
+        else
+            $("#turnInfo").append("Wait...");
+
+        $("#playerCards").append('<div class="card"><div class="face front"></div><div class="face back"></div></div>'); <!-- .card -->
 
         for(var i=0;i<game.playerCards.length-1;i++){
-            $(".card:first-child").clone().appendTo("#cards");
+            $(".card:first-child").clone().appendTo("#playerCards");
         }
 
-        $("#cards").children().each(function(index) {
+        $("#game").append('<div id="deck"><div class="card"><div class="face front"></div><div class="face back"></div></div></div>');
+
+        for(var i=1;i<=game.numberOfPlayers;i++)
+        {
+            $("#resourcePiles").append('<div id="player' + i.toString() + 'Resources" class="resourcePile"><p class="resourcePileText">Player '
+                                        + i.toString() +' resource pile</p></div>')
+        }
+
+        $("#playerCards").children().each(function(index) {
 
             $(this).css({"left" : ($(this).width() + 20) * (index % 4), "top" : ($(this).height() + 20) * Math.floor(index / 4)
             });
@@ -78,11 +101,15 @@ $(function () {
             $(this).attr("data-pattern",pattern);
             $('.' + pattern).css("background-position", getCardPosition(pattern)); //dodjeljujemo CSS svakoj karti prema MongoDB
             $(this).click(selectCard);
+            flipCard(pattern);
         });
+
+        $("#game").append('<button id="nextTurn" class="uskociButton">Next player!</button>')
+        $("#nextTurn").click(nextTurn)
     }
 
     function flipCard(cardID) {
-          $("#cards").find('*[data-pattern="' + cardID + '"]').toggleClass("card-flipped")
+          $("#playerCards").find('*[data-pattern="' + cardID + '"]').toggleClass("card-flipped")
           $('#console').append("<p>CardID / Summary: " + cardID + " / " + getCardSummary(cardID) + "</p>");
     }
 
@@ -117,6 +144,11 @@ $(function () {
         });
 
         return cardPosition;
+    }
+
+    function getResourcePile(key)
+    {
+        var resourcePile = game.resourcePiles[key];
     }
 
 });

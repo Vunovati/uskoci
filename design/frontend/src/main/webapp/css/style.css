@@ -7,7 +7,7 @@ h1 {
 color: #C9771E;
 }
 
-#startGame {
+.uskociButton {
 	width: 100px;
 	height: 50px;
 	margin-top: 100px;
@@ -15,7 +15,11 @@ color: #C9771E;
 	border-radius: 5px;
 	background: #fff;
 	color: #000;
-	opacity: 0.7;
+	opacity: 0.45;
+}
+
+#nextTurn {
+	margin: 0 auto;
 }
 
 #console {
@@ -45,24 +49,89 @@ box-align: right;
 }
 
 #game {
+position: relative;
 border-radius: 10px;
 border: 1px solid #466;
 background: #232 url(../images/table.jpg);
-width: 830px;
-height: 280px;
+width: 850px;
+height: 780px;
 margin: 0 auto;
 display: box;
 box-pack: center;
 box-align: center;
 }
-#cards {
+
+#turnInfo {
+	color: #ea0;
+	font-size: 200%;
+}
+
+#resourcePiles {
+	width: 620px;
+	height: 320px;
+	margin: 0 auto;
+	display: box;
+	box-pack: center;
+	box-align: center;
+}
+
+#activeCard {
+
+}
+
+#deck {
+	float: left;
+	width: 160px;
+	height: 230px;
+	border-radius: 10px;
+	border: 5px dashed #0f3;
+	-webkit-transform: scale(0.8);
+	   -moz-transform: scale(0.8);
+	    -ms-transform: scale(0.8);
+	     -o-transform: scale(0.8);
+	        transform: scale(0.8);
+	padding: 10px;
+	/*margin: 0 auto;
+	display: box;
+	box-pack: center;
+	box-align: center;*/
+}
+
+.resourcePile {
+	float: left;
+	border-radius: 10px;
+	border: 1px solid #0f3;
+	width: 300px;
+	height: 150px;
+
+	-webkit-transform: scale(0.9);
+	   -moz-transform: scale(0.9);
+	    -ms-transform: scale(0.9);
+	     -o-transform: scale(0.9);
+	        transform: scale(0.9);
+}
+
+.resourcePileText {
+	color: #0f3;
+}
+
+#playerCards {
+float: left;
+width: 630px;
+height: 420px;
 position: relative;
 -webkit-transform: translate3D(60px, 25px, 0);
 transform: translate3D(60px, 25px, 0);
 -moz-transform: translate3D(60px, 25px, 0);
 -o-transform: translate3D(60px, 25px, 0);
-width: 380px;
-height: 400px;
+-webkit-transform: scale(0.8);
+   -moz-transform: scale(0.8);
+    -ms-transform: scale(0.8);
+     -o-transform: scale(0.8);
+        transform: scale(0.8);
+display: box;
+box-pack: center;
+box-align: center;
 }
 .card {
 -webkit-perspective: 600;
