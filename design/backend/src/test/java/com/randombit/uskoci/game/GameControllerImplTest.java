@@ -263,6 +263,7 @@ public class GameControllerImplTest {
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
 
         Assert.assertTrue("Card is in the players resource zone", gameController.getResources(playerOnTheMove).contains(testCard));
+        Assert.assertFalse("Card is no longer in players hand", gameController.getPlayerCards(playerOnTheMove).contains(testCard));
     }
 
     @Test(expected = ActionNotAllowedException.class)
