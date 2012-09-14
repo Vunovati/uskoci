@@ -69,39 +69,33 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
     private Map<String, List<String>> getPlayersResourceIdMap(GameController gameController) {
         Map<String, List<String>> playersResourceIdMap = new HashMap<String, List<String>>();
 
-        for (int playerId = 1; playerId <= gameController.getNumberOfPlayersJoined(); playerId++) {
-            playersResourceIdMap.put(String.valueOf(playerId), getPlayersResourceIds(playerId, gameController));
+        int numberOfPlayersJoined = gameController.getNumberOfPlayersJoined();
+        for (int playerId = 1; playerId <= numberOfPlayersJoined; playerId++) {
+
+            playersResourceIdMap.put(String.valueOf(playerId), getCardIds(gameController.getResources(playerId)));
         }
 
         return playersResourceIdMap;
-    }
-
-    private List<String> getPlayersResourceIds(int playerId, GameController gameController) {
-        List<String> playerResourceIds = new ArrayList<String>();
-
-        for (Card cardInResources : gameController.getResources(playerId)) {
-            playerResourceIds.add(cardInResources.getId());
-        }
-        return playerResourceIds;
     }
 
     private Map<String, List<String>> getPlayersCardIdMap(GameController gameController) {
         Map<String, List<String>> playersResourceIdMap = new HashMap<String, List<String>>();
 
-        for (int playerId = 1; playerId <= gameController.getNumberOfPlayersJoined(); playerId++) {
-            playersResourceIdMap.put(String.valueOf(playerId), getPlayersCardIds(playerId, gameController));
+        int numberOfPlayersJoined = gameController.getNumberOfPlayersJoined();
+        for (int playerId = 1; playerId <= numberOfPlayersJoined; playerId++) {
+            playersResourceIdMap.put(String.valueOf(playerId), getCardIds(gameController.getPlayerCards(playerId)));
         }
 
         return playersResourceIdMap;
     }
 
-    private List<String> getPlayersCardIds(int userId, GameController gameController) {
-        List<String> playerCardIds = new ArrayList<String>();
+    private List<String> getCardIds(List<Card> cards) {
+        List<String> cardIds = new ArrayList<String>();
 
-        for (Card cardInHand : gameController.getPlayerCards(userId)) {
-            playerCardIds.add(cardInHand.getId());
+        for (Card card : cards) {
+            cardIds.add(card.getId());
         }
-        return playerCardIds;
+        return cardIds;
     }
 
     private List<String> getDiscardedCardIds(GameController gameController) {
@@ -127,7 +121,7 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
             gameController.setNextPhase(Integer.valueOf(message))*/
 
         if ("playcard".equals(action.toLowerCase()))
-            if ("".equals(message.userId) && "".equals(message.cardId)) {
+            if (!("".equals(message.userId) && "".equals(message.cardId))) {
                 gameController.playCard(Integer.valueOf(message.userId), Integer.valueOf(message.cardId));
             }
     }
