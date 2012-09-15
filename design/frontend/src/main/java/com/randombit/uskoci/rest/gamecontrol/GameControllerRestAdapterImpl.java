@@ -3,7 +3,7 @@ package com.randombit.uskoci.rest.gamecontrol;
 import com.randombit.uskoci.card.model.Card;
 import com.randombit.uskoci.game.ActionNotAllowedException;
 import com.randombit.uskoci.game.GameController;
-import com.randombit.uskoci.game.dao.SingletonGameControllerDB;
+import com.randombit.uskoci.game.dao.GameControllerPool;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +29,7 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
 
     private GameController getGameController() {
         // TODO: acces the real database DAO
-        GameController gameController = SingletonGameControllerDB.instance.getAllControllers().get(0);
+        GameController gameController = GameControllerPool.instance.getController(1);
         if (!gameController.isGameStarted()) {
             gameController.startGame(4);
         }
@@ -53,6 +53,7 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
         gameResponse.playersResources = getPlayersResourceIdMap(gameController);
         gameResponse.playersCards = getPlayersCardIdMap(gameController);
         gameResponse.playersPoints = getPlayersPoints(gameController);
+        gameResponse.lastAction = message;
         return gameResponse;
     }
 
@@ -124,5 +125,8 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
             if (!("".equals(message.userId) && "".equals(message.cardId))) {
                 gameController.playCard(Integer.valueOf(message.userId), Integer.valueOf(message.cardId));
             }
+
+        if ("startgame".equals((action.toLowerCase())))
+            gameController.startGame(4);
     }
 }
