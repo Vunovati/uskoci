@@ -4,24 +4,22 @@ import com.randombit.uskoci.card.dao.MongoDBCard;
 import com.randombit.uskoci.game.GameController;
 import com.randombit.uskoci.game.GameControllerImpl;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public enum SingletonGameControllerDB {
+public enum GameControllerPool {
     instance;
 
     private Map<String, GameController> gameControllerMap = new HashMap<String, GameController>();
 
-    private SingletonGameControllerDB() {
+    private GameControllerPool() {
 
         GameController gameController = new GameControllerImpl(MongoDBCard.instance);
         gameControllerMap.put("1", gameController);
 
     }
 
-    public List<GameController> getAllControllers() {
-        return new ArrayList<GameController>(gameControllerMap.values());
+    public GameController getController(int gameControllerId) {
+        return gameControllerMap.get(String.valueOf(gameControllerId));
     }
 }
