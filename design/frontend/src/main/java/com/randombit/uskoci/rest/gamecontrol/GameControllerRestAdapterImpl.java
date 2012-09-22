@@ -3,7 +3,7 @@ package com.randombit.uskoci.rest.gamecontrol;
 import com.randombit.uskoci.card.model.Card;
 import com.randombit.uskoci.game.ActionNotAllowedException;
 import com.randombit.uskoci.game.GameController;
-import com.randombit.uskoci.game.dao.SingletonGameControllerDB;
+import com.randombit.uskoci.game.dao.GameControllerPool;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +29,7 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
 
     private GameController getGameController() {
         // TODO: acces the real database DAO
-        GameController gameController = SingletonGameControllerDB.instance.getAllControllers().get(0);
+        GameController gameController = GameControllerPool.instance.getController(1);
         if (!gameController.isGameStarted()) {
             gameController.startGame(4);
         }
@@ -53,6 +53,7 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
         gameResponse.playersResources = getPlayersResourceIdMap(gameController);
         gameResponse.playersCards = getPlayersCardIdMap(gameController);
         gameResponse.playersPoints = getPlayersPoints(gameController);
+        gameResponse.lastAction = message;
         return gameResponse;
     }
 
@@ -69,39 +70,33 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
     private Map<String, List<String>> getPlayersResourceIdMap(GameController gameController) {
         Map<String, List<String>> playersResourceIdMap = new HashMap<String, List<String>>();
 
-        for (int playerId = 1; playerId <= gameController.getNumberOfPlayersJoined(); playerId++) {
-            playersResourceIdMap.put(String.valueOf(playerId), getPlayersResourceIds(playerId, gameController));
+        int numberOfPlayersJoined = gameController.getNumberOfPlayersJoined();
+        for (int playerId = 1; playerId <= numberOfPlayersJoined; playerId++) {
+
+            playersResourceIdMap.put(String.valueOf(playerId), getCardIds(gameController.getResources(playerId)));
         }
 
         return playersResourceIdMap;
-    }
-
-    private List<String> getPlayersResourceIds(int playerId, GameController gameController) {
-        List<String> playerResourceIds = new ArrayList<String>();
-
-        for (Card cardInResources : gameController.getResources(playerId)) {
-            playerResourceIds.add(cardInResources.getId());
-        }
-        return playerResourceIds;
     }
 
     private Map<String, List<String>> getPlayersCardIdMap(GameController gameController) {
         Map<String, List<String>> playersResourceIdMap = new HashMap<String, List<String>>();
 
-        for (int playerId = 1; playerId <= gameController.getNumberOfPlayersJoined(); playerId++) {
-            playersResourceIdMap.put(String.valueOf(playerId), getPlayersCardIds(playerId, gameController));
+        int numberOfPlayersJoined = gameController.getNumberOfPlayersJoined();
+        for (int playerId = 1; playerId <= numberOfPlayersJoined; playerId++) {
+            playersResourceIdMap.put(String.valueOf(playerId), getCardIds(gameController.getPlayerCards(playerId)));
         }
 
         return playersResourceIdMap;
     }
 
-    private List<String> getPlayersCardIds(int userId, GameController gameController) {
-        List<String> playerCardIds = new ArrayList<String>();
+    private List<String> getCardIds(List<Card> cards) {
+        List<String> cardIds = new ArrayList<String>();
 
-        for (Card cardInHand : gameController.getPlayerCards(userId)) {
-            playerCardIds.add(cardInHand.getId());
+        for (Card card : cards) {
+            cardIds.add(card.getId());
         }
-        return playerCardIds;
+        return cardIds;
     }
 
     private List<String> getDiscardedCardIds(GameController gameController) {
@@ -130,5 +125,8 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
             if (!("".equals(message.userId) && "".equals(message.cardId))) {
                 gameController.playCard(Integer.valueOf(message.userId), Integer.valueOf(message.cardId));
             }
+
+        if ("startgame".equals((action.toLowerCase())))
+            gameController.startGame(4);
     }
 }

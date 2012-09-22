@@ -15,11 +15,12 @@ public class GameStatusResponse {
     public Map<String, List<String>> playersCards;
     public Map<String, List<String>> playersResources;
     public List<String> playersPoints;
+    public GameStatusMessage lastAction;
 
     public GameStatusResponse() {
     }
 
-    public GameStatusResponse(boolean gameStarted, int numberOfPlayersJoined, String currentPlayerId, boolean beginningCardDrawn, int currentPhase, List<String> discardedCards, Map<String, List<String>> playersCards, Map<String, List<String>> playersResources, List<String> playersPoints) {
+    public GameStatusResponse(boolean gameStarted, int numberOfPlayersJoined, String currentPlayerId, boolean beginningCardDrawn, int currentPhase, List<String> discardedCards, Map<String, List<String>> playersCards, Map<String, List<String>> playersResources, List<String> playersPoints, GameStatusMessage lastAction) {
         this.gameStarted = gameStarted;
         this.numberOfPlayersJoined = numberOfPlayersJoined;
         this.currentPlayerId = currentPlayerId;
@@ -29,5 +30,6 @@ public class GameStatusResponse {
         this.playersCards = playersCards;
         this.playersResources = playersResources;
         this.playersPoints = playersPoints;
+        this.lastAction = lastAction;
     }
 }
