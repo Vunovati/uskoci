@@ -127,7 +127,7 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
             gameController.setNextPhase(Integer.valueOf(message))*/
 
         if ("playcard".equals(action.toLowerCase()))
-            if ("".equals(message.userId) && "".equals(message.cardId)) {
+            if (!("".equals(message.userId) && "".equals(message.cardId))) {
                 gameController.playCard(Integer.valueOf(message.userId), Integer.valueOf(message.cardId));
             }
     }

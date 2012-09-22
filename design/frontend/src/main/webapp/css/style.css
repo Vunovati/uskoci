@@ -80,6 +80,24 @@ box-align: center;
 	box-align: center;
 }
 
+#resourcePiles p {
+	display: inline;
+	-webkit-margin-before: 0px;
+	-webkit-margin-after: 0px;
+	-webkit-margin-start: 0px;
+	-webkit-margin-end: 0px;
+}
+
+#resourcePiles ul {
+	display: inline;
+	list-style-type: none;
+	-webkit-margin-before: 0px;
+	-webkit-margin-after: 0px;
+	-webkit-margin-start: 0px;
+	-webkit-margin-end: 0px;
+	-webkit-padding-start: 0px;
+}
+
 #resourcePiles .card {
 	-webkit-transform: scale(0.3);
 	   -moz-transform: scale(0.3);
