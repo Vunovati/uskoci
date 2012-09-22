@@ -145,6 +145,7 @@ public class GameControllerImplTest {
         gameController.setNextPlayersTurn(currentPlayerId);
 
         Assert.assertEquals("next player is on the move", expectedPlayerOnTheMove, gameController.getCurrentPlayerId());
+        Assert.assertFalse("At the beginning of next players turn card has not yet been drawn", gameController.getBeginningCardDrawn());
     }
 
     @Test(expected = ActionNotAllowedException.class)
@@ -300,6 +301,6 @@ public class GameControllerImplTest {
 
         Assert.assertTrue("Card is in the players resource zone because it is an event card", gameController.getResources(playerOnTheMove).contains(testCard));
         int playersPoints = gameController.getPlayersPoints(gameController.getCurrentPlayerId());
-        Assert.assertTrue("Players points are increased when he plays an resource card", playersPoints > 0);
+        Assert.assertTrue("Players points are increased when he plays an resource card", playersPoints == 5);
     }
 }
