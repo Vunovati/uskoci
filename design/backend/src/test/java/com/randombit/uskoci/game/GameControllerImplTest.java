@@ -185,23 +185,19 @@ public class GameControllerImplTest {
     @Test
     public void testPlayCard() throws Exception {
         int playerOnTheMove = gameController.getCurrentPlayerId();
-        String testCardId = "1";
+        Card testCard = gameController.getPlayerCards(playerOnTheMove).get(0);
+        String testCardId = testCard.getId();
 
-        Card testCard = playerOnTheMovePlaysACard(playerOnTheMove, testCardId);
+        playerOnTheMovePlaysACard(playerOnTheMove, testCardId);
 
-        Assert.assertTrue("Card is in the players resource zone", gameController.getResources(playerOnTheMove).contains(testCard));
-        Assert.assertFalse("Card is no longer in players hand", gameController.getPlayerCards(playerOnTheMove).contains(testCard));
+        List<Card> resources = gameController.getResources(playerOnTheMove);
+        Assert.assertTrue("Card is in the players resource zone", resources.contains(testCard));
+        List<Card> playerCards = gameController.getPlayerCards(playerOnTheMove);
+        Assert.assertFalse("Card is no longer in players hand", testCardId.equals(playerCards.get(0).getId()));
     }
 
-    private Card playerOnTheMovePlaysACard(int playerOnTheMove, String testCardId) throws ActionNotAllowedException {
-        Card testCard = EasyMock.createMock(Card.class);
-        cardDAO = EasyMock.createMock(CardDAO.class);
-        gameController.setCardDAO(cardDAO);
-        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard);
-        EasyMock.replay(cardDAO, testCard);
-
+    private void playerOnTheMovePlaysACard(int playerOnTheMove, String testCardId) throws ActionNotAllowedException {
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
-        return testCard;
     }
 
     @Test(expected = ActionNotAllowedException.class)

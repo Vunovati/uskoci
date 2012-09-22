@@ -73,6 +73,11 @@ public class GameControllerImpl implements GameController {
         }
 
         putCardInPlayersResources(cardPlayed, playerId);
+        removeCardFromPlayersHand(cardPlayed, playerId);
+    }
+
+    private void removeCardFromPlayersHand(Card cardPlayed, int playerId) {
+        playerCardMap.get(String.valueOf(playerId)).remove(cardPlayed);
     }
 
     @Override
