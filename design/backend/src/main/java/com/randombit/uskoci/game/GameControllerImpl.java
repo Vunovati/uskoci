@@ -61,7 +61,6 @@ public class GameControllerImpl implements GameController {
                 playersPoints += Integer.valueOf(card.getValue());
             }
         }
-
         return playersPoints;
     }
 
@@ -89,7 +88,6 @@ public class GameControllerImpl implements GameController {
         return "event".equals(cardPlayed.getType());
     }
 
-
     private boolean playerIsNotOnTheMove(int playerId) {
         return playerId != currentPlayerId;
     }
@@ -98,23 +96,6 @@ public class GameControllerImpl implements GameController {
         List<Card> playersCards = getResources(playerId);
         playersCards.add(card);
     }
-
-    // TODO: check if player on the move
-//    public int setNextPhase() {
-//        if (!beginningCardDrawn && currentPhase == 1) {
-//            return currentPhase;
-//        } else if (currentPhase == NO_OF_PHASES && !isNoOfCardsInHandValid()) {
-//            return currentPhase;
-//        } else {
-//            currentPhase += 1;
-//            if (currentPhase > NO_OF_PHASES) {
-//                currentPhase = 1;
-//                this.currentPlayerId = getNextPlayerId();
-//            }
-//            return currentPhase;
-//        }
-//
-//    }
 
     private boolean isNoOfCardsInHandValid() {
         return playerCardMap.get(String.valueOf(currentPlayerId)).size() < MAX_NUMBER_OF_CARDS_IN_HAND + 1;
@@ -156,7 +137,6 @@ public class GameControllerImpl implements GameController {
         }
     }
 
-    // Reset field values
     @Override
     public String resetGame() {
         this.cardDeck = new ArrayList<Card>(cardDAO.getAllCards());
