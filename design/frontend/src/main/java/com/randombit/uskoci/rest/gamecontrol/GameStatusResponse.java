@@ -10,7 +10,7 @@ public class GameStatusResponse {
     public int numberOfPlayersJoined;
     public String currentPlayerId;
     public boolean beginningCardDrawn;
-    public int currentPhase;
+    public boolean resourceCardPlayed;
     public List<String> discardedCards;
     public Map<String, List<String>> playersCards;
     public Map<String, List<String>> playersResources;
@@ -20,12 +20,12 @@ public class GameStatusResponse {
     public GameStatusResponse() {
     }
 
-    public GameStatusResponse(boolean gameStarted, int numberOfPlayersJoined, String currentPlayerId, boolean beginningCardDrawn, int currentPhase, List<String> discardedCards, Map<String, List<String>> playersCards, Map<String, List<String>> playersResources, List<String> playersPoints, GameStatusMessage lastAction) {
+    public GameStatusResponse(boolean gameStarted, int numberOfPlayersJoined, String currentPlayerId, boolean beginningCardDrawn, boolean resourceCardPlayed, List<String> discardedCards, Map<String, List<String>> playersCards, Map<String, List<String>> playersResources, List<String> playersPoints, GameStatusMessage lastAction) {
         this.gameStarted = gameStarted;
         this.numberOfPlayersJoined = numberOfPlayersJoined;
         this.currentPlayerId = currentPlayerId;
         this.beginningCardDrawn = beginningCardDrawn;
-        this.currentPhase = currentPhase;
+        this.resourceCardPlayed = resourceCardPlayed;
         this.discardedCards = discardedCards;
         this.playersCards = playersCards;
         this.playersResources = playersResources;

@@ -9,7 +9,6 @@ public class GameControllerImpl implements GameController {
     private static final int MAX_NUMBER_OF_PLAYERS = 6;
     private static final int MIN_NUMBER_OF_PLAYERS = 3;
     private static final int BEGINNING_NUMBER_OF_CARDS = 4;
-    private static final int NO_OF_PHASES = 2;
     private static final int MAX_NUMBER_OF_CARDS_IN_HAND = 5;
 
     private CardDAO cardDAO;
@@ -20,17 +19,19 @@ public class GameControllerImpl implements GameController {
     private boolean beginningCardDrawn;
     private boolean gameStarted;
     private int numberOfPlayersJoined;
-    private int currentPhase;
+    private boolean resourceCardPlayed;
     private Map<String, List<Card>> playersResources;
 
     public GameControllerImpl(CardDAO cardDAO) {
         this.cardDAO = cardDAO;
     }
 
+    @Override
     public void setCardDAO(CardDAO cardDAO) {
         this.cardDAO = cardDAO;
     }
 
+    @Override
     public int getNumberOfPlayersJoined() {
         return numberOfPlayersJoined;
     }
@@ -65,10 +66,6 @@ public class GameControllerImpl implements GameController {
     }
 
     @Override
-    public int getCurrentPhase() {
-        return currentPhase;
-    }
-
     public void playCard(int playerId, int cardId) throws ActionNotAllowedException {
         Card cardPlayed = cardDAO.getCard(cardId);
         if (playerIsNotOnTheMove(playerId) && !cardIsEvent(cardPlayed)) {
@@ -76,6 +73,11 @@ public class GameControllerImpl implements GameController {
         }
 
         putCardInPlayersResources(cardPlayed, playerId);
+    }
+
+    @Override
+    public boolean isResourceCardPlayed() {
+        return resourceCardPlayed;
     }
 
     private boolean cardIsEvent(Card cardPlayed) {
@@ -93,46 +95,37 @@ public class GameControllerImpl implements GameController {
     }
 
     // TODO: check if player on the move
-    public int setNextPhase() {
-        if (!beginningCardDrawn && currentPhase == 1) {
-            return currentPhase;
-        } else if (currentPhase == NO_OF_PHASES && !isNoOfCardsInHandValid()) {
-            return currentPhase;
-        } else {
-            currentPhase += 1;
-            if (currentPhase > NO_OF_PHASES) {
-                currentPhase = 1;
-                this.currentPlayerId = getNextPlayerId();
-            }
-            return currentPhase;
-        }
+//    public int setNextPhase() {
+//        if (!beginningCardDrawn && currentPhase == 1) {
+//            return currentPhase;
+//        } else if (currentPhase == NO_OF_PHASES && !isNoOfCardsInHandValid()) {
+//            return currentPhase;
+//        } else {
+//            currentPhase += 1;
+//            if (currentPhase > NO_OF_PHASES) {
+//                currentPhase = 1;
+//                this.currentPlayerId = getNextPlayerId();
+//            }
+//            return currentPhase;
+//        }
+//
+//    }
 
-    }
-
-    /**
-     * Is number of cards in hand at the end of turn valid
-     *
-     * @return validity
-     */
     private boolean isNoOfCardsInHandValid() {
         return playerCardMap.get(String.valueOf(currentPlayerId)).size() < MAX_NUMBER_OF_CARDS_IN_HAND + 1;
     }
-
-    @Override
-    public int setPhase(int phase) {
-        return this.currentPhase = phase;
-    }
-
 
     @Override
     public boolean getBeginningCardDrawn() {
         return beginningCardDrawn;
     }
 
+    @Override
     public int getCurrentPlayerId() {
         return currentPlayerId;
     }
 
+    @Override
     public int getNextPlayerId() {
 //        int nextPlayer = (this.currentPlayerId == numberOfPlayersJoined) ? 1 : currentPlayerId++;
         int nextPlayer;
@@ -144,6 +137,7 @@ public class GameControllerImpl implements GameController {
         return nextPlayer;
     }
 
+    @Override
     public List<Card> getCardsInTheDeck() {
         return cardDeck;
     }
@@ -158,13 +152,13 @@ public class GameControllerImpl implements GameController {
     }
 
     // Reset field values
+    @Override
     public String resetGame() {
         this.cardDeck = new ArrayList<Card>(cardDAO.getAllCards());
         this.playerCardMap = new HashMap<String, List<Card>>();
-        this.currentPhase = 1;
+        this.resourceCardPlayed = false;
         this.beginningCardDrawn = false;
         this.gameStarted = false;
-        // TODO reset zones
         this.playersResources = generateEmptyPlayersResources();
         this.discardedCards = new ArrayList<Card>();
         Random randomGenerator = new Random();
@@ -180,6 +174,7 @@ public class GameControllerImpl implements GameController {
         return playersResourcesHashMap;
     }
 
+    @Override
     public boolean startGame(int numberOfPlayersJoined) {
         if (numberOfPlayersJoined <= MAX_NUMBER_OF_PLAYERS || numberOfPlayersJoined >= MIN_NUMBER_OF_PLAYERS) {
             this.numberOfPlayersJoined = numberOfPlayersJoined;
@@ -207,7 +202,7 @@ public class GameControllerImpl implements GameController {
 
     @Override
     public void setNextPlayersTurn(int playerId) throws ActionNotAllowedException {
-        if (beginningCardDrawn && playerOnTheMove(playerId)) {
+        if (beginningCardDrawn && playerOnTheMove(playerId) && isNoOfCardsInHandValid()) {
             currentPlayerId = getNextPlayerId();
         } else {
             throw new ActionNotAllowedException();
@@ -218,6 +213,7 @@ public class GameControllerImpl implements GameController {
         return playerId == currentPlayerId;
     }
 
+    @Override
     public boolean isGameStarted() {
         return gameStarted;
     }

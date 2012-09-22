@@ -24,12 +24,6 @@ public interface GameController {
 
     public Card drawCard(int playerId);
 
-    public int getCurrentPhase();
-
-    public int setNextPhase();
-
-    int setPhase(int phase);
-
     public boolean getBeginningCardDrawn();
 
     public boolean isGameStarted();
@@ -43,4 +37,6 @@ public interface GameController {
     public int getPlayersPoints(int playerId);
 
     public void playCard(int playerId, int cardId) throws ActionNotAllowedException;
+
+    public boolean isResourceCardPlayed();
 }

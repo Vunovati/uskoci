@@ -48,7 +48,7 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
         gameResponse.beginningCardDrawn = gameController.getBeginningCardDrawn();
         gameResponse.gameStarted = gameController.isGameStarted();
         gameResponse.numberOfPlayersJoined = gameController.getNumberOfPlayersJoined();
-        gameResponse.currentPhase = gameController.getCurrentPhase();
+        gameResponse.resourceCardPlayed = gameController.isResourceCardPlayed();
         gameResponse.discardedCards = getDiscardedCardIds(gameController);
         gameResponse.playersResources = getPlayersResourceIdMap(gameController);
         gameResponse.playersCards = getPlayersCardIdMap(gameController);

@@ -5,6 +5,7 @@ import com.randombit.uskoci.card.dao.CardDAOSimple;
 import com.randombit.uskoci.card.model.Card;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.easymock.EasyMock;
 
@@ -15,14 +16,11 @@ import java.util.List;
 public class GameControllerImplTest {
 
     private static final int STARTING_NUMBER_OF_CARDS = 4;
-    private static final int MAX_NUMBER_OF_CARDS_IN_HAND = 5;
     GameController gameController;
     CardDAO cardDAO;
     private static final int INITIAL_NUMBER_OF_CARDS_IN_THE_DECK = 60;
 
     int testNumberOfPlayers = 4;
-    private static final int NO_OF_PHASES = 2;
-    private static final int DRAW_CARD_PHASE_NUMBER = 1;
 
     @Before
     public void setUp() throws Exception {
@@ -119,41 +117,8 @@ public class GameControllerImplTest {
                 gameController.getPlayerCards(testPlayerId).contains(cardDrawn));
     }
 
-    @Test
-    public void testBeginTurn() throws Exception {
-        Assert.assertEquals("Phase " + (DRAW_CARD_PHASE_NUMBER + 1) + " Does not begin if card is not drawn",
-                gameController.setNextPhase(), DRAW_CARD_PHASE_NUMBER);
-
-        gameController.drawCard(gameController.getCurrentPlayerId());
-        Assert.assertEquals("Phase " + (DRAW_CARD_PHASE_NUMBER + 1) + " begins if card is drawn",
-                gameController.setNextPhase(), DRAW_CARD_PHASE_NUMBER + 1);
-
-        gameController.startGame(testNumberOfPlayers);
-        Assert.assertFalse("At the beginning of the game beginning card has not yet been drawn", gameController.getBeginningCardDrawn());
-    }
-
     //    Igrač klikom na gumb prelazi iz faze u fazu, prelaskom iz završne faze,
 //    započinje potez sljedećeg igrača (USK: 1 faza, završetkom faze, pokreće se pravilo 6.)
-    // TODO: reevaluate rules !
-    @Test
-    public void testPhase() throws Exception {
-        int currentPhase = gameController.getCurrentPhase();
-        Assert.assertEquals("Game begins with phase one", 1, currentPhase);
-
-        gameController.setPhase(1);
-        Assert.assertEquals("Phase 1 is not increased if beginning card has not been drawn", 1, gameController.setNextPhase());
-
-        gameController.startGame(testNumberOfPlayers);
-
-        int currentPlayerId = gameController.getCurrentPlayerId();
-
-        gameController.setPhase(NO_OF_PHASES);
-        gameController.setNextPhase();
-
-        Assert.assertNotSame("After " + String.valueOf(NO_OF_PHASES) + " phases by player NO: " + currentPlayerId +
-                " next player is on the move", currentPlayerId, gameController.getCurrentPlayerId());
-
-    }
 
     @Test
     public void testNextPlayer() throws Exception {
@@ -171,50 +136,6 @@ public class GameControllerImplTest {
 
     //    Opcionalno: Igrač na kraju poteza smije imati maksimalno n karata u ruci (USK: da, 5); modifikacija ovog pravila
 //    je „u svakom trenutku“ gdje će se svaki trenutak provjeravati na kraju svake faze/stepa igre (USK: ne)
-
-    @Test
-    public void testCheckCardsEndOfTurn() throws Exception {
-        int testPlayerId = gameController.getCurrentPlayerId();
-
-        int numberOfCardsInPlayersHands = gameController.getPlayerCards(testPlayerId).size();
-
-        // Draw more cards than allowed on the end of turn
-        while (numberOfCardsInPlayersHands <= MAX_NUMBER_OF_CARDS_IN_HAND + 1) {
-            gameController.drawCard(testPlayerId);
-            numberOfCardsInPlayersHands = gameController.getPlayerCards(testPlayerId).size();
-        }
-
-        //Cycle to the last phase
-        gameController.setPhase(NO_OF_PHASES);
-
-        Assert.assertEquals("After " + (NO_OF_PHASES) + " phases last phase is set", NO_OF_PHASES, gameController.getCurrentPhase());
-
-        Assert.assertEquals("At the beginning of phase " + gameController.getCurrentPhase() + " player has " +
-                gameController.getPlayerCards(testPlayerId).size()
-                + " cards in hand", MAX_NUMBER_OF_CARDS_IN_HAND + 2, numberOfCardsInPlayersHands);
-
-        //End last phase
-        gameController.setNextPhase();
-
-        Assert.assertEquals("Player " + testPlayerId + "  with " + gameController.getPlayerCards(testPlayerId).size() + " cards in his hand cannot proceed from phase " + NO_OF_PHASES + " until players number of cards in hand is less or equal to " +
-                MAX_NUMBER_OF_CARDS_IN_HAND, testPlayerId, gameController.getCurrentPlayerId());
-
-        Assert.assertEquals("Phase cannot proceed from phase " + NO_OF_PHASES + " until players number of cards in hand is less or equal to " +
-                MAX_NUMBER_OF_CARDS_IN_HAND, NO_OF_PHASES, gameController.getCurrentPhase());
-
-
-        int numberOfPlayersWithTooManyCards = 0;
-        for (int i = 1; i < testNumberOfPlayers + 1; i++) {
-            if (gameController.getPlayerCards(i).size() > MAX_NUMBER_OF_CARDS_IN_HAND) {
-                numberOfPlayersWithTooManyCards++;
-            }
-        }
-
-        Assert.assertEquals("At the beginning of next players turn no other player has no more than" + MAX_NUMBER_OF_CARDS_IN_HAND +
-                "in his hand", 1, numberOfPlayersWithTooManyCards);
-
-    }
-
     @Test
     public void testSetNextPlayersTurn() throws Exception {
         int currentPlayerId = gameController.getCurrentPlayerId();
@@ -241,6 +162,17 @@ public class GameControllerImplTest {
         gameController.setNextPlayersTurn(playerNotOnTheMove);
     }
 
+    @Test(expected = ActionNotAllowedException.class)
+    public void testNextPlayerButTooMuchCardsInHandAtEndOfTurn() throws Exception {
+        // given
+        int currentPlayerId = gameController.getCurrentPlayerId();
+        gameController.drawCard(currentPlayerId);
+        gameController.drawCard(currentPlayerId);
+
+        // when
+        gameController.setNextPlayersTurn(currentPlayerId);
+    }
+
     /*  5.  Opcionalno: Odigravanje karte – Igrač (opcionalno) mora platiti neke resurse ili se karta vraća u hand.
             Nakon plaćanja, karta iz handa se odigrava licem prema gore tako da ju vide svi igrači.
             Igrači imaju (opcionalno) mogućnost igranja drugih karata (samo određenog tipa, ako su odabrani svi tipovi,
@@ -254,6 +186,14 @@ public class GameControllerImplTest {
     public void testPlayCard() throws Exception {
         int playerOnTheMove = gameController.getCurrentPlayerId();
         String testCardId = "1";
+
+        Card testCard = playerOnTheMovePlaysACard(playerOnTheMove, testCardId);
+
+        Assert.assertTrue("Card is in the players resource zone", gameController.getResources(playerOnTheMove).contains(testCard));
+        Assert.assertFalse("Card is no longer in players hand", gameController.getPlayerCards(playerOnTheMove).contains(testCard));
+    }
+
+    private Card playerOnTheMovePlaysACard(int playerOnTheMove, String testCardId) throws ActionNotAllowedException {
         Card testCard = EasyMock.createMock(Card.class);
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
@@ -261,9 +201,7 @@ public class GameControllerImplTest {
         EasyMock.replay(cardDAO, testCard);
 
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
-
-        Assert.assertTrue("Card is in the players resource zone", gameController.getResources(playerOnTheMove).contains(testCard));
-        Assert.assertFalse("Card is no longer in players hand", gameController.getPlayerCards(playerOnTheMove).contains(testCard));
+        return testCard;
     }
 
     @Test(expected = ActionNotAllowedException.class)
@@ -296,14 +234,59 @@ public class GameControllerImplTest {
         Assert.assertTrue("Card is in the players resource zone because it is an event card", gameController.getResources(playerNotOnTheMove).contains(testCard));
     }
 
-/*    Specijalna pravila 1
-      Kraj igre se događa kad igrač skupi 25 bodova (nevezano uz tip plijena) igrači imaju pravo odigrati eventove.
-      Ukoliko niti jedan od igrača ne odigra kartu događaja tijekom 5 sekundi (prikazan tajmer svim igračima),
-      igra završava. Igrač može zaustaviti tajmer da razmisli što bi igrao (maksimalno 15s?).
-      Ukoliko nitko ne odigra ništa, igra se završava. Ukoliko netko odigra nešto, karta se resolva
-      (vidi općenito pravilo 5) nakon čega se ponovo utvrđuje uvjet kraja igre.
-      Ukoliko više igrača skupi 25 bodova u istom trenutku, zajedno pobjeđuju.
-      */
+    // TODO: check if necessary rule
+    @Ignore
+    @Test(expected = ActionNotAllowedException.class)
+    public void testPlayResourceCardTwiceInSameTurn() throws Exception {
+        // Given
+        int playerOnTheMove = gameController.getCurrentPlayerId();
+
+        // When
+        playerOnTheMovePlaysACard(playerOnTheMove, "1");
+        playerOnTheMovePlaysACard(playerOnTheMove, "2");
+    }
+
+    @Ignore
+    @Test
+    public void testResourceCardPlayedResetEachTurn() throws Exception {
+        // given
+        String testCardId = "1";
+        int currentPlayerId = gameController.getCurrentPlayerId();
+        playerOnTheMovePlaysACard(currentPlayerId, testCardId);
+
+        // When
+        gameController.setNextPlayersTurn(currentPlayerId);
+
+        Assert.assertFalse("Resource Card played is reset at beginning of new turn", gameController.isResourceCardPlayed());
+    }
+
+    // TODO: check if necessary rule
+    @Ignore
+    @Test(expected = ActionNotAllowedException.class)
+    public void testPlayCardBeginningCardNotDrawn() throws Exception {
+        // Given player is on the move
+        int currentPlayer = gameController.getCurrentPlayerId();
+        // beginning card has not been drawn
+
+        // when he tries to play a card he does not have in his hand exception is thrown
+        gameController.playCard(currentPlayer, 1);
+
+    }
+
+    @Test
+    public void testInitialBeginningCardDrawnStatus() throws Exception {
+        gameController.startGame(testNumberOfPlayers);
+        Assert.assertFalse("At the beginning of the game beginning card has not yet been drawn", gameController.getBeginningCardDrawn());
+    }
+
+    /*    Specijalna pravila 1
+    Kraj igre se događa kad igrač skupi 25 bodova (nevezano uz tip plijena) igrači imaju pravo odigrati eventove.
+    Ukoliko niti jedan od igrača ne odigra kartu događaja tijekom 5 sekundi (prikazan tajmer svim igračima),
+    igra završava. Igrač može zaustaviti tajmer da razmisli što bi igrao (maksimalno 15s?).
+    Ukoliko nitko ne odigra ništa, igra se završava. Ukoliko netko odigra nešto, karta se resolva
+    (vidi općenito pravilo 5) nakon čega se ponovo utvrđuje uvjet kraja igre.
+    Ukoliko više igrača skupi 25 bodova u istom trenutku, zajedno pobjeđuju.
+    */
 
     @Test
     public void testGetPlayersPoints() throws Exception {
