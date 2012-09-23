@@ -181,6 +181,12 @@ public class GameControllerImpl implements GameController {
 
         if (!beginningCardDrawn)
             beginningCardDrawn = true;
+        
+        if(cardDeck.isEmpty()) {
+            Collections.shuffle(discardedCards);
+            cardDeck.addAll(discardedCards);
+            discardedCards.clear();
+        }
 
         return cardDrawn;
     }
@@ -206,5 +212,37 @@ public class GameControllerImpl implements GameController {
     @Override
     public boolean isGameStarted() {
         return gameStarted;
+    }
+    
+    @Override
+    public void discardCardfromHand(Card card, int playerId) {  
+        List<Card> playersCards = getPlayerCards(playerId);
+        Iterator<Card> itr = playersCards.iterator();
+        
+        if(!playersCards.isEmpty()) {
+            for(int i=0; i<playersCards.size(); i++){ 
+                if(itr.next() == card){ 
+                    playersCards.remove(card);
+                    i = playersCards.size();
+                }
+            }               
+            discardedCards.add(card);
+        }
+    }
+    
+    @Override
+    public void discardCardfromResourcePile(Card card, int playerId) {   
+        List<Card> playersCards = getResources(playerId);
+        Iterator<Card> itr = playersCards.iterator();
+        
+        if(!playersCards.isEmpty()) {
+            for(int i=0; i<playersCards.size(); i++){ 
+                if(itr.next() == card){ 
+                    playersCards.remove(card);
+                    i = playersResources.size();
+                }    
+            }
+            discardedCards.add(card);
+        }    
     }
 }

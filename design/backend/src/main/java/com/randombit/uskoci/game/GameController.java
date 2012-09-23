@@ -39,4 +39,8 @@ public interface GameController {
     public void playCard(int playerId, int cardId) throws ActionNotAllowedException;
 
     public boolean isResourceCardPlayed();
+    
+    public void discardCardfromHand(Card card, int playerId);
+    
+    public void discardCardfromResourcePile(Card card, int playerId);
 }

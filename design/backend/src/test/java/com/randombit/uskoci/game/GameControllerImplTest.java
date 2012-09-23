@@ -173,6 +173,38 @@ public class GameControllerImplTest {
         // when
         gameController.setNextPlayersTurn(currentPlayerId);
     }
+    
+    // Opcionalno: nakon što igrač potroši špil, karte koje se nalaze u groblju se zamiješaju (USK: da)
+    @Test
+    public void testCardsReshuffle() throws Exception {
+        
+        List<Card> cardsInTheDeck = gameController.getCardsInTheDeck();
+        List<Card> discardedCArds; 
+        List<Card> allPlayersHands = new ArrayList<Card>();
+        
+        int testPlayerId = 1;
+        Card cardDrawn;
+        int expectedNumberOfCards = INITIAL_NUMBER_OF_CARDS_IN_THE_DECK - (testNumberOfPlayers * STARTING_NUMBER_OF_CARDS) - 1;
+        
+        while (cardsInTheDeck.size() != 1) {
+            cardDrawn = gameController.drawCard(testPlayerId);
+            gameController.discardCardfromHand(cardDrawn,testPlayerId);
+        }   
+        
+        cardDrawn = gameController.drawCard(testPlayerId); // Draw last card from the deck.
+        discardedCArds = gameController.getDiscardPile();
+        
+        Assert.assertEquals("Number of cards in the deck is smaller then discard pile after reshuffling the pile", expectedNumberOfCards, cardsInTheDeck.size());
+        Assert.assertEquals("Discard pile is not empty", 0, discardedCArds.size());
+        
+        
+        for (int i = 1; i < testNumberOfPlayers + 1; i++) {
+            allPlayersHands.addAll(gameController.getPlayerCards(i));
+        }
+        
+        cardsAreNotDuplicatedDuringShuffling(cardsInTheDeck, allPlayersHands);
+        
+    }    
 
     /*  5.  Opcionalno: Odigravanje karte – Igrač (opcionalno) mora platiti neke resurse ili se karta vraća u hand.
             Nakon plaćanja, karta iz handa se odigrava licem prema gore tako da ju vide svi igrači.
