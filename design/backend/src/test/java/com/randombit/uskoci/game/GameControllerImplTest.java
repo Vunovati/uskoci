@@ -179,7 +179,7 @@ public class GameControllerImplTest {
     public void testCardsReshuffle() throws Exception {
         
         List<Card> cardsInTheDeck = gameController.getCardsInTheDeck();
-        List<Card> discardedCArds; 
+        List<Card> discardedCards;
         List<Card> allPlayersHands = new ArrayList<Card>();
         
         int testPlayerId = 1;
@@ -188,14 +188,14 @@ public class GameControllerImplTest {
         
         while (cardsInTheDeck.size() != 1) {
             cardDrawn = gameController.drawCard(testPlayerId);
-            gameController.discardCardfromHand(cardDrawn,testPlayerId);
+            gameController.discardCardFromPlayersHand(cardDrawn, testPlayerId);
         }   
         
         cardDrawn = gameController.drawCard(testPlayerId); // Draw last card from the deck.
-        discardedCArds = gameController.getDiscardPile();
+        discardedCards = gameController.getDiscardPile();
         
         Assert.assertEquals("Number of cards in the deck is smaller then discard pile after reshuffling the pile", expectedNumberOfCards, cardsInTheDeck.size());
-        Assert.assertEquals("Discard pile is not empty", 0, discardedCArds.size());
+        Assert.assertEquals("Discard pile is not empty", 0, discardedCards.size());
         
         
         for (int i = 1; i < testNumberOfPlayers + 1; i++) {
@@ -316,6 +316,7 @@ public class GameControllerImplTest {
     (vidi općenito pravilo 5) nakon čega se ponovo utvrđuje uvjet kraja igre.
     Ukoliko više igrača skupi 25 bodova u istom trenutku, zajedno pobjeđuju.
     */
+    // TODO: ostatak ovog pravila
 
     @Test
     public void testGetPlayersPoints() throws Exception {
@@ -335,4 +336,6 @@ public class GameControllerImplTest {
         int playersPoints = gameController.getPlayersPoints(gameController.getCurrentPlayerId());
         Assert.assertTrue("Players points are increased when he plays an resource card", playersPoints == 5);
     }
+
+
 }

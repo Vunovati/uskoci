@@ -215,34 +215,21 @@ public class GameControllerImpl implements GameController {
     }
     
     @Override
-    public void discardCardfromHand(Card card, int playerId) {  
+    public void discardCardFromPlayersHand(Card card, int playerId) {
         List<Card> playersCards = getPlayerCards(playerId);
-        Iterator<Card> itr = playersCards.iterator();
-        
-        if(!playersCards.isEmpty()) {
-            for(int i=0; i<playersCards.size(); i++){ 
-                if(itr.next() == card){ 
-                    playersCards.remove(card);
-                    i = playersCards.size();
-                }
-            }               
+        removeCardFromList(card, playersCards);
+    }
+
+    private void removeCardFromList(Card card, List<Card> cardList) {
+        if(!cardList.isEmpty()) {
+            cardList.remove(card);
             discardedCards.add(card);
         }
     }
-    
+
     @Override
-    public void discardCardfromResourcePile(Card card, int playerId) {   
+    public void discardCardFromResourcePile(Card card, int playerId) {
         List<Card> playersCards = getResources(playerId);
-        Iterator<Card> itr = playersCards.iterator();
-        
-        if(!playersCards.isEmpty()) {
-            for(int i=0; i<playersCards.size(); i++){ 
-                if(itr.next() == card){ 
-                    playersCards.remove(card);
-                    i = playersResources.size();
-                }    
-            }
-            discardedCards.add(card);
-        }    
+        removeCardFromList(card, playersCards);
     }
 }
