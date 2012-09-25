@@ -40,7 +40,7 @@ public interface GameController {
 
     public boolean isResourceCardPlayed();
     
-    public void discardCardFromPlayersHand(Card card, int playerId);
+    public void discardCardFromPlayersHand(int cardId, int playerId);
     
     public void discardCardFromResourcePile(Card card, int playerId);
 }

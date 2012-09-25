@@ -1,8 +1,11 @@
 package com.randombit.uskoci.rest.gamecontrol;
 
+import com.randombit.uskoci.card.model.Card;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.List;
 
 public class GameControllerRestAdapterIntegrationTest {
     GameControllerRestAdapter restAdapter;
@@ -28,6 +31,20 @@ public class GameControllerRestAdapterIntegrationTest {
         gameStatus = playerDrawsACard(gameStatus);
         gameStatus = playerPlaysACard(gameStatus);
         gameStatus = playerSetsNextTurn(gameStatus);
+    }
+
+    @Test
+    public void testDiscardCardInterface() throws Exception {
+        GameStatusResponse gameStatus = startGameFor4();
+        String testPlayerId = gameStatus.currentPlayerId;
+
+        List<String> testPlayersCards = gameStatus.playersCards.get(testPlayerId);
+        String cardToBeDiscarded = testPlayersCards.get(0);
+
+        GameStatusMessage gameMessage = new GameStatusMessage(testPlayerId, "discardfromhand", cardToBeDiscarded, "0");
+        GameStatusResponse response = getResponse(gameMessage);
+        List<String> testPlayersCardIds = response.playersCards.get(testPlayerId);
+        Assert.assertFalse("Card is no longer in hand", testPlayersCardIds.contains(cardToBeDiscarded));
     }
 
     private GameStatusResponse playerDrawsACard(GameStatusResponse gameStatus) {

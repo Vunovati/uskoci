@@ -117,9 +117,8 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
         if ("setnextturn".equals(action.toLowerCase()))
             gameController.setNextPlayersTurn(Integer.valueOf(message.userId));
 
-        /* TODO: discard card from hand
         if ("discardfromhand".equals(action.toLowerCase()))
-            gameController.setNextPhase(Integer.valueOf(message))*/
+            gameController.discardCardFromPlayersHand(Integer.valueOf(message.cardId), Integer.valueOf(message.userId));
 
         if ("playcard".equals(action.toLowerCase()))
             if (!("".equals(message.userId) && "".equals(message.cardId))) {

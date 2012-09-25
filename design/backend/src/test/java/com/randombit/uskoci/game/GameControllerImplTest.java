@@ -188,7 +188,7 @@ public class GameControllerImplTest {
         
         while (cardsInTheDeck.size() != 1) {
             cardDrawn = gameController.drawCard(testPlayerId);
-            gameController.discardCardFromPlayersHand(cardDrawn, testPlayerId);
+            gameController.discardCardFromPlayersHand(Integer.valueOf(cardDrawn.getId()), testPlayerId);
         }   
         
         cardDrawn = gameController.drawCard(testPlayerId); // Draw last card from the deck.

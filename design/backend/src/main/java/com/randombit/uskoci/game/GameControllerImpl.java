@@ -215,12 +215,13 @@ public class GameControllerImpl implements GameController {
     }
     
     @Override
-    public void discardCardFromPlayersHand(Card card, int playerId) {
+    public void discardCardFromPlayersHand(int cardId, int playerId) {
+        Card card = cardDAO.getCard(cardId);
         List<Card> playersCards = getPlayerCards(playerId);
-        removeCardFromList(card, playersCards);
+        removeCardFromZone(card, playersCards);
     }
 
-    private void removeCardFromList(Card card, List<Card> cardList) {
+    private void removeCardFromZone(Card card, List<Card> cardList) {
         if(!cardList.isEmpty()) {
             cardList.remove(card);
             discardedCards.add(card);
@@ -230,6 +231,6 @@ public class GameControllerImpl implements GameController {
     @Override
     public void discardCardFromResourcePile(Card card, int playerId) {
         List<Card> playersCards = getResources(playerId);
-        removeCardFromList(card, playersCards);
+        removeCardFromZone(card, playersCards);
     }
 }
