@@ -39,22 +39,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>${maven-dependency-plugin.version}</version>
-<!--                    <executions>
-                        <execution>
-                            <phase>package</phase>
-                            <goals><goal>copy</goal></goals>
-                            <configuration>
-                                <artifactItems>
-                                    <artifactItem>
-                                        <groupId>org.mortbay.jetty</groupId>
-                                        <artifactId>jetty-runner</artifactId>
-                                        <version>${jetty8-version}</version>
-                                        <destFileName>jetty-runner.jar</destFileName>
-                                    </artifactItem>
-                                </artifactItems>
-                            </configuration>
-                        </execution>
-                    </executions>-->
                 <executions>
                     <execution>
                         <phase>package</phase>
