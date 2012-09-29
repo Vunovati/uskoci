@@ -44,4 +44,6 @@ public interface GameController {
     
     public void discardCardFromResourcePile(int cardId, int playerId);
 
+    public void removeMultiplierFromResourcePile(int playerId, int cardId ) throws ActionNotAllowedException;
+
 }

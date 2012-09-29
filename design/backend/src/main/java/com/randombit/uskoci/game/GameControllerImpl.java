@@ -66,10 +66,26 @@ public class GameControllerImpl implements GameController {
         if (playerIsNotOnTheMove(playerId) && !cardIsEvent(cardPlayed)) {
             throw new ActionNotAllowedException();
         }
-
+         
+        if(playerPointsTooHigh(playerId, cardPlayed)){
+            throw new ActionNotAllowedException();
+        }
+          
         putCardInPlayersResources(cardPlayed, playerId);
         removeCardFromPlayersHand(cardPlayed, playerId);
     }
+    
+    private boolean playerPointsTooHigh(int playerId, Card cardPlayed){
+        int playersPoints = getPlayersPoints(playerId);
+        
+        if ("resource".equals(cardPlayed.getType())) {
+            if((playersPoints + Integer.valueOf(cardPlayed.getValue())) > GameConstants.MAX_NUMBER_OF_PLAYER_POINTS){
+                return true;
+            }    
+        }
+        return false;
+    }  
+
 
     private void removeCardFromPlayersHand(Card cardPlayed, int playerId) {
         playerCardMap.get(String.valueOf(playerId)).remove(cardPlayed);
@@ -83,6 +99,14 @@ public class GameControllerImpl implements GameController {
     private boolean cardIsEvent(Card cardPlayed) {
         return "event".equals(cardPlayed.getType());
     }
+    
+    private boolean cardIsResource(Card cardPlayed){
+        return "resource".equals(cardPlayed.getType());
+    }
+
+    private boolean cardIsMultiplier(Card cardPlayed){
+        return "multiplier".equals(cardPlayed.getType());
+    }    
 
     private boolean playerIsNotOnTheMove(int playerId) {
         return playerId != currentPlayerId;
@@ -229,5 +253,15 @@ public class GameControllerImpl implements GameController {
         Card card = cardDAO.getCard(cardId);
         List<Card> playersResources = getResources(playerId);
         removeCardFromZone(card, playersResources);
+    }
+    @Override
+    public void removeMultiplierFromResourcePile (int playerId, int cardId) throws ActionNotAllowedException{
+        Card card = cardDAO.getCard(cardId);
+
+        if(cardIsMultiplier(card)){
+            discardCardFromResourcePile(cardId,playerId);
+        } else {
+            throw new ActionNotAllowedException();
+        }        
     }
 }

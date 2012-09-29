@@ -255,7 +255,7 @@ public class GameControllerImplTest {
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard);
-        EasyMock.expect(testCard.getType()).andReturn("event");
+        EasyMock.expect(testCard.getType()).andReturn("event").times(2);
         EasyMock.replay(cardDAO, testCard);
 
         gameController.playCard(playerNotOnTheMove, Integer.valueOf(testCardId));
@@ -326,8 +326,8 @@ public class GameControllerImplTest {
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard);
-        EasyMock.expect(testCard.getType()).andReturn("resource");
-        EasyMock.expect(testCard.getValue()).andReturn("5");
+        EasyMock.expect(testCard.getType()).andReturn("resource").times(3);
+        EasyMock.expect(testCard.getValue()).andReturn("5").times(3);
         EasyMock.replay(cardDAO, testCard);
 
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
@@ -336,6 +336,97 @@ public class GameControllerImplTest {
         int playersPoints = gameController.getPlayersPoints(gameController.getCurrentPlayerId());
         Assert.assertTrue("Players points are increased when he plays an resource card", playersPoints == 5);
     }
+    
+    /*  Specificno pravilo 3
+     Ograničavanje igranja nekih tipova karata : Igrač ne smije odigrati kartu plijena ili eventa 
+     ako bi prešao 25 bodova njezinim odigravanjem (ili za event izvršavanjem)
+     */
+    
+    @Test (expected = ActionNotAllowedException.class)    
+    public void testMaximumPlayerPoints() throws Exception {
+    	int playerOnTheMove = gameController.getCurrentPlayerId();
+    	String testCardId = "1";
+    	Card testCard;
+     
+    	testCard = EasyMock.createMock(Card.class);
+    	cardDAO = EasyMock.createMock(CardDAO.class);
+    	gameController.setCardDAO(cardDAO);
+    	EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(3);
+    	EasyMock.expect(testCard.getType()).andReturn("resource").times(9);
+    	EasyMock.expect(testCard.getValue()).andReturn("9").times(6);
+    	EasyMock.replay(cardDAO, testCard);
+    
+    	gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+    	gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+    	gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+  
+    } 
 
+    /*  Specificno pravilo 4
+    Ograničavanje igranja nekih tipova karata: Nakon što je odigran event, niti jedna druga karta se ne može odigrati (iznimka su karte: „Božja volja“ i „Utvrda nehaj“)
+    */
+    @Ignore
+    @Test (expected = ActionNotAllowedException.class) 
+    public void testResourceCardPlayedAfterEvent() throws Exception {
+        int playerOnTheMove = gameController.getCurrentPlayerId();
+        String testCardId = "1";
+        Card testCard;
+     
+        testCard = EasyMock.createMock(Card.class);
+        cardDAO = EasyMock.createMock(CardDAO.class);
+        gameController.setCardDAO(cardDAO);
+        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(2);
+        EasyMock.expect(testCard.getType()).andReturn("event").times(2);
+        EasyMock.expect(testCard.getType()).andReturn("resource");
+        EasyMock.expect(testCard.getValue()).andReturn("1").times(4);
+        EasyMock.replay(cardDAO, testCard);
 
+        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+
+    }
+    @Ignore
+    @Test (expected = ActionNotAllowedException.class) 
+    public void testEventCardPlayedAfterEvent() throws Exception {
+        int playerOnTheMove = gameController.getCurrentPlayerId();
+        String testCardId = "1";
+        Card testCard;
+     
+        testCard = EasyMock.createMock(Card.class);
+        cardDAO = EasyMock.createMock(CardDAO.class);
+        gameController.setCardDAO(cardDAO);
+        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(2);
+        EasyMock.expect(testCard.getType()).andReturn("event").times(4);
+        EasyMock.expect(testCard.getValue()).andReturn("1").times(4);
+        EasyMock.replay(cardDAO, testCard);
+
+        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+
+    }
+
+    /*  Specificno pravilo 5
+      Karta obavijesti (x2 karte) mogu se odbaciti s flote u discard pile u bilo kojem trenutku
+    */
+    @Test
+    public void testMultiplierRemovedFromPile() throws Exception {
+        int playerOnTheMove = gameController.getCurrentPlayerId();
+        String testCardId = "1";
+        Card testCard;
+        List<Card> discardedCards;
+     
+        testCard = EasyMock.createMock(Card.class);
+        cardDAO = EasyMock.createMock(CardDAO.class);
+        gameController.setCardDAO(cardDAO);
+
+        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(3);
+        EasyMock.expect(testCard.getType()).andReturn("multiplier").times(2);
+        //EasyMock.expect(testCard.getValue()).andReturn("1").times(4);
+        EasyMock.replay(cardDAO, testCard);
+        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+        Assert.assertTrue("Multiplier card not in resource pile after playing it.", gameController.getResources(playerOnTheMove).contains(testCard));
+        gameController.removeMultiplierFromResourcePile(playerOnTheMove, Integer.valueOf(testCardId));
+        discardedCards = gameController.getDiscardPile();
+        Assert.assertEquals("Multiplier card is zero", 1, discardedCards.size());
+    }
 }
