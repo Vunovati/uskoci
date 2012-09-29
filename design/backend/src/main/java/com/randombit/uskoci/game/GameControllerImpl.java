@@ -229,8 +229,9 @@ public class GameControllerImpl implements GameController {
     }
 
     @Override
-    public void discardCardFromResourcePile(Card card, int playerId) {
-        List<Card> playersCards = getResources(playerId);
-        removeCardFromZone(card, playersCards);
+    public void discardCardFromResourcePile(int cardId, int playerId) {
+        Card card = cardDAO.getCard(cardId);
+        List<Card> playersResources = getResources(playerId);
+        removeCardFromZone(card, playersResources);
     }
 }

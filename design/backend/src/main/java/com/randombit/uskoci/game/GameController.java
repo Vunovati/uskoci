@@ -42,5 +42,6 @@ public interface GameController {
     
     public void discardCardFromPlayersHand(int cardId, int playerId);
     
-    public void discardCardFromResourcePile(Card card, int playerId);
+    public void discardCardFromResourcePile(int cardId, int playerId);
+
 }

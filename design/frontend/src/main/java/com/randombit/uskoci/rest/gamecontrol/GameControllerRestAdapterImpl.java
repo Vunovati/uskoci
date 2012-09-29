@@ -120,6 +120,9 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
         if ("discardfromhand".equals(action.toLowerCase()))
             gameController.discardCardFromPlayersHand(Integer.valueOf(message.cardId), Integer.valueOf(message.userId));
 
+        if ("discardfromresources".equals(action.toLowerCase()))
+            gameController.discardCardFromResourcePile(Integer.valueOf(message.cardId), Integer.valueOf(message.userId));
+
         if ("playcard".equals(action.toLowerCase()))
             if (!("".equals(message.userId) && "".equals(message.cardId))) {
                 gameController.playCard(Integer.valueOf(message.userId), Integer.valueOf(message.cardId));

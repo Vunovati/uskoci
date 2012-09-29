@@ -18,11 +18,16 @@ public class GameControllerRestAdapterIntegrationTest {
     @Test
     public void test4TurnsFor4Players() {
         GameStatusResponse gameStatus = startGameFor4();
+        playFourTurns(gameStatus);
+    }
+
+    private GameStatusResponse playFourTurns(GameStatusResponse gameStatus) {
         for (int i = 0; i < 16; i++) {
             gameStatus = playerDrawsACard(gameStatus);
             gameStatus = playerPlaysACard(gameStatus);
             gameStatus = playerSetsNextTurn(gameStatus);
         }
+        return gameStatus;
     }
 
     @Test
@@ -34,17 +39,41 @@ public class GameControllerRestAdapterIntegrationTest {
     }
 
     @Test
-    public void testDiscardCardInterface() throws Exception {
+    public void testDiscardCardFromHandInterface() throws Exception {
         GameStatusResponse gameStatus = startGameFor4();
         String testPlayerId = gameStatus.currentPlayerId;
 
-        List<String> testPlayersCards = gameStatus.playersCards.get(testPlayerId);
-        String cardToBeDiscarded = testPlayersCards.get(0);
+        String cardToBeDiscarded = getOneCardIdFromHand(gameStatus, testPlayerId);
 
         GameStatusMessage gameMessage = new GameStatusMessage(testPlayerId, "discardfromhand", cardToBeDiscarded, "0");
         GameStatusResponse response = getResponse(gameMessage);
         List<String> testPlayersCardIds = response.playersCards.get(testPlayerId);
         Assert.assertFalse("Card is no longer in hand", testPlayersCardIds.contains(cardToBeDiscarded));
+    }
+
+    private String getOneCardIdFromHand(GameStatusResponse gameStatus, String testPlayerId) {
+        List<String> testPlayersCards = gameStatus.playersCards.get(testPlayerId);
+        return testPlayersCards.get(0);
+    }
+
+    @Test
+    public void testDiscardCardFromResourcesInterface() throws Exception {
+        GameStatusResponse gameStatus = startGameFor4();
+        String testPlayerId = gameStatus.currentPlayerId;
+
+        gameStatus = playFourTurns(gameStatus);
+
+        String cardToBeDiscarded = getOneResourceCardId(gameStatus, testPlayerId);
+
+        GameStatusMessage gameMessage = new GameStatusMessage(testPlayerId, "discardfromresources", cardToBeDiscarded, "0");
+        GameStatusResponse response = getResponse(gameMessage);
+        List<String> testPlayersResourceCardIds = response.playersResources.get(testPlayerId);
+        Assert.assertFalse("Card is no longer in players resources", testPlayersResourceCardIds.contains(cardToBeDiscarded));
+    }
+
+    private String getOneResourceCardId(GameStatusResponse gameStatus, String testPlayerId) {
+        List<String> testPlayersResources = gameStatus.playersResources.get(testPlayerId);
+        return testPlayersResources.get(0);
     }
 
     private GameStatusResponse playerDrawsACard(GameStatusResponse gameStatus) {
