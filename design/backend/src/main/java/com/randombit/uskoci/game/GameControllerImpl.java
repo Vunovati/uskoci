@@ -6,10 +6,6 @@ import com.randombit.uskoci.card.model.Card;
 import java.util.*;
 
 public class GameControllerImpl implements GameController {
-    private static final int MAX_NUMBER_OF_PLAYERS = 6;
-    private static final int MIN_NUMBER_OF_PLAYERS = 3;
-    private static final int BEGINNING_NUMBER_OF_CARDS = 4;
-    private static final int MAX_NUMBER_OF_CARDS_IN_HAND = 5;
 
     private CardDAO cardDAO;
     private List<Card> cardDeck;
@@ -98,7 +94,7 @@ public class GameControllerImpl implements GameController {
     }
 
     private boolean isNoOfCardsInHandValid() {
-        return playerCardMap.get(String.valueOf(currentPlayerId)).size() < MAX_NUMBER_OF_CARDS_IN_HAND + 1;
+        return playerCardMap.get(String.valueOf(currentPlayerId)).size() < GameConstants.MAX_NUMBER_OF_CARDS_IN_HAND + 1;
     }
 
     @Override
@@ -131,7 +127,7 @@ public class GameControllerImpl implements GameController {
     private void dealCards(int numberOfPlayers) {
         Collections.shuffle(cardDeck);
         for (int i = 1; i < numberOfPlayers + 1; i++) {
-            List<Card> cardsDealtToPlayer = cardDeck.subList(0, BEGINNING_NUMBER_OF_CARDS);
+            List<Card> cardsDealtToPlayer = cardDeck.subList(0, GameConstants.BEGINNING_NUMBER_OF_CARDS);
             playerCardMap.put(String.valueOf(i), new ArrayList<Card>(cardsDealtToPlayer));
             cardDeck.removeAll(playerCardMap.get(String.valueOf(i)));
         }
@@ -161,7 +157,7 @@ public class GameControllerImpl implements GameController {
 
     @Override
     public boolean startGame(int numberOfPlayersJoined) {
-        if (numberOfPlayersJoined <= MAX_NUMBER_OF_PLAYERS || numberOfPlayersJoined >= MIN_NUMBER_OF_PLAYERS) {
+        if (numberOfPlayersJoined <= GameConstants.MAX_NUMBER_OF_PLAYERS || numberOfPlayersJoined >= GameConstants.MIN_NUMBER_OF_PLAYERS) {
             this.numberOfPlayersJoined = numberOfPlayersJoined;
             resetGame();
             dealCards(this.numberOfPlayersJoined);
