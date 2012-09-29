@@ -1,6 +1,6 @@
 package com.randombit.uskoci.game;
 
-public class GameConstants {
+class GameConstants {
     static final int MAX_NUMBER_OF_PLAYERS = 6;
     static final int MIN_NUMBER_OF_PLAYERS = 3;
     static final int BEGINNING_NUMBER_OF_CARDS = 4;
