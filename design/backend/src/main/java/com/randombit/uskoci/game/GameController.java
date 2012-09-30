@@ -46,4 +46,6 @@ public interface GameController {
 
     public void removeMultiplierFromResourcePile(int playerId, int cardId ) throws ActionNotAllowedException;
 
+    public Card flipCardFaceUp();
+
 }

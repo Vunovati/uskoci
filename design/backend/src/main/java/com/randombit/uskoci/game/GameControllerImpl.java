@@ -254,8 +254,9 @@ public class GameControllerImpl implements GameController {
         List<Card> playersResources = getResources(playerId);
         removeCardFromZone(card, playersResources);
     }
+
     @Override
-    public void removeMultiplierFromResourcePile (int playerId, int cardId) throws ActionNotAllowedException{
+    public void removeMultiplierFromResourcePile (int playerId, int cardId) throws ActionNotAllowedException {
         Card card = cardDAO.getCard(cardId);
 
         if(cardIsMultiplier(card)){
@@ -264,4 +265,14 @@ public class GameControllerImpl implements GameController {
             throw new ActionNotAllowedException();
         }        
     }
+
+    @Override
+    public Card flipCardFaceUp() {
+        Card flippedCard = cardDeck.remove(0);
+
+        discardedCards.add(flippedCard);
+        
+        return flippedCard;
+    }    
+
 }

@@ -308,6 +308,22 @@ public class GameControllerImplTest {
         Assert.assertFalse("At the beginning of the game beginning card has not yet been drawn", gameController.getBeginningCardDrawn());
     }
 
+    /*   
+
+        15.  Igrači (samo pod utjecajem eventa) mogu manipulirati špilom (tražiti karte, okrenuti gornjih n karata
+             (nakon čega se te karte ili vrate u istom redoslijedu ili vrate u promijenjenom (odlučuje vlasnik eventa)
+             ili premjeste u neku zonu) (USK: okretanje gornje karte rezultira premještanjem karte u discard pile)
+    */
+    @Test
+    public void testFlipCardFaceUp() {
+    	List<Card> discardedCards;
+        int playerOnTheMove = gameController.getCurrentPlayerId();
+        Card testCard = gameController.flipCardFaceUp();
+        Assert.assertFalse("Flipped card cannot be in players resource", gameController.getResources(playerOnTheMove).contains(testCard));
+        discardedCards = gameController.getDiscardPile();
+        Assert.assertEquals("Flipped card not discarded", 1, discardedCards.size());
+
+    }
     /*    Specijalna pravila 1
     Kraj igre se događa kad igrač skupi 25 bodova (nevezano uz tip plijena) igrači imaju pravo odigrati eventove.
     Ukoliko niti jedan od igrača ne odigra kartu događaja tijekom 5 sekundi (prikazan tajmer svim igračima),
@@ -428,5 +444,6 @@ public class GameControllerImplTest {
         gameController.removeMultiplierFromResourcePile(playerOnTheMove, Integer.valueOf(testCardId));
         discardedCards = gameController.getDiscardPile();
         Assert.assertEquals("Multiplier card is zero", 1, discardedCards.size());
+        Assert.assertFalse("Multiplier card not removed from resource pile.", gameController.getResources(playerOnTheMove).contains(testCard));
     }
 }
