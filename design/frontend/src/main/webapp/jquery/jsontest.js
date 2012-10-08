@@ -179,11 +179,7 @@ function setPlayer() {
         $("#game").append('<div id="deck"><div class="card"><div class="face front"></div><div class="face back"></div></div></div>');
         $("#deck").click(drawCard);
         
-        for(var i=1;i<=game.numberOfPlayers;i++)
-        {
-            $("#resourcePiles").append('<div id="player' + i.toString() + 'Resources" class="resourcePile"><p class="resourcePileText">Player '
-                + i.toString() +' resource pile</p></div>')
-        }
+        repaintResourcePiles();
 
         $("#playerCards").children().each(function(index) {
 
