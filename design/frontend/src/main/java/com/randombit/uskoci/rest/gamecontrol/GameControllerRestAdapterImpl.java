@@ -30,9 +30,6 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
     private GameController getGameController() {
         // TODO: acces the real database DAO
         GameController gameController = GameControllerPool.instance.getController(1);
-        if (!gameController.isGameStarted()) {
-            gameController.startGame(4);
-        }
         return gameController;
     }
 

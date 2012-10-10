@@ -18,8 +18,14 @@ color: #C9771E;
 	opacity: 0.45;
 }
 
-#nextTurn {
+#nextTurn, #restartGame {
 	margin: 0 auto;
+}
+
+#dialog-confirm
+{
+	visibility: hidden;
+	display:none;
 }
 
 #playerSelect {
