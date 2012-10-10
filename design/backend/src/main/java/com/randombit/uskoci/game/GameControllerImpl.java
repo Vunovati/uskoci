@@ -17,6 +17,7 @@ public class GameControllerImpl implements GameController {
     private int numberOfPlayersJoined;
     private boolean resourceCardPlayed;
     private Map<String, List<Card>> playersResources;
+    private LinkedList<Card> cardStack;
 
     public GameControllerImpl(CardDAO cardDAO) {
         this.cardDAO = cardDAO;
@@ -49,6 +50,11 @@ public class GameControllerImpl implements GameController {
     }
 
     @Override
+    public LinkedList<Card> getCardStack() {
+    	return cardStack;
+    }    
+
+    @Override
     public int getPlayersPoints(int playerId) {
         int playersPoints = 0;
         List<Card> playersResources = getResources(playerId);
@@ -62,30 +68,62 @@ public class GameControllerImpl implements GameController {
 
     @Override
     public void playCard(int playerId, int cardId) throws ActionNotAllowedException {
+        
         Card cardPlayed = cardDAO.getCard(cardId);
+        LinkedList<Card> currentStack = getCardStack();
         if (playerIsNotOnTheMove(playerId) && !cardIsEvent(cardPlayed)) {
             throw new ActionNotAllowedException();
-        }
-         
+        }  
         if(playerPointsTooHigh(playerId, cardPlayed)){
             throw new ActionNotAllowedException();
         }
-          
-        putCardInPlayersResources(cardPlayed, playerId);
+
+        if(cardIsEvent(cardPlayed))  {
+            playEventCard(cardPlayed, playerId);
+        }
+        else  {  
+            if(currentStack.isEmpty()) {
+            	putCardInPlayersResources(cardPlayed, playerId);
+            }
+            else {
+            	throw new ActionNotAllowedException();
+            }
+        }
         removeCardFromPlayersHand(cardPlayed, playerId);
     }
     
     private boolean playerPointsTooHigh(int playerId, Card cardPlayed){
         int playersPoints = getPlayersPoints(playerId);
         
-        if ("resource".equals(cardPlayed.getType())) {
+        if (cardIsResource(cardPlayed)) {
             if((playersPoints + Integer.valueOf(cardPlayed.getValue())) > GameConstants.MAX_NUMBER_OF_PLAYER_POINTS){
                 return true;
             }    
         }
+
+        if(cardIsEvent(cardPlayed)) {
+            //TODO
+            return false;
+        }
+
+
         return false;
     }  
 
+    private void playEventCard(Card cardPlayed, int playerId) throws ActionNotAllowedException {
+        LinkedList<Card> currentCardStack = getCardStack();
+        String cardSummary = cardPlayed.getSummary();
+        
+       if(!currentCardStack.isEmpty()) {
+        	if(cardSummary == "Bozja volja" || cardSummary == "Utvrda Nehaj") {
+        		putCardOnStack(cardPlayed);
+        	}
+        	else {
+        		throw new ActionNotAllowedException();
+        	}	
+    	}     	
+        putCardOnStack(cardPlayed);    
+    } 
 
     private void removeCardFromPlayersHand(Card cardPlayed, int playerId) {
         playerCardMap.get(String.valueOf(playerId)).remove(cardPlayed);
@@ -116,6 +154,16 @@ public class GameControllerImpl implements GameController {
         List<Card> playersCards = getResources(playerId);
         playersCards.add(card);
     }
+
+    private void putCardOnStack(Card card){
+        LinkedList<Card> currentCardStack = getCardStack();
+        currentCardStack.add(card);
+    }    
+
+    private void removeCardFromStack(Card card){
+        List<Card> currentCardStack = getCardStack();
+        currentCardStack.remove(card);
+    }   
 
     private boolean isNoOfCardsInHandValid() {
         return playerCardMap.get(String.valueOf(currentPlayerId)).size() < GameConstants.MAX_NUMBER_OF_CARDS_IN_HAND + 1;
@@ -166,6 +214,7 @@ public class GameControllerImpl implements GameController {
         this.gameStarted = false;
         this.playersResources = generateEmptyPlayersResources();
         this.discardedCards = new ArrayList<Card>();
+        this.cardStack = new LinkedList<Card>();
         Random randomGenerator = new Random();
         this.currentPlayerId = randomGenerator.nextInt(numberOfPlayersJoined - 1) + 1;
         return "Game reset";

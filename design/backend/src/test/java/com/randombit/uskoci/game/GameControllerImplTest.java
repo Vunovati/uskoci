@@ -11,6 +11,7 @@ import org.easymock.EasyMock;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 public class GameControllerImplTest {
@@ -255,12 +256,13 @@ public class GameControllerImplTest {
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard);
-        EasyMock.expect(testCard.getType()).andReturn("event").times(2);
+        EasyMock.expect(testCard.getType()).andReturn("event").times(4);
+        EasyMock.expect(testCard.getSummary()).andReturn("");
         EasyMock.replay(cardDAO, testCard);
 
         gameController.playCard(playerNotOnTheMove, Integer.valueOf(testCardId));
 
-        Assert.assertTrue("Card is in the players resource zone because it is an event card", gameController.getResources(playerNotOnTheMove).contains(testCard));
+        Assert.assertFalse("Card is in the players resource zone because it is an event card", gameController.getResources(playerNotOnTheMove).contains(testCard));
     }
 
     // TODO: check if necessary rule
@@ -272,7 +274,7 @@ public class GameControllerImplTest {
 
         // When
         playerOnTheMovePlaysACard(playerOnTheMove, "1");
-        playerOnTheMovePlaysACard(playerOnTheMove, "2");
+        playerOnTheMovePlaysACard(playerOnTheMove, "1");
     }
 
     @Ignore
@@ -342,8 +344,8 @@ public class GameControllerImplTest {
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard);
-        EasyMock.expect(testCard.getType()).andReturn("resource").times(3);
-        EasyMock.expect(testCard.getValue()).andReturn("5").times(3);
+        EasyMock.expect(testCard.getType()).andReturn("resource").times(4);
+        EasyMock.expect(testCard.getValue()).andReturn("5").times(2);
         EasyMock.replay(cardDAO, testCard);
 
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
@@ -368,7 +370,7 @@ public class GameControllerImplTest {
     	cardDAO = EasyMock.createMock(CardDAO.class);
     	gameController.setCardDAO(cardDAO);
     	EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(3);
-    	EasyMock.expect(testCard.getType()).andReturn("resource").times(9);
+    	EasyMock.expect(testCard.getType()).andReturn("resource").times(10);
     	EasyMock.expect(testCard.getValue()).andReturn("9").times(6);
     	EasyMock.replay(cardDAO, testCard);
     
@@ -381,7 +383,6 @@ public class GameControllerImplTest {
     /*  Specificno pravilo 4
     Ograničavanje igranja nekih tipova karata: Nakon što je odigran event, niti jedna druga karta se ne može odigrati (iznimka su karte: „Božja volja“ i „Utvrda nehaj“)
     */
-    @Ignore
     @Test (expected = ActionNotAllowedException.class) 
     public void testResourceCardPlayedAfterEvent() throws Exception {
         int playerOnTheMove = gameController.getCurrentPlayerId();
@@ -392,8 +393,9 @@ public class GameControllerImplTest {
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(2);
-        EasyMock.expect(testCard.getType()).andReturn("event").times(2);
-        EasyMock.expect(testCard.getType()).andReturn("resource");
+        EasyMock.expect(testCard.getType()).andReturn("event").times(4);
+        EasyMock.expect(testCard.getType()).andReturn("resource").times(4);
+        EasyMock.expect(testCard.getSummary()).andReturn("").times(2);
         EasyMock.expect(testCard.getValue()).andReturn("1").times(4);
         EasyMock.replay(cardDAO, testCard);
 
@@ -401,7 +403,6 @@ public class GameControllerImplTest {
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
 
     }
-    @Ignore
     @Test (expected = ActionNotAllowedException.class) 
     public void testEventCardPlayedAfterEvent() throws Exception {
         int playerOnTheMove = gameController.getCurrentPlayerId();
@@ -412,13 +413,35 @@ public class GameControllerImplTest {
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(2);
-        EasyMock.expect(testCard.getType()).andReturn("event").times(4);
+        EasyMock.expect(testCard.getType()).andReturn("event").times(8);
         EasyMock.expect(testCard.getValue()).andReturn("1").times(4);
+        EasyMock.expect(testCard.getSummary()).andReturn("").times(2);
         EasyMock.replay(cardDAO, testCard);
 
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
 
+    }
+    @Test  
+    public void testEventResponseToEvent() throws Exception{
+    	int playerOnTheMove = gameController.getCurrentPlayerId();
+        String testCardId = "1";
+        Card testCard;
+     
+        testCard = EasyMock.createMock(Card.class);
+        cardDAO = EasyMock.createMock(CardDAO.class);
+        gameController.setCardDAO(cardDAO);
+        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(2);
+        EasyMock.expect(testCard.getType()).andReturn("event").times(8);
+        EasyMock.expect(testCard.getValue()).andReturn("1").times(4);
+        EasyMock.expect(testCard.getSummary()).andReturn("");
+        EasyMock.expect(testCard.getSummary()).andReturn("Bozja volja");
+        EasyMock.replay(cardDAO, testCard);
+        
+        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+        
+        Assert.assertTrue("Event response on event not on stack", gameController.getCardStack().contains(testCard));
     }
 
     /*  Specificno pravilo 5
@@ -436,8 +459,7 @@ public class GameControllerImplTest {
         gameController.setCardDAO(cardDAO);
 
         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(3);
-        EasyMock.expect(testCard.getType()).andReturn("multiplier").times(2);
-        //EasyMock.expect(testCard.getValue()).andReturn("1").times(4);
+        EasyMock.expect(testCard.getType()).andReturn("multiplier").times(4);
         EasyMock.replay(cardDAO, testCard);
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
         Assert.assertTrue("Multiplier card not in resource pile after playing it.", gameController.getResources(playerOnTheMove).contains(testCard));

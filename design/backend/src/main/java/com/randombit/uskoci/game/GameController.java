@@ -3,6 +3,7 @@ package com.randombit.uskoci.game;
 import com.randombit.uskoci.card.dao.CardDAO;
 import com.randombit.uskoci.card.model.Card;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public interface GameController {
@@ -47,5 +48,7 @@ public interface GameController {
     public void removeMultiplierFromResourcePile(int playerId, int cardId ) throws ActionNotAllowedException;
 
     public Card flipCardFaceUp();
+
+    public LinkedList<Card> getCardStack();
 
 }
