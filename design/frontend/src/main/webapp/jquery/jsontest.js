@@ -2,6 +2,8 @@
 playerID = null;
 game.myTurn = false;
 game.currentAction = null;
+game.started = false;
+game.numOfRetries = 0;
 var initialization = true;
 
 $(function () {
@@ -29,14 +31,44 @@ $(function () {
             return;
         }
 
+        switch(json.lastAction["action"])
+        {
+            case "isGameStarted":
+                if(!json.gameStarted && game.numOfRetries < 50)
+                    setTimeout(function() {
+                        checkIfGameStarted();
+                        numOfRetries++;
+                    }, 100);
+            case "startGame":
+                if(game.started != false)
+                    return;
+                $('#startGame').remove();
+                $('#gameNavigation').append('<button id="joinGame" class="uskociButton">Join game</button>');
+                $('#joinGame').click(joinGame);
+                content.append("Game started!");
+                game.started = true;
+                return;
+            case "restartGame":
+                game.started = false;
+                subSocket.push(jQuery.stringifyJSON({userId: "", action: "startGame", cardId: "", gameId: "0"}));
+                location.reload();
+                break;
+            case "playersCards":
+                if(json.lastAction["userId"] != playerID)
+                    return;
+                break;
+        }
+
+        if(json.playersCards == null)
+            return; 
+
         game.playerCards = json.playersCards[playerID];
         game.numberOfPlayers = json.numberOfPlayersJoined;
         game.myTurn = json.currentPlayerId == playerID
         game.currentPlayerID = json.currentPlayerId
         game.resourcePiles = json.playersResources;
 
-        if(!initialization)
-            redrawTable();
+        redrawTable();
 
         modifyGameStatus(playerID + " / " + json.playersCards[playerID]);        
     };
@@ -58,15 +90,26 @@ $(function () {
   }
 
   var subSocket = socket.subscribe(request);
+  checkIfGameStarted();
 
-  function startGame()
+  function checkIfGameStarted()
+  {
+    subSocket.push(jQuery.stringifyJSON({userId: "", action: "isGameStarted", cardId: "", gameId: "0"}));
+  }
+ 
+  function joinGame()
   {
     if(game.playerCards == null)
         return;
 
     renderTable();
-    $('#startGame').remove();
+    $('#joinGame').remove();
     $('#playerSelect').remove();
+}
+
+function startGame()
+{
+    subSocket.push(jQuery.stringifyJSON({userId: playerID, action: "startGame", cardId: "", gameId: "0"}));
 }
 
 function nextTurn()
@@ -153,6 +196,8 @@ function playCard()
 }
 
 function setPlayer() {
+    if(!game.started)
+        return;
     playerID = $("select option:selected").attr("value");
     subSocket.push(jQuery.stringifyJSON({userId: playerID, action: "playersCards", cardId: "", gameId: "0"}));
 }
@@ -179,11 +224,7 @@ function setPlayer() {
         $("#game").append('<div id="deck"><div class="card"><div class="face front"></div><div class="face back"></div></div></div>');
         $("#deck").click(drawCard);
         
-        for(var i=1;i<=game.numberOfPlayers;i++)
-        {
-            $("#resourcePiles").append('<div id="player' + i.toString() + 'Resources" class="resourcePile"><p class="resourcePileText">Player '
-                + i.toString() +' resource pile</p></div>')
-        }
+        repaintResourcePiles();
 
         $("#playerCards").children().each(function(index) {
 
@@ -199,8 +240,29 @@ function setPlayer() {
         });
 
         $("#game").append('<button id="nextTurn" class="uskociButton">Next player!</button>');
+        $("#game").append('<button id="restartGame" class="uskociButton">Restart game</button>');
         $("#nextTurn").click(nextTurn);
+        $("#restartGame").click(restartGame);
         initialization = false;
+    }
+
+    function restartGame()
+    {
+        $(function() {
+            $( "#dialog-confirm" ).dialog({
+                resizable: false,
+                height:140,
+                modal: true,
+                buttons: {
+                    "Restart game": function() {
+                        subSocket.push(jQuery.stringifyJSON({userId: "", action: "restartGame", cardId: "", gameId: "0"}));
+                    },
+                    Cancel: function() {
+                        $( this ).dialog( "close" );
+                    }
+                }
+            });
+        });
     }
 
     function redrawTable()
