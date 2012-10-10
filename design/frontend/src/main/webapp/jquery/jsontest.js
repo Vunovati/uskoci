@@ -43,6 +43,7 @@ $(function () {
                 if(game.started != false)
                     return;
                 $('#startGame').remove();
+                $('#playerSelect').toggleClass('hidden');
                 $('#gameNavigation').append('<button id="joinGame" class="uskociButton">Join game</button>');
                 $('#joinGame').click(joinGame);
                 content.append("Game started!");
