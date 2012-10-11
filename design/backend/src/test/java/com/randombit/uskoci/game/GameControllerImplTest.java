@@ -504,7 +504,7 @@ public class GameControllerImplTest {
       Karta obavijesti (x2 karte) mogu se odbaciti s flote u discard pile u bilo kojem trenutku
     */
     @Test
-    public void testMultiplierRemovedFromPile() throws Exception {
+    public void testMultiplierRemovedFromPile() throws Exception { 
         int playerOnTheMove = gameController.getCurrentPlayerId();
         String testCardId = "1";
         Card testCard;
