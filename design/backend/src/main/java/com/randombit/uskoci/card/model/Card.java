@@ -12,6 +12,7 @@ public class Card {
     private String description = "";
     private String position = "";
     private String value = "";
+    private String resourceType="";
 
     public Card() {
     }
