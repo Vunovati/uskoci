@@ -12,17 +12,19 @@ public class Card {
     private String description = "";
     private String position = "";
     private String value = "";
+    private String resourceType="";
 
     public Card() {
     }
 
-    public Card(String id, String summary, String description, String type, String position, String value) {
+    public Card(String id, String summary, String type, String description, String position, String value, String resourceType) {
         this.id = id;
         this.summary = summary;
-        this.description = description;
         this.type = type;
+        this.description = description;
         this.position = position;
         this.value = value;
+        this.resourceType = resourceType;
     }
 
     @XmlElement
@@ -69,5 +71,14 @@ public class Card {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @XmlElement
+    public String getResourceType() {
+        return resourceType;
+    }
+
+    public void setResourceType(String resourceType) {
+        this.resourceType = resourceType;
     }
 }

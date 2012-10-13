@@ -1,3 +1,7 @@
+
+## Build Status
+[![Build Status](https://buildhive.cloudbees.com/job/Vunovati/job/uskoci/badge/icon)](https://buildhive.cloudbees.com/job/Vunovati/job/uskoci/)
+
 uskoci
 ======
 Download with:
@@ -17,6 +21,3 @@ $ cd design/frontend
 & mvn jetty:run-war
 
 visit: http://localhost:8080/
-
-## Build Status
-[![Build Status](https://buildhive.cloudbees.com/job/Vunovati/job/uskoci/badge/icon)](https://buildhive.cloudbees.com/job/Vunovati/job/uskoci/)

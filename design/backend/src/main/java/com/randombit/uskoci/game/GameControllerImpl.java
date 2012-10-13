@@ -69,11 +69,11 @@ public class GameControllerImpl implements GameController {
     @Override
     public void playCard(int playerId, int cardId) throws ActionNotAllowedException {
         
-        Card cardPlayed = cardDAO.getCard(cardId);
+    	Card cardPlayed = cardDAO.getCard(cardId);
         LinkedList<Card> currentStack = getCardStack();
         if (playerIsNotOnTheMove(playerId) && !cardIsEvent(cardPlayed)) {
             throw new ActionNotAllowedException();
-        }  
+        }
         if(playerPointsTooHigh(playerId, cardPlayed)){
             throw new ActionNotAllowedException();
         }
@@ -81,14 +81,14 @@ public class GameControllerImpl implements GameController {
         if(cardIsEvent(cardPlayed))  {
             playEventCard(cardPlayed, playerId);
         }
-        else  {  
-            if(currentStack.isEmpty()) {
-            	putCardInPlayersResources(cardPlayed, playerId);
-            }
-            else {
-            	throw new ActionNotAllowedException();
-            }
-        }
+        else  {
+        	if(currentStack.isEmpty()){
+        			putCardInPlayersResources(cardPlayed, playerId);
+        		}
+        		else {
+        			throw new ActionNotAllowedException();
+        		}
+        	}    
         removeCardFromPlayersHand(cardPlayed, playerId);
     }
     
@@ -124,7 +124,7 @@ public class GameControllerImpl implements GameController {
     	}     	
         putCardOnStack(cardPlayed);    
     } 
-
+    
     private void removeCardFromPlayersHand(Card cardPlayed, int playerId) {
         playerCardMap.get(String.valueOf(playerId)).remove(cardPlayed);
     }
@@ -272,6 +272,7 @@ public class GameControllerImpl implements GameController {
     private void beginTurn() {
         currentPlayerId = getNextPlayerId();
         beginningCardDrawn = false;
+        resourceCardPlayed = false;
     }
 
     private boolean playerOnTheMove(int playerId) {

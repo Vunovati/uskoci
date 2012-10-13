@@ -270,7 +270,7 @@ public class GameControllerImplTest {
     @Test(expected = ActionNotAllowedException.class)
     public void testPlayResourceCardTwiceInSameTurn() throws Exception {
         // Given
-        int playerOnTheMove = gameController.getCurrentPlayerId();
+    	   int playerOnTheMove = gameController.getCurrentPlayerId();
 
         // When
         playerOnTheMovePlaysACard(playerOnTheMove, "1");
@@ -282,9 +282,9 @@ public class GameControllerImplTest {
     public void testResourceCardPlayedResetEachTurn() throws Exception {
         // given
         String testCardId = "1";
-        int currentPlayerId = gameController.getCurrentPlayerId();
+    	int currentPlayerId = gameController.getCurrentPlayerId();
         playerOnTheMovePlaysACard(currentPlayerId, testCardId);
-
+     
         // When
         gameController.setNextPlayersTurn(currentPlayerId);
 
