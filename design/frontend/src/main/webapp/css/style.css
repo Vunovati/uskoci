@@ -22,7 +22,7 @@ color: #C9771E;
 	margin: 0 auto;
 }
 
-#dialog-confirm
+.hidden
 {
 	visibility: hidden;
 	display:none;
