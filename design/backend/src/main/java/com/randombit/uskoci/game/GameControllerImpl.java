@@ -347,5 +347,4 @@ public class GameControllerImpl implements GameController {
         discardedCards.add(flippedCard);
         return flippedCard;
     }    
-
 }

@@ -11,7 +11,6 @@ import org.easymock.EasyMock;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 public class GameControllerImplTest {
@@ -291,13 +290,23 @@ public class GameControllerImplTest {
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
     }
 
-    @Ignore
     @Test
     public void testResourceCardPlayedResetEachTurn() throws Exception {
-        // given
+    	int currentPlayerId = gameController.getCurrentPlayerId();
         String testCardId = "1";
-        int currentPlayerId = gameController.getCurrentPlayerId();
-        playerOnTheMovePlaysACard(currentPlayerId, testCardId);
+        Card testCard;
+
+        testCard = EasyMock.createMock(Card.class);
+        cardDAO = EasyMock.createMock(CardDAO.class);
+        gameController.setCardDAO(cardDAO);
+        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(2);
+        EasyMock.expect(testCard.getType()).andReturn("resource").times(5);
+        EasyMock.expect(testCard.getValue()).andReturn("1").times(2);
+        EasyMock.expect(testCard.getSummary()).andReturn("").times(1);
+        EasyMock.replay(cardDAO, testCard);
+
+        gameController.drawCard(currentPlayerId);
+        gameController.playCard(currentPlayerId, Integer.valueOf(testCardId));
 
         // When
         gameController.setNextPlayersTurn(currentPlayerId);
