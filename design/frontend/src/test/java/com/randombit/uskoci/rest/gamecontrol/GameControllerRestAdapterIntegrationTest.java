@@ -89,7 +89,8 @@ public class GameControllerRestAdapterIntegrationTest {
         GameStatusMessage gameMessage = new GameStatusMessage(playerId, "playcard", cardToBePlayed, "0");
 
         GameStatusResponse newStatus = getResponse(gameMessage);
-        Assert.assertFalse("Players hand does not contain the card that has been played", newStatus.playersCards.get(playerId).contains(cardToBePlayed));
+        List<String> playersCards = newStatus.playersCards.get(playerId);
+        Assert.assertFalse("Players hand does not contain the card that has been played", playersCards.contains(cardToBePlayed));
         return newStatus;
     }
 
