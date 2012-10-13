@@ -30,6 +30,14 @@ $(function () {
             console.log('This doesn\'t look like a valid JSON: ', message.data);
             return;
         }
+        
+        performAction(json);               
+    };
+
+    function performAction(response)
+    {
+        if(response.actionStatus != "OK")
+            return;
 
         switch(json.lastAction["action"])
         {
@@ -71,8 +79,9 @@ $(function () {
 
         redrawTable();
 
-        modifyGameStatus(playerID + " / " + json.playersCards[playerID]);        
-    };
+        modifyGameStatus(playerID + " / " + json.playersCards[playerID]);
+
+    }
 
 
     request.onError = function(response) {
@@ -191,8 +200,18 @@ function playCard()
 
     var cardID = $(this).attr("data-pattern");
     subSocket.push(jQuery.stringifyJSON({userId: playerID, action: "playCard", cardId: cardID, gameId: "0"}));
-    $(this).remove();
-    modifyGameStatus("Player " + playerID + " puts card " + getCardSummary(cardID) + " on his resource pile.");
+    
+    switch(getCardType(cardID))
+    {
+        case "x2":
+        case "resource":
+            $(this).remove();
+            modifyGameStatus("Player " + playerID + " puts card " + getCardSummary(cardID) + " on his resource pile.");
+            break;
+        case "instant":
+            modifyGameStatus("Player " + playerID + " plays INSTANT " + getCardSummary(cardID) + "!");
+    }
+
     game.currentAction = "playCard";
 }
 
@@ -298,6 +317,22 @@ function setPlayer() {
         dataType: 'json',
         success: function(card) {
             cardSummary = card.summary;
+        }
+    });
+
+    return cardSummary;
+}
+
+function getCardType(cardID) {
+    var cardSummary = null;
+
+    $.ajax({
+        type: 'GET',   
+        url: document.location.toString() + 'rest/card/' + cardID,
+        async: false,
+        dataType: 'json',
+        success: function(card) {
+            cardSummary = card.type;
         }
     });
 
