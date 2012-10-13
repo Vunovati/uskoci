@@ -20,10 +20,13 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
         GameStatusResponse gameResponse;
         try {
             gameResponse = makeMove(message, gameController);
+            gameResponse.actionStatus = "OK";
         } catch (ActionNotAllowedException e) {
             e.printStackTrace();
             gameResponse = new UnsupportedActionResponse();
             gameResponse.lastAction = message;
+            //gameResponse.actionStatus = e.getMessage();
+            gameResponse.actionStatus = "Error";
         }
         return gameResponse;
     }
