@@ -70,7 +70,10 @@ public class GameControllerImpl implements GameController {
     public void playCard(int playerId, int cardId) throws ActionNotAllowedException {
         
     	Card cardPlayed = cardDAO.getCard(cardId);
-      
+        LinkedList<Card> currentStack = getCardStack();
+        if (playerIsNotOnTheMove(playerId) && !cardIsEvent(cardPlayed)) {
+            throw new ActionNotAllowedException();
+        }
         if(playerPointsTooHigh(playerId, cardPlayed)){
             throw new ActionNotAllowedException();
         }
@@ -79,18 +82,13 @@ public class GameControllerImpl implements GameController {
             playEventCard(cardPlayed, playerId);
         }
         else  {
-        	if(cardIsResource(cardPlayed)){
-        		playResourceCard(cardPlayed, playerId);
-        	}
-        	else{
-        		if(cardIsMultiplier(cardPlayed)){
+        	if(currentStack.isEmpty()){
         			putCardInPlayersResources(cardPlayed, playerId);
         		}
         		else {
         			throw new ActionNotAllowedException();
         		}
         	}    
-        }
         removeCardFromPlayersHand(cardPlayed, playerId);
     }
     
@@ -127,22 +125,6 @@ public class GameControllerImpl implements GameController {
         putCardOnStack(cardPlayed);    
     } 
     
-    private void playResourceCard(Card cardPlayed, int playerId) throws ActionNotAllowedException {
-    	LinkedList<Card> currentStack = getCardStack();
-    	
-    	if(playerIsNotOnTheMove(playerId)){
-    		throw new ActionNotAllowedException();
-    	}
-        if(!currentStack.isEmpty()) {
-        	throw new ActionNotAllowedException();
-        }
-        if(resourceCardPlayed) {
-        	throw new ActionNotAllowedException();
-        }
-        resourceCardPlayed = true;
-        putCardInPlayersResources(cardPlayed, playerId);	
-    }
-
     private void removeCardFromPlayersHand(Card cardPlayed, int playerId) {
         playerCardMap.get(String.valueOf(playerId)).remove(cardPlayed);
     }
@@ -179,7 +161,7 @@ public class GameControllerImpl implements GameController {
     }    
 
     private void removeCardFromStack(Card card){
-        LinkedList<Card> currentCardStack = getCardStack();
+        List<Card> currentCardStack = getCardStack();
         currentCardStack.remove(card);
     }   
 
