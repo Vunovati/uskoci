@@ -107,7 +107,7 @@ public class GameControllerImplTest {
     // Opcionalno: Na početku poteza vuče se n karata (USK: da, n=1)
     @Test
     public void testDrawCard() throws Exception {
-        int testPlayerId = 1;
+        int testPlayerId = gameController.getCurrentPlayerId();
         Card cardDrawn = gameController.drawCard(testPlayerId);
 
         Assert.assertNotNull("Card has been drawn",
@@ -116,6 +116,12 @@ public class GameControllerImplTest {
                 gameController.getCardsInTheDeck().contains(cardDrawn));
         Assert.assertTrue("Players hand contains a card after it has been drawn",
                 gameController.getPlayerCards(testPlayerId).contains(cardDrawn));
+    }
+
+    @Test(expected = ActionNotAllowedException.class)
+    public void testPlayerNotOnMoveDrawCard() throws Exception {
+        int playerNotOnTheMoveId = gameController.getNextPlayerId();
+        Card cardDrawn = gameController.drawCard(playerNotOnTheMoveId);
     }
 
     //    Igrač klikom na gumb prelazi iz faze u fazu, prelaskom iz završne faze,
@@ -183,7 +189,7 @@ public class GameControllerImplTest {
         List<Card> discardedCards;
         List<Card> allPlayersHands = new ArrayList<Card>();
         
-        int testPlayerId = 1;
+        int testPlayerId = gameController.getCurrentPlayerId();
         Card cardDrawn;
         int expectedNumberOfCards = INITIAL_NUMBER_OF_CARDS_IN_THE_DECK - (testNumberOfPlayers * STARTING_NUMBER_OF_CARDS) - 1;
         

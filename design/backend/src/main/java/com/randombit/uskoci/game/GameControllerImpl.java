@@ -244,9 +244,12 @@ public class GameControllerImpl implements GameController {
     }
 
     @Override
-    public Card drawCard(int playerId) {
+    public Card drawCard(int playerId) throws ActionNotAllowedException {
         Card cardDrawn = cardDeck.remove(0);
         playerCardMap.get(String.valueOf(playerId)).add(cardDrawn);
+
+        if (playerIsNotOnTheMove(playerId))
+            throw new ActionNotAllowedException();
 
         if (!beginningCardDrawn)
             beginningCardDrawn = true;
