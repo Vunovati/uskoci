@@ -23,6 +23,7 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
         } catch (ActionNotAllowedException e) {
             e.printStackTrace();
             gameResponse = new UnsupportedActionResponse();
+            gameResponse.lastAction = message;
         }
         return gameResponse;
     }
