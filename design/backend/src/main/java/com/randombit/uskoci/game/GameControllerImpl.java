@@ -8,7 +8,9 @@ import java.util.*;
 public class GameControllerImpl implements GameController {
 
     private CardDAO cardDAO;
+
     private List<Card> cardDeck;
+
     private List<Card> discardedCards;
     private Map<String, List<Card>> playerCardMap;
     private int currentPlayerId;
@@ -18,15 +20,19 @@ public class GameControllerImpl implements GameController {
     private boolean resourceCardPlayed;
     private Map<String, List<Card>> playersResources;
     private LinkedList<Card> cardStack;
-
-
     public GameControllerImpl(CardDAO cardDAO) {
         this.cardDAO = cardDAO;
     }
 
+
     @Override
     public void setCardDAO(CardDAO cardDAO) {
         this.cardDAO = cardDAO;
+    }
+
+    @Override
+    public void setCardDeck(List<Card> cardDeck) {
+        this.cardDeck = cardDeck;
     }
 
     @Override
@@ -53,7 +59,7 @@ public class GameControllerImpl implements GameController {
     @Override
     public LinkedList<Card> getCardStack() {
     	return cardStack;
-    }    
+    }
 
     @Override
     public int getPlayersPoints(int playerId) {
@@ -266,6 +272,9 @@ public class GameControllerImpl implements GameController {
 
     @Override
     public Card drawCard(int playerId) throws ActionNotAllowedException {
+        if (beginningCardDrawn)
+            throw new ActionNotAllowedException();
+
         Card cardDrawn = cardDeck.remove(0);
         playerCardMap.get(String.valueOf(playerId)).add(cardDrawn);
 
