@@ -51,4 +51,6 @@ public interface GameController {
 
     public LinkedList<Card> getCardStack();
 
+    void setCardDeck(List<Card> cards);
+
 }

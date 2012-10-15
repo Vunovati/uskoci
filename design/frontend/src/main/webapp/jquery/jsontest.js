@@ -1,10 +1,9 @@
 ﻿var game = {};
 playerID = null;
 game.myTurn = false;
-game.currentAction = null;
 game.started = false;
 game.numOfRetries = 0;
-var initialization = true;
+game.initialized = false;
 
 $(function () {
     "use strict";
@@ -30,49 +29,92 @@ $(function () {
             console.log('This doesn\'t look like a valid JSON: ', message.data);
             return;
         }
+        
+        if(playerID != null && json.actionStatus == "OK")
+            assignValues(json);
 
-        switch(json.lastAction["action"])
+        checkLastMessageAndPerformAction(json);
+
+    };
+
+    function paintDeckAndRestartNextTurnButtons()
+    {
+        $("#game").append('<div id="deck"><div class="card"><div class="face front"></div><div class="face back"></div></div></div>');
+        $("#deck").click(drawCard);
+        $("#game").append('<button id="nextTurn" class="uskociButton">Next player!</button>');
+        $("#game").append('<button id="restartGame" class="uskociButton">Restart game</button>');
+        $("#nextTurn").click(nextTurn);
+        $("#restartGame").click(restartGame);
+    }
+
+    function checkLastMessageAndPerformAction(response)
+    {
+        if(response.actionStatus != "OK")
+        {
+            console.log(response.actionStatus);
+            return;
+        }
+
+        switch(response.lastAction["action"])
         {
             case "isGameStarted":
-                if(!json.gameStarted && game.numOfRetries < 50)
+                if(!response.gameStarted && game.numOfRetries < 50)
                     setTimeout(function() {
                         checkIfGameStarted();
                         numOfRetries++;
                     }, 100);
             case "startGame":
-                if(game.started != false)
-                    return;
-                $('#startGame').remove();
-                $('#playerSelect').toggleClass('hidden');
-                $('#gameNavigation').append('<button id="joinGame" class="uskociButton">Join game</button>');
-                $('#joinGame').click(joinGame);
-                content.append("Game started!");
-                game.started = true;
-                return;
+                if(!game.started)
+                    drawJoinPlayerControls(response);
+                break;
             case "restartGame":
                 game.started = false;
                 subSocket.push(jQuery.stringifyJSON({userId: "", action: "startGame", cardId: "", gameId: "0"}));
                 location.reload();
                 break;
-            case "playersCards":
-                if(json.lastAction["userId"] != playerID)
-                    return;
+            case "drawCard":
+                animateCardDrawal();
                 break;
-        }
+            }
 
-        if(json.playersCards == null)
-            return; 
+        if(game.initialized)
+            repaintTable();
 
-        game.playerCards = json.playersCards[playerID];
-        game.numberOfPlayers = json.numberOfPlayersJoined;
-        game.myTurn = json.currentPlayerId == playerID
-        game.currentPlayerID = json.currentPlayerId
-        game.resourcePiles = json.playersResources;
+    }
 
-        redrawTable();
+    function drawJoinPlayerControls(response)
+    {
+        if(game.started)
+            return;
 
-        modifyGameStatus(playerID + " / " + json.playersCards[playerID]);        
-    };
+        $('#startGame').remove();
+        $('#playerSelect').toggleClass('hidden');
+        $('#gameNavigation').append('<button id="joinGame" class="uskociButton">Join game</button>');
+        $('#joinGame').click(joinGame_MouseClick);
+        content.append("Game started! ");
+        content.append("Player " + response.currentPlayerId + " starts first.")
+        game.started = true;
+
+    }
+
+    function assignValues(response)
+    {
+        game.playerCards = response.playersCards[playerID];
+        game.numberOfPlayers = response.numberOfPlayersJoined;
+        game.myTurn = response.currentPlayerId == playerID
+        game.currentPlayerID = response.currentPlayerId
+        game.resourcePiles = response.playersResources;
+    }
+
+    function repaintTable(response)
+    {
+        checkPlayerOnTheMove();
+        repaintResourcePiles();
+        repaintHand();
+
+        if(response != null)
+            modifyGameStatus(response.lastAction["userId"] + ' / ' + response.lastAction["action"] + ' / ' + response.lastAction["cardId"]);
+    }
 
 
     request.onError = function(response) {
@@ -98,17 +140,22 @@ $(function () {
     subSocket.push(jQuery.stringifyJSON({userId: "", action: "isGameStarted", cardId: "", gameId: "0"}));
   }
  
-  function joinGame()
+  function joinGame_MouseClick()
   {
     if(game.playerCards == null)
         return;
 
-    renderTable();
+    $("#game").height(800);
+
+    repaintTable(null);
+    paintDeckAndRestartNextTurnButtons();
+
     $('#joinGame').remove();
     $('#playerSelect').remove();
+    game.initialized = true;
 }
 
-function startGame()
+function startGame_MouseClick()
 {
     subSocket.push(jQuery.stringifyJSON({userId: playerID, action: "startGame", cardId: "", gameId: "0"}));
 }
@@ -116,38 +163,16 @@ function startGame()
 function nextTurn()
 {
     subSocket.push(jQuery.stringifyJSON({userId: playerID, action: "setNextTurn", cardId: "", gameId: "0"}));
-    game.currentAction = "nextTurn";        
 }
 
 function drawCard()
 {
     subSocket.push(jQuery.stringifyJSON({userId: playerID, action: "drawCard", cardId: "", gameId: "0"}));
-    game.currentAction = "drawCard";        
 }
 
-function repaintDeck(cardID)
+function animateCardDrawal()
 {
-    $("#deck").find(".back").addClass(cardID);
-    $("#deck").find(".card").attr("data-pattern",cardID);
-    $('.' + cardID).css("background-position", getCardPosition(cardID));
-    $("#deck").find(".card").addClass("card-flipped")
-    $('#deck').unbind('click', drawCard);
-    $("#deck").click(putInHand);
-}
-
-function putInHand()
-{
-    $("#deck").find(".card").detach().prependTo($('#playerCards'));
-
-    var cardAdded = $("#playerCards .card:first-child");
-    var cardIndex = game.playerCards.length-1;
-
-    cardAdded.css({"left" : (cardAdded.width() + 20) * (cardIndex % 4), "top" : (cardAdded.height() + 20) * Math.floor(cardIndex / 4)}).delay(100);
-
-    $("#deck").append('<div class="card"><div class="face front"></div><div class="face back"></div></div>');
-    $("#deck").unbind('click', putInHand);
-    $("#deck").click(drawCard);
-    cardAdded.click(playCard);
+   //TODO: create some nice animation sequences
 }
 
 function repaintResourcePiles()
@@ -186,14 +211,8 @@ function createCard(cardID)
 
 function playCard()
 {
-    if(!game.myTurn)
-        return;
-
     var cardID = $(this).attr("data-pattern");
     subSocket.push(jQuery.stringifyJSON({userId: playerID, action: "playCard", cardId: cardID, gameId: "0"}));
-    $(this).remove();
-    modifyGameStatus("Player " + playerID + " puts card " + getCardSummary(cardID) + " on his resource pile.");
-    game.currentAction = "playCard";
 }
 
 function setPlayer() {
@@ -204,35 +223,25 @@ function setPlayer() {
 }
 
     //Navigation
-    $('#startGame').click(startGame);
+    $('#startGame').click(startGame_MouseClick);
     $('#playerSelect').change(setPlayer);
 
-    function renderTable() {
+    function repaintHand() {
 
-        $("#game").height(800);
-
-        if(game.myTurn)
-            $("#turnInfo").html("Your turn!");
-        else
-            $("#turnInfo").html("Wait... Player " + game.currentPlayerID + " is on turn.");
+        $("#playerCards").empty();
 
         $("#playerCards").append('<div class="card"><div class="face front"></div><div class="face back"></div></div>'); <!-- .card -->
 
         for(var i=0;i<game.playerCards.length-1;i++){
-            $(".card:first-child").clone().appendTo("#playerCards");
+            $("#playerCards .card:first-child").clone().appendTo("#playerCards");
         }
-
-        $("#game").append('<div id="deck"><div class="card"><div class="face front"></div><div class="face back"></div></div></div>');
-        $("#deck").click(drawCard);
-        
-        repaintResourcePiles();
-
+                      
         $("#playerCards").children().each(function(index) {
 
             $(this).css({"left" : ($(this).width() + 20) * (index % 4), "top" : ($(this).height() + 20) * Math.floor(index / 4)
         });
 
-            var pattern = game.playerCards.pop();
+            var pattern = game.playerCards.sort().pop();
             $(this).find(".back").addClass(pattern);
             $(this).attr("data-pattern",pattern);
             $('.' + pattern).css("background-position", getCardPosition(pattern)); //dodjeljujemo CSS svakoj karti prema MongoDB
@@ -240,11 +249,14 @@ function setPlayer() {
             flipCard(pattern);
         });
 
-        $("#game").append('<button id="nextTurn" class="uskociButton">Next player!</button>');
-        $("#game").append('<button id="restartGame" class="uskociButton">Restart game</button>');
-        $("#nextTurn").click(nextTurn);
-        $("#restartGame").click(restartGame);
-        initialization = false;
+    }
+
+    function checkPlayerOnTheMove()
+    {
+        if(game.myTurn)
+            $("#turnInfo").html("Your turn!");
+        else
+            $("#turnInfo").html("Wait... Player " + game.currentPlayerID + " is on turn.");
     }
 
     function restartGame()
@@ -264,22 +276,6 @@ function setPlayer() {
                 }
             });
         });
-    }
-
-    function redrawTable()
-    {
-        if(initialization)
-            return;
-
-        if(game.myTurn)
-            $("#turnInfo").html("Your turn!")
-        else
-            $("#turnInfo").html("Wait... Player " + game.currentPlayerID + " is on turn.");
-
-        if(game.currentAction == "drawCard" && game.myTurn)
-            repaintDeck(LastOf(game.playerCards));
-        else
-            repaintResourcePiles();
     }
 
     function flipCard(cardID) {
