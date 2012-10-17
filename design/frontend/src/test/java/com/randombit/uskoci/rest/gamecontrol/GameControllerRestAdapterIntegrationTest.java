@@ -64,9 +64,7 @@ public class GameControllerRestAdapterIntegrationTest {
         GameStatusMessage gameMessage = new GameStatusMessage(playerId, "setnextturn", "", "0");
 
         GameStatusResponse newStatus = getResponse(gameMessage);
-        Assert.assertFalse("Player is no longer on the move", playerId.equals(newStatus.currentPlayerId))
-
-“
+        Assert.assertFalse("Player is no longer on the move", playerId.equals(newStatus.currentPlayerId));
 
         return newStatus;
     }
