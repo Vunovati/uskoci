@@ -23,7 +23,7 @@ public interface GameController {
 
     public List<Card> getPlayerCards(int playedId);
 
-    public Card drawCard(int playerId);
+    public Card drawCard(int playerId) throws ActionNotAllowedException;
 
     public boolean getBeginningCardDrawn();
 
@@ -50,5 +50,7 @@ public interface GameController {
     public Card flipCardFaceUp();
 
     public LinkedList<Card> getCardStack();
+
+    void setCardDeck(List<Card> cards);
 
 }

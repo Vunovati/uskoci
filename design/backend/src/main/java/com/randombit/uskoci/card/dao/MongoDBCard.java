@@ -29,12 +29,12 @@ public enum MongoDBCard implements CardDAO {
                     card = cursor.next();
                     String cardID = card.get("shortID").toString();
                     String cardSummary = card.get("summary").toString();
-                    String cardDescription = card.get("description").toString();
                     String cardType = card.get("type").toString();
+                    String cardDescription = card.get("description").toString();
                     String cardPosition = card.get("position").toString();
                     String cardValue = card.get("value").toString();
 
-                    contentProvider.put(cardID, new Card(cardID, cardSummary, cardDescription, cardType, cardPosition, cardValue));
+                    contentProvider.put(cardID, new Card(cardID, cardSummary, cardType, cardDescription, cardPosition, cardValue, ""));
                 }
 
                 //preostale karte punimo istim podacima
@@ -42,8 +42,8 @@ public enum MongoDBCard implements CardDAO {
                 {
                     String cardID = String.valueOf(i);
                     Card tempCard = contentProvider.get(String.valueOf((i-1)%8 + 1));
-                    contentProvider.put(cardID, new Card(cardID, tempCard.getSummary(), tempCard.getDescription(),
-                            tempCard.getType(), tempCard.getPosition(), tempCard.getValue()));
+                    contentProvider.put(cardID, new Card(cardID, tempCard.getSummary(),
+                            tempCard.getType(), tempCard.getDescription(), tempCard.getPosition(), tempCard.getValue(), ""));
                 }
             }
         }
