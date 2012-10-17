@@ -2,6 +2,8 @@ package com.randombit.uskoci.game;
 
 import com.randombit.uskoci.card.dao.CardDAO;
 import com.randombit.uskoci.card.model.Card;
+import com.randombit.uskoci.game.control.eventmessage.Action;
+import com.randombit.uskoci.game.control.eventmessage.Response;
 
 import java.util.*;
 
@@ -20,6 +22,7 @@ public class GameControllerImpl implements GameController {
     private boolean resourceCardPlayed;
     private Map<String, List<Card>> playersResources;
     private LinkedList<Card> cardStack;
+
     public GameControllerImpl(CardDAO cardDAO) {
         this.cardDAO = cardDAO;
     }
@@ -101,37 +104,26 @@ public class GameControllerImpl implements GameController {
         removeCardFromPlayersHand(cardPlayed, playerId);
     }
     
-    private boolean playerPointsTooHigh(int playerId, Card cardPlayed){
-        int playersPoints = getPlayersPoints(playerId);
-        
-        if (cardIsResource(cardPlayed)) {
-            if((playersPoints + Integer.valueOf(cardPlayed.getValue())) > GameConstants.MAX_NUMBER_OF_PLAYER_POINTS){
-                return true;
-            }    
-        }
-
-        if(cardIsEvent(cardPlayed)) {
-            //TODO
-            return false;
-        }
-
-
-        return false;
-    }  
-
     private void playEventCard(Card cardPlayed, int playerId) throws ActionNotAllowedException {
         LinkedList<Card> currentCardStack = getCardStack();
         String cardSummary = cardPlayed.getSummary();
         
        if(!currentCardStack.isEmpty()) {
-        	if(cardSummary == "Bozja volja" || cardSummary == "Utvrda Nehaj") {
+        	if(cardSummary == "Will of God" || cardSummary == "Fortress of Nehaj") {
+        		//cardPlayed.setCardOwner(String.valueOf(playerId));
         		putCardOnStack(cardPlayed);
         	}
         	else {
         		throw new ActionNotAllowedException();
         	}	
-    	}     	
-        putCardOnStack(cardPlayed);    
+       }
+       else {
+    	   if(cardSummary == "Will of God" || cardSummary == "Fortress of Nehaj") {
+    		   throw new ActionNotAllowedException();
+       		}
+           //cardPlayed.setCardOwner(String.valueOf(playerId));
+           putCardOnStack(cardPlayed); 
+       }
     } 
     
     private void playResourceCard(Card cardPlayed, int playerId) throws ActionNotAllowedException {
@@ -149,6 +141,99 @@ public class GameControllerImpl implements GameController {
         resourceCardPlayed = true;
         putCardInPlayersResources(cardPlayed, playerId);
     }
+
+    @Override
+    public List<Action> resolveCardsOnStack() {
+    	 List<Action> response = new ArrayList<Action>();
+    	 Card event;
+    	 LinkedList <Card> cardStack = getCardStack();
+    	 
+    	 while(!cardStack.isEmpty()){
+    		 event = cardStack.remove();
+    		 response = resolveEvent(event,0,Collections.<Response>emptyList());
+    	 }
+    	return response;
+    }
+    
+    @Override
+	public List<Action> responseToEvent(Card event, int playerId, List<Response> responseList) {
+		return resolveEvent(event,playerId, responseList);
+	}
+    
+    public List<Action> resolveEvent(Card event, int playerId, List<Response> responseList){
+    	List<Card> cards = new ArrayList<Card>();
+    	String cardSummary = event.getSummary();
+    	LinkedList <Card> cardStack = getCardStack();
+    	List<Action> listOfActions = new ArrayList<Action>();
+    	boolean lastAction = true;
+    	boolean moreActions = false;
+    	
+    	if(cardSummary == "Will of God"){
+    		cardStack.remove();
+    		return null;
+    	}
+    	if(cardSummary == "Storm"){
+    		for(playerId= 1; playerId < (getNumberOfPlayersJoined() + 1); playerId++){
+    			moveCards(getResources(playerId), getDiscardPile(), 0, 0, "all");
+    		}
+    		return null;
+    	}
+    	if(cardSummary == "Spyglass"){
+    		for(playerId= 1; playerId < (getNumberOfPlayersJoined() + 1); playerId++){
+    			if(playerId != getNumberOfPlayersJoined() ){
+    				Action action = new Action(playerId,"Reveal",getPlayerCards(playerId),moreActions);
+    				listOfActions.add(action);
+    			}
+    			else {
+    				Action action = new Action(playerId,"Reveal",getPlayerCards(playerId),lastAction);
+    				listOfActions.add(action);
+    			}
+    		}
+    	}
+    	if(cardSummary == "Spy"){
+    		if(responseList.isEmpty()){
+    			Action action = new Action(playerId,"Choose player",Collections.<Card> emptyList(),moreActions);
+    			listOfActions.add(action);
+    			return listOfActions;
+    		}
+    		else {
+    			Response response = responseList.remove(0);
+    			String responseType = response.getResponseType();
+    			if(responseType == "Players") {
+    				int chosenPlayerId = response.getPlayersAffectedByResponse().remove(0);
+    				Action action = new Action(playerId,"Choose card",getPlayerCards(chosenPlayerId),moreActions);
+    				listOfActions.add(action);
+    				listOfActions.add(action);
+    				return listOfActions;
+    			}
+    			if(responseType == "Cards"){
+    				Action action = new Action(playerId,"Play cards",response.getCards(),lastAction);
+    				listOfActions.add(action);
+    				return listOfActions;
+    			}
+    		}
+    	}
+
+    	return listOfActions;
+    }
+    
+    private boolean playerPointsTooHigh(int playerId, Card cardPlayed){
+        int playersPoints = getPlayersPoints(playerId);
+        
+        if (cardIsResource(cardPlayed)) {
+            if((playersPoints + Integer.valueOf(cardPlayed.getValue())) > GameConstants.MAX_NUMBER_OF_PLAYER_POINTS){
+                return true;
+            }    
+        }
+
+        if(cardIsEvent(cardPlayed)) {
+            //TODO
+            return false;
+        }
+
+
+        return false;
+    }  
 
     private void removeCardFromPlayersHand(Card cardPlayed, int playerId) {
         playerCardMap.get(String.valueOf(playerId)).remove(cardPlayed);
@@ -255,6 +340,7 @@ public class GameControllerImpl implements GameController {
         return playersResourcesHashMap;
     }
 
+
     @Override
     public boolean startGame(int numberOfPlayersJoined) {
         if (numberOfPlayersJoined <= GameConstants.MAX_NUMBER_OF_PLAYERS || numberOfPlayersJoined >= GameConstants.MIN_NUMBER_OF_PLAYERS) {
@@ -347,7 +433,7 @@ public class GameControllerImpl implements GameController {
             discardCardFromResourcePile(cardId,playerId);
         } else {
             throw new ActionNotAllowedException();
-        }        
+        }  
     }
 
     @Override
@@ -356,4 +442,40 @@ public class GameControllerImpl implements GameController {
         discardedCards.add(flippedCard);
         return flippedCard;
     }    
+
+    
+    public <T> List<Card> peakCards(List<Card> area, int start, int end, T delimiter) {
+    	List<Card> cards = new ArrayList<Card>();
+    	
+    	if(delimiter == "all"){
+    		start = 0;
+    		end = area.size();
+    	}
+
+    	for(int i=start; i< end; i++) {
+    			cards.add(area.get(i));	
+    	}
+
+    	return cards;
+    }
+    
+    public <T> void moveCards(List<Card> fromArea, List<Card> toArea, int start, int end, T delimiter) {
+    	
+    	if(delimiter == "all"){
+    		start = 0;
+    		end = fromArea.size();
+    	}
+
+    	for(int i=start; i< end; i++) {
+    		Card card = fromArea.get(i);	
+    		fromArea.remove(card);
+    		toArea.add(card);
+    	}
+    }
+    
+    public void moveCard(List<Card> fromArea, List<Card> toArea, Card card) {
+    	fromArea.remove(card);
+    	toArea.remove(card);
+    }
+
 }
