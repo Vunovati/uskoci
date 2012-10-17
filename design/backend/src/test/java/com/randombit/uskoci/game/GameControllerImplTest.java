@@ -388,11 +388,14 @@ public class GameControllerImplTest {
     }
 
     /*  Specificno pravilo 3
+<<<<<<< HEAD
     Ograničavanje igranja nekih tipova karata : Igrač ne smije odigrati kartu plijena ili eventa
     ako bi prešao 25 bodova njezinim odigravanjem (ili za event izvršavanjem)
     */
+    
+    // TODO: MODIFY
+    @Test (expected = ActionNotAllowedException.class)    
 
-    @Test(expected = ActionNotAllowedException.class)
     public void testMaximumPlayerPoints() throws Exception {
         int playerOnTheMove = gameController.getCurrentPlayerId();
         String testCardId = "1";
@@ -469,7 +472,7 @@ public class GameControllerImplTest {
         EasyMock.expect(testCard.getType()).andReturn(GameConstants.EVENT).times(8);
         EasyMock.expect(testCard.getValue()).andReturn("1").times(4);
         EasyMock.expect(testCard.getSummary()).andReturn("");
-        EasyMock.expect(testCard.getSummary()).andReturn("Bozja volja");
+        EasyMock.expect(testCard.getSummary()).andReturn("Will of God");
         EasyMock.replay(cardDAO, testCard);
 
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
@@ -524,4 +527,79 @@ public class GameControllerImplTest {
         Assert.assertEquals("Multiplier card is zero", 1, discardedCards.size());
         Assert.assertFalse("Multiplier card not removed from resource pile.", gameController.getResources(playerOnTheMove).contains(testCard));
     }
+    
+    /* EVENT: Will of God: Cancels any card that has just been played, regardless of the car type. 
+     * The cancelled card has no effect and is discarded.
+     */
+    
+    @Test
+    public void testEventWillOfGod() throws Exception{
+    	int playerOnTheMove = gameController.getCurrentPlayerId();
+        String testCardId = "1";
+        Card testCard;
+     
+        testCard = EasyMock.createMock(Card.class);
+        cardDAO = EasyMock.createMock(CardDAO.class);
+        gameController.setCardDAO(cardDAO);
+        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(2);
+        EasyMock.expect(testCard.getType()).andReturn(GameConstants.EVENT).times(8);
+        EasyMock.expect(testCard.getValue()).andReturn("1").times(4);
+        EasyMock.expect(testCard.getSummary()).andReturn("Storm");
+        EasyMock.expect(testCard.getSummary()).andReturn("Will of God").times(3);
+        EasyMock.replay(cardDAO, testCard);
+        
+        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+        gameController.resolveCardsOnStack();
+        
+        
+        Assert.assertTrue("Event response on event not on stack", gameController.getCardStack().isEmpty());
+    	
+    }
+    
+    // EVENT: Storm : Destroy all cards and resource piles in play. The cards are discarded.
+    
+    @Test
+    public void testEventStorm() throws Exception {
+    	int playerOnTheMove = gameController.getCurrentPlayerId();
+        String testCardId = "1";
+        Card testCard;
+     
+        testCard = EasyMock.createMock(Card.class);
+        cardDAO = EasyMock.createMock(CardDAO.class);
+        gameController.setCardDAO(cardDAO);
+        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(5);
+        EasyMock.expect(testCard.getType()).andReturn(GameConstants.RESOURCE).times(16);
+        EasyMock.expect(testCard.getType()).andReturn(GameConstants.EVENT).times(4);
+        EasyMock.expect(testCard.getValue()).andReturn("1").times(12);
+        EasyMock.expect(testCard.getSummary()).andReturn("Storm").times(2);
+        EasyMock.replay(cardDAO, testCard);
+        
+        gameController.drawCard(playerOnTheMove);
+        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+        gameController.setNextPlayersTurn(playerOnTheMove);
+        playerOnTheMove = gameController.getCurrentPlayerId();
+        gameController.drawCard(playerOnTheMove);
+        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+        gameController.setNextPlayersTurn(playerOnTheMove);
+        playerOnTheMove = gameController.getCurrentPlayerId();
+        gameController.drawCard(playerOnTheMove);
+        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+        gameController.setNextPlayersTurn(playerOnTheMove);
+        playerOnTheMove = gameController.getCurrentPlayerId();
+        gameController.drawCard(playerOnTheMove);
+        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+        gameController.resolveCardsOnStack();
+        
+        Assert.assertTrue("Event on stack", gameController.getCardStack().isEmpty());
+        Assert.assertTrue("Resource for player1 not empty", gameController.getResources(1).isEmpty());
+        Assert.assertTrue("Resource for player2 not empty", gameController.getResources(2).isEmpty());
+        Assert.assertTrue("Resource for player3 not empty", gameController.getResources(3).isEmpty());
+        Assert.assertTrue("Resource for player4 not empty", gameController.getResources(4).isEmpty());
+        
+        Assert.assertFalse("Cards are not in the discard pile",gameController.getDiscardPile().isEmpty());
+        
+    }
+    
 }

@@ -2,6 +2,8 @@ package com.randombit.uskoci.game;
 
 import com.randombit.uskoci.card.dao.CardDAO;
 import com.randombit.uskoci.card.model.Card;
+import com.randombit.uskoci.game.control.eventmessage.Action;
+import com.randombit.uskoci.game.control.eventmessage.Response;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -50,6 +52,10 @@ public interface GameController {
     public Card flipCardFaceUp();
 
     public LinkedList<Card> getCardStack();
+    
+    public List<Action> resolveCardsOnStack();
+    
+    public List<Action> responseToEvent(Card event, int playerId, List<Response> responseList);
 
     void setCardDeck(List<Card> cards);
 
