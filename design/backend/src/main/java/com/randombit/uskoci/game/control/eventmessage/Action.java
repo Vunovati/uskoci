@@ -14,11 +14,12 @@ public class Action {
 	private boolean lastAction;
 	
 	public Action() {}
-	public Action(int playerId, String actionType, List<Card> cardArea, boolean lastAction){
+	public Action(int playerId, String actionType, List<Card> cardArea, List<Integer> players, boolean lastAction){
 		this.actionPlayerId = playerId;
 		this.actionType = actionType;
 		this.area = cardArea;
 		this.lastAction = lastAction;
+		this.playersAffectedByAction = players;
 	}
 	
 	//TODO : seteri...

@@ -3,6 +3,9 @@ package com.randombit.uskoci.game;
 import com.randombit.uskoci.card.dao.CardDAO;
 import com.randombit.uskoci.card.dao.CardDAOSimple;
 import com.randombit.uskoci.card.model.Card;
+import com.randombit.uskoci.game.control.eventmessage.Action;
+import com.randombit.uskoci.game.control.eventmessage.Response;
+
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Before;
@@ -388,7 +391,6 @@ public class GameControllerImplTest {
     }
 
     /*  Specificno pravilo 3
-<<<<<<< HEAD
     Ograničavanje igranja nekih tipova karata : Igrač ne smije odigrati kartu plijena ili eventa
     ako bi prešao 25 bodova njezinim odigravanjem (ili za event izvršavanjem)
     */
@@ -600,6 +602,69 @@ public class GameControllerImplTest {
         
         Assert.assertFalse("Cards are not in the discard pile",gameController.getDiscardPile().isEmpty());
         
+    }
+    
+    // EVENT: Spyglass: Look at the hands of all players.
+    @Test
+    public void testEventSpyGlass() throws Exception{
+    	  int playerOnTheMove = gameController.getCurrentPlayerId();
+          String testCardId = "1";
+          int playerId = 1;
+          Card testCard;
+          List<Action> listOfActions = new ArrayList<Action>();
+          List<Card> cardsInPlayersHand = new ArrayList<Card>();
+          testCard = EasyMock.createMock(Card.class);
+          cardDAO = EasyMock.createMock(CardDAO.class);
+          gameController.setCardDAO(cardDAO);
+          EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(2);
+          EasyMock.expect(testCard.getType()).andReturn(GameConstants.EVENT).times(4);
+          EasyMock.expect(testCard.getValue()).andReturn("1").times(2);
+          EasyMock.expect(testCard.getSummary()).andReturn(GameConstants.SPYGLASS).times(2);
+          EasyMock.replay(cardDAO, testCard);
+
+          gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+          listOfActions = gameController.responseToEvent(testCard,playerOnTheMove,Collections.<Response> emptyList());
+          for(Action action : listOfActions){
+        	  cardsInPlayersHand = gameController.getPlayerCards(playerId++); 
+        	  Assert.assertTrue("Revealed cards are not in player hand", cardsInPlayersHand.containsAll(action.getArea()));
+          }
+    }
+    
+    // EVENT: Spy: Look at all the cards in an opponent�s hand. You may play up to two of them.
+    @Test
+    public void testEventSpy()throws Exception {
+    	 int playerOnTheMove = gameController.getCurrentPlayerId();
+         String testCardId = "1";
+         Card testCard,pickedCard;
+         Action action;
+         List<Action> listOfActions = new ArrayList<Action>();
+         List<Response> responseList= new ArrayList<Response>();
+         List<Card> listOfCards = new ArrayList<Card>();
+         List<Integer> listOfPlayers = new ArrayList<Integer>();
+         testCard = EasyMock.createMock(Card.class);
+         cardDAO = EasyMock.createMock(CardDAO.class);
+         gameController.setCardDAO(cardDAO);
+         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(2);
+         EasyMock.expect(testCard.getType()).andReturn(GameConstants.EVENT).times(4);
+         EasyMock.expect(testCard.getValue()).andReturn("1").times(2);
+         EasyMock.expect(testCard.getSummary()).andReturn(GameConstants.SPY).times(4);
+         EasyMock.replay(cardDAO, testCard);
+         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+         listOfActions = gameController.responseToEvent(testCard,playerOnTheMove,Collections.<Response> emptyList());
+         listOfPlayers.add(2);
+         Response resp = new Response(playerOnTheMove,"Players",Collections.<Card> emptyList(),listOfPlayers);
+         responseList.add(resp);
+         listOfActions = gameController.responseToEvent(testCard,playerOnTheMove,responseList);
+         action = listOfActions.remove(0);
+         pickedCard = action.getArea().remove(0);
+         listOfCards.add(pickedCard);
+         resp = new Response(playerOnTheMove,"Cards",listOfCards,listOfPlayers);
+         responseList.clear();
+         responseList.add(resp);
+         listOfActions = gameController.responseToEvent(testCard,playerOnTheMove,responseList);
+         action = listOfActions.remove(0);
+         Assert.assertFalse("No action",action.getArea().isEmpty());
+         Assert.assertTrue("Action play cards is missing",action.getActionType() == "Play cards");
     }
     
 }
