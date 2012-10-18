@@ -22,7 +22,8 @@ public class GameControllerImpl implements GameController {
     private boolean resourceCardPlayed;
     private Map<String, List<Card>> playersResources;
     private LinkedList<Card> cardStack;
-
+    private int chosenPlayer;
+    
     public GameControllerImpl(CardDAO cardDAO) {
         this.cardDAO = cardDAO;
     }
@@ -160,7 +161,7 @@ public class GameControllerImpl implements GameController {
 		return resolveEvent(event,playerId, responseList);
 	}
     
-    public List<Action> resolveEvent(Card event, int playerId, List<Response> responseList){
+    public List<Action> resolveEvent(Card event, int eventPlayerId, List<Response> responseList){
     	List<Card> cards = new ArrayList<Card>();
     	String cardSummary = event.getSummary();
     	LinkedList <Card> cardStack = getCardStack();
@@ -168,31 +169,34 @@ public class GameControllerImpl implements GameController {
     	boolean lastAction = true;
     	boolean moreActions = false;
     	
-    	if(cardSummary == "Will of God"){
+    	if(GameConstants.WILL.equals(cardSummary)){
     		cardStack.remove();
     		return null;
     	}
-    	if(cardSummary == "Storm"){
-    		for(playerId= 1; playerId < (getNumberOfPlayersJoined() + 1); playerId++){
+    	if(GameConstants.STORM.equals(cardSummary)){
+    		for(int playerId= 1; playerId < (getNumberOfPlayersJoined() + 1); playerId++){
     			moveCards(getResources(playerId), getDiscardPile(), 0, 0, "all");
     		}
     		return null;
     	}
-    	if(cardSummary == "Spyglass"){
-    		for(playerId= 1; playerId < (getNumberOfPlayersJoined() + 1); playerId++){
+    	if(GameConstants.SPYGLASS.equals(cardSummary)){
+    		List<Integer> playersAffectedByAction = new ArrayList<Integer>();
+    		playersAffectedByAction.add(eventPlayerId);
+    		for(int playerId= 1; playerId < (getNumberOfPlayersJoined() + 1); playerId++){
     			if(playerId != getNumberOfPlayersJoined() ){
-    				Action action = new Action(playerId,"Reveal",getPlayerCards(playerId),moreActions);
+    				Action action = new Action(playerId,"Reveal",getPlayerCards(playerId),playersAffectedByAction,moreActions);
     				listOfActions.add(action);
     			}
     			else {
-    				Action action = new Action(playerId,"Reveal",getPlayerCards(playerId),lastAction);
+    				Action action = new Action(playerId,"Reveal",getPlayerCards(playerId),playersAffectedByAction,lastAction);
     				listOfActions.add(action);
     			}
     		}
     	}
-    	if(cardSummary == "Spy"){
+    	if(GameConstants.SPY.equals(cardSummary)){
+    		
     		if(responseList.isEmpty()){
-    			Action action = new Action(playerId,"Choose player",Collections.<Card> emptyList(),moreActions);
+    			Action action = new Action(eventPlayerId,"Choose player",Collections.<Card> emptyList(),Collections.<Integer> emptyList(),moreActions);
     			listOfActions.add(action);
     			return listOfActions;
     		}
@@ -200,21 +204,63 @@ public class GameControllerImpl implements GameController {
     			Response response = responseList.remove(0);
     			String responseType = response.getResponseType();
     			if(responseType == "Players") {
+    				List<Integer> playersAffectedByAction = new ArrayList<Integer>();
     				int chosenPlayerId = response.getPlayersAffectedByResponse().remove(0);
-    				Action action = new Action(playerId,"Choose card",getPlayerCards(chosenPlayerId),moreActions);
+    				playersAffectedByAction.add(chosenPlayerId);
+    				Action action = new Action(eventPlayerId,"Choose card",getPlayerCards(chosenPlayerId),playersAffectedByAction,moreActions);
     				listOfActions.add(action);
     				listOfActions.add(action);
     				return listOfActions;
     			}
     			if(responseType == "Cards"){
-    				Action action = new Action(playerId,"Play cards",response.getCards(),lastAction);
+    				Action action = new Action(eventPlayerId,"Play cards",response.getCards(),Collections.<Integer> emptyList(),lastAction);
     				listOfActions.add(action);
     				return listOfActions;
     			}
     		}
     	}
+    	if(GameConstants.TRICKERY.equals(cardSummary)){
+    		if(responseList.isEmpty()){
+    			Action action = new Action(eventPlayerId,"Choose player",Collections.<Card> emptyList(),Collections.<Integer> emptyList(),moreActions);
+    			listOfActions.add(action);
+    			return listOfActions;
+    		}
+    		Response response = responseList.remove(0);
+			String responseType = response.getResponseType();
+    		if(responseType == "Players") {
+    			int chosenPlayerId = response.getPlayersAffectedByResponse().remove(0);
+    			int numOfResources = getResources(eventPlayerId).size();
+    			moveCards(getResources(eventPlayerId), getResources(chosenPlayerId), 0, 0, "all");
+    			moveCards(getResources(chosenPlayerId),getResources(eventPlayerId) , numOfResources, getResources(chosenPlayerId).size(), "");
+    		}
+    		
+    	}
+    	if(GameConstants.THEFT.equals(cardSummary)){
+    		if(responseList.isEmpty()){
+    			Action action = new Action(eventPlayerId,"Choose player",Collections.<Card> emptyList(),Collections.<Integer> emptyList(),moreActions);
+    			listOfActions.add(action);
+    			return listOfActions;
+    		}
+    		Response response = responseList.remove(0);
+			String responseType = response.getResponseType();
+    		if(responseType == "Players") {
+				List<Integer> playersAffectedByAction = new ArrayList<Integer>();
+				chosenPlayer = response.getPlayersAffectedByResponse().remove(0);
+				playersAffectedByAction.add(chosenPlayer);
+				Action action = new Action(eventPlayerId,"Choose card",getPlayerCards(chosenPlayer),playersAffectedByAction,moreActions);
+				listOfActions.add(action);
+				listOfActions.add(action);
+				return listOfActions;
+			}
+    		if(responseType == "Cards"){
+				Card chosenCard = response.getCards().remove(0);
+				moveCard(getResources(chosenPlayer),getResources(eventPlayerId),chosenCard);
+			}
+    		
+    	}
+    	
 
-    	return listOfActions;
+    	return Collections.<Action> emptyList();
     }
     
     private boolean playerPointsTooHigh(int playerId, Card cardPlayed){

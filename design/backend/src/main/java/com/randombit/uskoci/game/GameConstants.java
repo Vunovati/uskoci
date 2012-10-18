@@ -9,4 +9,10 @@ class GameConstants {
     static final String MULTIPLIER = "x2";
     static final String RESOURCE = "resource";
     static final String EVENT = "instant";
+    static final String WILL = "Will of God";
+    static final String STORM = "Storm";
+    static final String SPYGLASS = "Spyglass";
+    static final String SPY = "Spy";
+    static final String TRICKERY = "Trickery";
+    static final String THEFT = "Theft";
 }
