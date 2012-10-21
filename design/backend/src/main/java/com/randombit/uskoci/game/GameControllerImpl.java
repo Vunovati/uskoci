@@ -163,32 +163,43 @@ public class GameControllerImpl implements GameController {
     
     public List<Action> resolveEvent(Card event, int eventPlayerId, List<Response> responseList){
     	List<Card> cards = new ArrayList<Card>();
+    	List<Integer> playersAffectedByAction = new ArrayList<Integer>();
+    	List<Action> listOfActions = new ArrayList<Action>();
     	String cardSummary = event.getSummary();
     	LinkedList <Card> cardStack = getCardStack();
-    	List<Action> listOfActions = new ArrayList<Action>();
+    	
     	boolean lastAction = true;
     	boolean moreActions = false;
+    	Action action;
     	
     	if(GameConstants.WILL.equals(cardSummary)){
-    		cardStack.remove();
-    		return null;
+    		cards.add(cardStack.get(0));
+    		action = new Action(eventPlayerId,"remove from stack",cards,lastAction);
+    		//cardStack.remove();
+    		return listOfActions;
     	}
     	if(GameConstants.STORM.equals(cardSummary)){
     		for(int playerId= 1; playerId < (getNumberOfPlayersJoined() + 1); playerId++){
-    			moveCards(getResources(playerId), getDiscardPile(), 0, 0, "all");
+    			//moveCards(getResources(playerId), getDiscardPile(), 0, 0, "all");
+    			if(playerId < getNumberOfPlayersJoined()) {
+    				action = new Action(playerId,"move cards",getResources(playerId),getDiscardPile(),0,0,"all",moreActions);
+    			}
+    			else {
+    				action = new Action(playerId,"move cards",getResources(playerId),getDiscardPile(),0,0,"all",lastAction);
+    			}
+    			listOfActions.add(action);
     		}
-    		return null;
+    		return listOfActions;
     	}
     	if(GameConstants.SPYGLASS.equals(cardSummary)){
-    		List<Integer> playersAffectedByAction = new ArrayList<Integer>();
     		playersAffectedByAction.add(eventPlayerId);
     		for(int playerId= 1; playerId < (getNumberOfPlayersJoined() + 1); playerId++){
     			if(playerId != getNumberOfPlayersJoined() ){
-    				Action action = new Action(playerId,"Reveal",getPlayerCards(playerId),playersAffectedByAction,moreActions);
+    				action = new Action(playerId,"Reveal",getPlayerCards(playerId),playersAffectedByAction,moreActions);
     				listOfActions.add(action);
     			}
     			else {
-    				Action action = new Action(playerId,"Reveal",getPlayerCards(playerId),playersAffectedByAction,lastAction);
+    				action = new Action(playerId,"Reveal",getPlayerCards(playerId),playersAffectedByAction,lastAction);
     				listOfActions.add(action);
     			}
     		}
@@ -196,7 +207,7 @@ public class GameControllerImpl implements GameController {
     	if(GameConstants.SPY.equals(cardSummary)){
     		
     		if(responseList.isEmpty()){
-    			Action action = new Action(eventPlayerId,"Choose player",Collections.<Card> emptyList(),Collections.<Integer> emptyList(),moreActions);
+    			action = new Action(eventPlayerId,"Choose player",moreActions);
     			listOfActions.add(action);
     			return listOfActions;
     		}
@@ -204,16 +215,16 @@ public class GameControllerImpl implements GameController {
     			Response response = responseList.remove(0);
     			String responseType = response.getResponseType();
     			if(responseType == "Players") {
-    				List<Integer> playersAffectedByAction = new ArrayList<Integer>();
+    				List<Integer> choseFromPlayers = new ArrayList<Integer>();
     				int chosenPlayerId = response.getPlayersAffectedByResponse().remove(0);
-    				playersAffectedByAction.add(chosenPlayerId);
-    				Action action = new Action(eventPlayerId,"Choose card",getPlayerCards(chosenPlayerId),playersAffectedByAction,moreActions);
+    				choseFromPlayers.add(chosenPlayerId);
+    				action = new Action(eventPlayerId,"Choose card",getPlayerCards(chosenPlayerId),choseFromPlayers,moreActions);
     				listOfActions.add(action);
     				listOfActions.add(action);
     				return listOfActions;
     			}
     			if(responseType == "Cards"){
-    				Action action = new Action(eventPlayerId,"Play cards",response.getCards(),Collections.<Integer> emptyList(),lastAction);
+    				action = new Action(eventPlayerId,"Play cards",response.getCards(),lastAction);
     				listOfActions.add(action);
     				return listOfActions;
     			}
@@ -221,7 +232,7 @@ public class GameControllerImpl implements GameController {
     	}
     	if(GameConstants.TRICKERY.equals(cardSummary)){
     		if(responseList.isEmpty()){
-    			Action action = new Action(eventPlayerId,"Choose player",Collections.<Card> emptyList(),Collections.<Integer> emptyList(),moreActions);
+    			action = new Action(eventPlayerId,"Choose a player",moreActions);
     			listOfActions.add(action);
     			return listOfActions;
     		}
@@ -230,36 +241,75 @@ public class GameControllerImpl implements GameController {
     		if(responseType == "Players") {
     			int chosenPlayerId = response.getPlayersAffectedByResponse().remove(0);
     			int numOfResources = getResources(eventPlayerId).size();
-    			moveCards(getResources(eventPlayerId), getResources(chosenPlayerId), 0, 0, "all");
-    			moveCards(getResources(chosenPlayerId),getResources(eventPlayerId) , numOfResources, getResources(chosenPlayerId).size(), "");
+    			//moveCards(getResources(eventPlayerId), getResources(chosenPlayerId), 0, 0, "all");
+    			action = new Action(eventPlayerId,"move cards",getResources(eventPlayerId),getResources(chosenPlayerId),0,0,"all",moreActions);
+    			listOfActions.add(action);
+    			//moveCards(getResources(chosenPlayerId),getResources(eventPlayerId) , numOfResources, getResources(chosenPlayerId).size(), "");
+    			action = new Action(eventPlayerId,"move cards",getResources(chosenPlayerId),getResources(eventPlayerId),numOfResources,getResources(chosenPlayerId).size(),"",lastAction);
+    			listOfActions.add(action);
+    			return listOfActions;
     		}
     		
     	}
     	if(GameConstants.THEFT.equals(cardSummary)){
     		if(responseList.isEmpty()){
-    			Action action = new Action(eventPlayerId,"Choose player",Collections.<Card> emptyList(),Collections.<Integer> emptyList(),moreActions);
+    			action = new Action(eventPlayerId,"Choose a player",moreActions);
     			listOfActions.add(action);
     			return listOfActions;
     		}
     		Response response = responseList.remove(0);
 			String responseType = response.getResponseType();
     		if(responseType == "Players") {
-				List<Integer> playersAffectedByAction = new ArrayList<Integer>();
+				List<Integer> choseFromPlayers = new ArrayList<Integer>();
 				chosenPlayer = response.getPlayersAffectedByResponse().remove(0);
-				playersAffectedByAction.add(chosenPlayer);
-				Action action = new Action(eventPlayerId,"Choose card",getPlayerCards(chosenPlayer),playersAffectedByAction,moreActions);
+				choseFromPlayers.add(chosenPlayer);
+				action = new Action(eventPlayerId,"Choose a card",getPlayerCards(chosenPlayer),choseFromPlayers,moreActions);
 				listOfActions.add(action);
 				listOfActions.add(action);
 				return listOfActions;
 			}
     		if(responseType == "Cards"){
 				Card chosenCard = response.getCards().remove(0);
-				moveCard(getResources(chosenPlayer),getResources(eventPlayerId),chosenCard);
-			}
+				//moveCard(getResources(chosenPlayer),getResources(eventPlayerId),chosenCard);
+				action = new Action(eventPlayerId,"move a card",getResources(chosenPlayer),getResources(eventPlayerId),chosenCard,lastAction);
+				listOfActions.add(action);
+				return listOfActions;
+    		}
     		
     	}
+    	if(GameConstants.SNITCH.equals(cardSummary)){
+    		List<Card> cardDeck = getCardsInTheDeck();
+    		Card card = cardDeck.get(0);
+    		int pos = 1;
+    		cards.add(card);
+    		for(int playerId= 1; playerId < (getNumberOfPlayersJoined() + 1); playerId++){
+    			playersAffectedByAction.add(playerId);
+    		}
+    		while(GameConstants.EVENT.equals(card.getType())) {
+    			action = new Action(eventPlayerId,"Reveal",cards,playersAffectedByAction,moreActions);
+    			listOfActions.add(action);
+    			action = new Action(eventPlayerId,"move a card",cardDeck,getDiscardPile(),card,moreActions);
+    			listOfActions.add(action);
+    			card = cardDeck.get(pos++);
+    		}
+    		action = new Action(eventPlayerId,"Reveal",cards,playersAffectedByAction,moreActions);
+    		for(int playerId= 1; playerId < (getNumberOfPlayersJoined() + 1); playerId++){
+    			if(playerId < getNumberOfPlayersJoined()) {
+    				action = new Action(eventPlayerId,"move cards",getResources(playerId),getDiscardPile(),0,0,card.getColor(),moreActions);
+    			}
+    			else
+    				action = new Action(eventPlayerId,"move cards",getResources(playerId),getDiscardPile(),0,0,card.getColor(),lastAction);
+    			listOfActions.add(action);
+    		}
+    		return listOfActions;	
+    	}
+    	if(GameConstants.SEADOG.equals(cardSummary)){
+    		action = new Action(eventPlayerId,"move a card",Collections.<Card> emptyList(),getResources(eventPlayerId),event,lastAction);
+    		listOfActions.add(action);
+    		return listOfActions;
+    	}
     	
-
+   
     	return Collections.<Action> emptyList();
     }
     
@@ -487,10 +537,23 @@ public class GameControllerImpl implements GameController {
         Card flippedCard = cardDeck.remove(0);
         discardedCards.add(flippedCard);
         return flippedCard;
-    }    
-
+    } 
     
-    public <T> List<Card> peakCards(List<Card> area, int start, int end, T delimiter) {
+    @Override
+    public void moveCard(Action action){
+    	// TODO : Implement interface towards frontend
+    }
+    @Override
+    public void moveCards(Action action){
+    	// TODO : Implement interface towards frontend
+    }
+    @Override
+    public void changeValue(Card card){
+    	// TODO : Implement old Sea Dog interface towards frontend
+    }
+  
+    
+    private <T> List<Card> peakCards(List<Card> area, int start, int end, T delimiter) {
     	List<Card> cards = new ArrayList<Card>();
     	
     	if(delimiter == "all"){
@@ -505,7 +568,7 @@ public class GameControllerImpl implements GameController {
     	return cards;
     }
     
-    public <T> void moveCards(List<Card> fromArea, List<Card> toArea, int start, int end, T delimiter) {
+    private void moveCards(List<Card> fromArea, List<Card> toArea, int start, int end, String delimiter) {
     	
     	if(delimiter == "all"){
     		start = 0;

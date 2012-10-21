@@ -15,4 +15,6 @@ class GameConstants {
     static final String SPY = "Spy";
     static final String TRICKERY = "Trickery";
     static final String THEFT = "Theft";
+    static final String SNITCH = "Snitch";
+    static final String SEADOG = "Old Sea Dog";
 }
