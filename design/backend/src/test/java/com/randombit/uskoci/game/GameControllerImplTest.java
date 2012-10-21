@@ -5,7 +5,6 @@ import com.randombit.uskoci.card.dao.CardDAOSimple;
 import com.randombit.uskoci.card.model.Card;
 import com.randombit.uskoci.game.control.eventmessage.Action;
 import com.randombit.uskoci.game.control.eventmessage.Response;
-
 import org.easymock.EasyMock;
 import org.junit.Assert;
 import org.junit.Before;
@@ -632,7 +631,7 @@ public class GameControllerImplTest {
           }
     }
     
-    // EVENT: Spy: Look at all the cards in an opponent’s hand. You may play up to two of them.
+    // EVENT: Spy: Look at all the cards in an opponents hand. You may play up to two of them.
     @Test
     public void testEventSpy()throws Exception {
     	 int playerOnTheMove = gameController.getCurrentPlayerId();
