@@ -30,3 +30,5 @@ tmp
 */.svn/*
 logs
 *.swp
+*.sublime-project
+*.sublime-workspace
