@@ -13,7 +13,8 @@ public class Card {
     private String description = "";
     private String position = "";
     private String value = "";
-
+    private String color = "";
+    
     public Card() {
     }
 
@@ -67,6 +68,16 @@ public class Card {
     public String getValue() {
         return value;
     }
+    
+    @XmlElement
+    public String getColor() {
+        return color;
+    }
+    
+    public void setColor(String color){
+    	this.color = color;
+    }
+    
 
     public void setDescription(String description) {
         this.description = description;

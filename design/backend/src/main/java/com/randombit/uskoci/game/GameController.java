@@ -57,6 +57,12 @@ public interface GameController {
     
     public List<Action> responseToEvent(Card event, int playerId, List<Response> responseList);
 
-    void setCardDeck(List<Card> cards);
+    public void setCardDeck(List<Card> cards);
+    
+    public void moveCard(Action action);
+    
+    public void moveCards(Action action);
+    
+    public void changeValue(Card card);
 
 }
