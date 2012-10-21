@@ -1,79 +1,65 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-  <title>
-    Uskoci
-  </title>
-  <link rel="stylesheet" type="text/css" href="css/style.css">
-  <link rel="stylesheet" type="text/css" href="css/reset.css">
-  <link rel="stylesheet" type="text/css" href="css/jquery-ui-1.9.0.custom.min.css">
-  <link href="css/bootstrap.css" rel="stylesheet" type="text/css">
-  <script src="jquery/jquery-1.7.2.js" type="text/javascript">
-  </script>
-  <script src="jquery/jsontest.js" type="text/javascript">
-  </script>
-  <script src="js/bootstrap.min.js" type="text/javascript"></script>
-<!--<script src="jquery/facebook-api.js"></script>
-  <script src="//connect.facebook.net/en_US/all.js"></script>-->
-
-  <script type="text/javascript" src="jquery/jquery.atmosphere.js">
-  </script>
-  <script type="text/javascript" src="jquery/jquery-ui-1.9.0.custom.min.js">
-  </script>
+    <title>
+        Uskoci
+    </title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <!--<link rel="stylesheet" type="text/css" href="css/reset.css">-->
+    <link rel="stylesheet" type="text/css" href="css/jquery-ui-1.9.0.custom.min.css">
+    <link href="css/bootstrap.css" rel="stylesheet" type="text/css">
+    <script src="jquery/jquery-1.7.2.js" type="text/javascript">
+    </script>
+    <script src="jquery/jsontest.js" type="text/javascript">
+    </script>
+    <script src="js/bootstrap.min.js" type="text/javascript"></script>
+    <script type="text/javascript" src="jquery/jquery.atmosphere.js">
+    </script>
+    <script type="text/javascript" src="jquery/jquery-ui-1.9.0.custom.min.js">
+    </script>
 </head>
 <body>
-  <div class="container">
+<div class="container">
     <div class="container-fluid">
-      <div class="row-fluid">
-        <div id="gameNavigation">
-          <div class="span8">
-            <section id="game">
-              <div class="alert" id="turnInfo">
-                <button type="button" class="close" data-dismiss="alert">close</button> <strong>Warning!</strong> It is not your turn, Player 3 is on turn
-              </div>
-              <div class="hero-unit">
-                <h1>
-                  Uskoci
-                </h1>
-                <p>
-                  Trading Card Game
-                </p>
-                <p>
-                  <button id="startGame" class="uskociButton btn btn-primary btn-large">Start</button>
-                </p>
-              </div>
-              <div id="resourcePiles"></div>
-              <div id="activeCard"></div>
-              <div id="playerCards"></div><!-- #playerCards -->
-            </section><!-- #game -->
-          </div>
-          <div class="span4">
-            <p class="text-info">
-              Join as player:
-            </p><select id="playerSelect">
-            <option>
-              1
-            </option>
-            <option>
-              2
-            </option>
-            <option>
-              3
-            </option>
-            <option>
-              4
-            </option>
-          </select>
-          <p class="text-info">
-            Game status:
-          </p>
-          <textarea rows="3" id="console">
-          </textarea>
+        <div class="row-fluid">
+            <div class="span9">
+                <section id="game">
+                    <div class="alert" id="turnInfo">
+                        <button type="button" class="close" data-dismiss="alert">close</button>
+                        <strong>Game not started...</strong>
+                    </div>
+                    <div id="welcomeScreen" class="hero-unit">
+                        <h1>Uskoci</h1>
+
+                        <p>a card game of Croatian Pirates</p>
+
+                        <div id="gameNavigation">
+                            <button id="startGame" class="btn btn-primary btn-large">Start</button>
+                            <select id="playerSelect" class="hidden">
+                                <option>1</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="resourcePiles"></div>
+                    <div id="activeCard"></div>
+                    <div class="row">
+                        <div class="span7">
+                            <div id="playerCards"></div>
+                        </div>
+                        <div id="deckAndButtons" class="span2 offset2"></div>
+                    </div>
+                </section>
+            </div>
+            <div class="span3">
+                <p class="text-info">Game status:</p>
+                <textarea rows="3" id="console"></textarea>
+            </div>
+            <div id="dialog-confirm" class="hidden" title="Restart game?"></div>
         </div>
-        <div id="dialog-confirm" class="hidden" title="Restart game?"></div>
-      </div>
     </div>
-  </div>
 </div>
 </body>
 </html>
