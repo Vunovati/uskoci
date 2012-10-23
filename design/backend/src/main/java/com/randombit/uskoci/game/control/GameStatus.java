@@ -1,4 +1,4 @@
-package com.randombit.uskoci.game;
+package com.randombit.uskoci.game.control;
 
 import com.randombit.uskoci.card.model.Card;
 

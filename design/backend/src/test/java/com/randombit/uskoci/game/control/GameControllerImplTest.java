@@ -1,8 +1,9 @@
-package com.randombit.uskoci.game;
+package com.randombit.uskoci.game.control;
 
 import com.randombit.uskoci.card.dao.CardDAO;
 import com.randombit.uskoci.card.dao.CardDAOSimple;
 import com.randombit.uskoci.card.model.Card;
+import com.randombit.uskoci.game.ActionNotAllowedException;
 import com.randombit.uskoci.game.control.eventmessage.Action;
 import com.randombit.uskoci.game.control.eventmessage.Response;
 import org.easymock.EasyMock;
@@ -685,5 +686,4 @@ public class GameControllerImplTest {
         Assert.assertFalse("No action", action.getArea().isEmpty());
         Assert.assertTrue("Action play cards is missing", action.getActionType() == "Play cards");
     }
-
 }

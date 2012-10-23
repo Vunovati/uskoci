@@ -2,7 +2,7 @@ package com.randombit.uskoci.rest.gamecontrol;
 
 import com.randombit.uskoci.card.model.Card;
 import com.randombit.uskoci.game.ActionNotAllowedException;
-import com.randombit.uskoci.game.GameController;
+import com.randombit.uskoci.game.control.GameController;
 import com.randombit.uskoci.game.dao.GameControllerPool;
 
 import java.util.ArrayList;
