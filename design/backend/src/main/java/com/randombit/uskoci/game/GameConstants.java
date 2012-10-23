@@ -1,6 +1,7 @@
 package com.randombit.uskoci.game;
 
 class GameConstants {
+    static final int INITIAL_NUMBER_OF_CARDS_IN_THE_DECK = 60;
     static final int MAX_NUMBER_OF_PLAYERS = 6;
     static final int MIN_NUMBER_OF_PLAYERS = 3;
     static final int BEGINNING_NUMBER_OF_CARDS = 4;
@@ -17,4 +18,5 @@ class GameConstants {
     static final String THEFT = "Theft";
     static final String SNITCH = "Snitch";
     static final String SEADOG = "Old Sea Dog";
+    static final String FORT = "Fortress of Nehaj";
 }
