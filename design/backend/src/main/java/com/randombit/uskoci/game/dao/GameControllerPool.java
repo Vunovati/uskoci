@@ -1,8 +1,8 @@
 package com.randombit.uskoci.game.dao;
 
 import com.randombit.uskoci.card.dao.MongoDBCard;
-import com.randombit.uskoci.game.GameController;
-import com.randombit.uskoci.game.GameControllerImpl;
+import com.randombit.uskoci.game.control.GameController;
+import com.randombit.uskoci.game.control.GameControllerImpl;
 
 import java.util.HashMap;
 import java.util.Map;

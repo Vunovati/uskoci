@@ -1,3 +1,4 @@
+
 package com.randombit.uskoci.card.model;
 
 import javax.xml.bind.annotation.XmlElement;
@@ -12,8 +13,8 @@ public class Card {
     private String description = "";
     private String position = "";
     private String value = "";
-    private String resourceType="";
-
+    private String color = "";
+    
     public Card() {
     }
 
@@ -24,7 +25,6 @@ public class Card {
         this.description = description;
         this.position = position;
         this.value = value;
-        this.resourceType = resourceType;
     }
 
     @XmlElement
@@ -68,17 +68,20 @@ public class Card {
     public String getValue() {
         return value;
     }
+    
+    @XmlElement
+    public String getColor() {
+        return color;
+    }
+    
+    public void setColor(String color){
+    	this.color = color;
+    }
+    
 
     public void setDescription(String description) {
         this.description = description;
     }
 
-    @XmlElement
-    public String getResourceType() {
-        return resourceType;
-    }
 
-    public void setResourceType(String resourceType) {
-        this.resourceType = resourceType;
-    }
 }

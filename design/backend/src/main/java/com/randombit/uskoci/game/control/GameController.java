@@ -1,12 +1,19 @@
-package com.randombit.uskoci.game;
+package com.randombit.uskoci.game.control;
 
 import com.randombit.uskoci.card.dao.CardDAO;
 import com.randombit.uskoci.card.model.Card;
+import com.randombit.uskoci.game.ActionNotAllowedException;
+import com.randombit.uskoci.game.control.eventmessage.Action;
+import com.randombit.uskoci.game.control.eventmessage.Response;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public interface GameController {
+
+    public GameStatus getGameStatus();
+
+    void setGameStatus(GameStatus gameStatus);
+
     public int getCurrentPlayerId();
 
     public int getNextPlayerId();
@@ -49,8 +56,18 @@ public interface GameController {
 
     public Card flipCardFaceUp();
 
-    public LinkedList<Card> getCardStack();
+    public List<Card> getCardStack();
+    
+    public List<Action> resolveCardsOnStack();
+    
+    public List<Action> responseToEvent(Card event, int playerId, List<Response> responseList);
 
-    void setCardDeck(List<Card> cards);
+    public void setCardDeck(List<Card> cards);
+    
+    public void moveCard(Action action);
+    
+    public void moveCards(Action action);
+    
+    public void changeValue(Card card);
 
 }
