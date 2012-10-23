@@ -1,11 +1,10 @@
 package com.randombit.uskoci.game.control.eventmessage;
 
-import java.util.Collections;
-import java.util.List;
+import com.randombit.uskoci.card.model.Card;
 
 import javax.xml.bind.annotation.XmlElement;
-
-import com.randombit.uskoci.card.model.Card;
+import java.util.Collections;
+import java.util.List;
 
 public class Action {
 	private int actionPlayerId;

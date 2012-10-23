@@ -11,23 +11,19 @@ public class GameControllerImpl implements GameController {
 
     private CardDAO cardDAO;
 
-    private List<Card> cardDeck;
+    private GameStatus gameStatus = new GameStatus();
 
-    private List<Card> discardedCards;
-    private Map<String, List<Card>> playerCardMap;
-    private int currentPlayerId;
-    private boolean beginningCardDrawn;
-    private boolean gameStarted;
-    private int numberOfPlayersJoined;
-    private boolean resourceCardPlayed;
-    private Map<String, List<Card>> playersResources;
-    private LinkedList<Card> cardStack;
-    private int chosenPlayer;
-    
+    public GameStatus getGameStatus() {
+        return gameStatus;
+    }
+
+    public void setGameStatus(GameStatus gameStatus) {
+        this.gameStatus = gameStatus;
+    }
+
     public GameControllerImpl(CardDAO cardDAO) {
         this.cardDAO = cardDAO;
     }
-
 
     @Override
     public void setCardDAO(CardDAO cardDAO) {
@@ -36,24 +32,24 @@ public class GameControllerImpl implements GameController {
 
     @Override
     public void setCardDeck(List<Card> cardDeck) {
-        this.cardDeck = cardDeck;
+        this.gameStatus.setCardDeck(cardDeck);
     }
 
     @Override
     public int getNumberOfPlayersJoined() {
-        return numberOfPlayersJoined;
+        return gameStatus.getNumberOfPlayersJoined();
     }
 
     @Override
     public List<Card> getDiscardPile() {
-        if (discardedCards == null)
+        if (gameStatus.getDiscardedCards() == null)
             return Collections.<Card>emptyList();
-        return discardedCards;
+        return gameStatus.getDiscardedCards();
     }
 
     @Override
     public List<Card> getResources(int playerId) {
-        List<Card> playerResources = playersResources.get(String.valueOf(playerId));
+        List<Card> playerResources = gameStatus.getPlayersResources().get(String.valueOf(playerId));
 
         if (playerResources == null)
             playerResources = Collections.<Card>emptyList();
@@ -61,8 +57,8 @@ public class GameControllerImpl implements GameController {
     }
 
     @Override
-    public LinkedList<Card> getCardStack() {
-    	return cardStack;
+    public List<Card> getCardStack() {
+    	return gameStatus.getCardStack();
     }
 
     @Override
@@ -106,11 +102,12 @@ public class GameControllerImpl implements GameController {
     }
     
     private void playEventCard(Card cardPlayed, int playerId) throws ActionNotAllowedException {
-        LinkedList<Card> currentCardStack = getCardStack();
+        List<Card> currentCardStack = getCardStack();
         String cardSummary = cardPlayed.getSummary();
-        
-       if(!currentCardStack.isEmpty()) {
-        	if(cardSummary == "Will of God" || cardSummary == "Fortress of Nehaj") {
+
+
+        if(!currentCardStack.isEmpty()) {
+        	if(cardCanBePlayedInResponse(cardSummary)) {
         		//cardPlayed.setCardOwner(String.valueOf(playerId));
         		putCardOnStack(cardPlayed);
         	}
@@ -119,16 +116,20 @@ public class GameControllerImpl implements GameController {
         	}	
        }
        else {
-    	   if(cardSummary == "Will of God" || cardSummary == "Fortress of Nehaj") {
+    	   if(cardCanBePlayedInResponse(cardSummary)) {
     		   throw new ActionNotAllowedException();
        		}
            //cardPlayed.setCardOwner(String.valueOf(playerId));
            putCardOnStack(cardPlayed); 
        }
-    } 
-    
+    }
+
+    private boolean cardCanBePlayedInResponse(String cardSummary) {
+        return GameConstants.WILL.equals(cardSummary) || GameConstants.FORT.equals(cardSummary);
+    }
+
     private void playResourceCard(Card cardPlayed, int playerId) throws ActionNotAllowedException {
-    	LinkedList<Card> currentStack = getCardStack();
+    	List<Card> currentStack = getCardStack();
 
     	if(playerIsNotOnTheMove(playerId)){
     		throw new ActionNotAllowedException();
@@ -136,10 +137,10 @@ public class GameControllerImpl implements GameController {
         if(!currentStack.isEmpty()) {
         	throw new ActionNotAllowedException();
         }
-        if(resourceCardPlayed) {
+        if(gameStatus.isResourceCardPlayed()) {
         	throw new ActionNotAllowedException();
         }
-        resourceCardPlayed = true;
+        gameStatus.setResourceCardPlayed(true);
         putCardInPlayersResources(cardPlayed, playerId);
     }
 
@@ -147,7 +148,7 @@ public class GameControllerImpl implements GameController {
     public List<Action> resolveCardsOnStack() {
     	 List<Action> response = new ArrayList<Action>();
     	 Card event;
-    	 LinkedList <Card> cardStack = getCardStack();
+    	 LinkedList<Card> cardStack = (LinkedList<Card>) getCardStack();
     	 
     	 while(!cardStack.isEmpty()){
     		 event = cardStack.remove();
@@ -166,15 +167,15 @@ public class GameControllerImpl implements GameController {
     	List<Integer> playersAffectedByAction = new ArrayList<Integer>();
     	List<Action> listOfActions = new ArrayList<Action>();
     	String cardSummary = event.getSummary();
-    	LinkedList <Card> cardStack = getCardStack();
+    	List <Card> cardStack = getCardStack();
     	
     	boolean lastAction = true;
     	boolean moreActions = false;
     	Action action;
     	
     	if(GameConstants.WILL.equals(cardSummary)){
-    		cards.add(cardStack.get(0));
-    		action = new Action(eventPlayerId,"remove from stack",cards,lastAction);
+//    		cards.add(cardStack.get(0));
+    		action = new Action(eventPlayerId,"remove from stack",lastAction);
     		//cardStack.remove();
     		return listOfActions;
     	}
@@ -261,9 +262,9 @@ public class GameControllerImpl implements GameController {
 			String responseType = response.getResponseType();
     		if(responseType == "Players") {
 				List<Integer> choseFromPlayers = new ArrayList<Integer>();
-				chosenPlayer = response.getPlayersAffectedByResponse().remove(0);
-				choseFromPlayers.add(chosenPlayer);
-				action = new Action(eventPlayerId,"Choose a card",getPlayerCards(chosenPlayer),choseFromPlayers,moreActions);
+                gameStatus.setChosenPlayer(response.getPlayersAffectedByResponse().remove(0));
+				choseFromPlayers.add(gameStatus.getChosenPlayer());
+				action = new Action(eventPlayerId,"Choose a card",getPlayerCards(gameStatus.getChosenPlayer()),choseFromPlayers,moreActions);
 				listOfActions.add(action);
 				listOfActions.add(action);
 				return listOfActions;
@@ -271,7 +272,7 @@ public class GameControllerImpl implements GameController {
     		if(responseType == "Cards"){
 				Card chosenCard = response.getCards().remove(0);
 				//moveCard(getResources(chosenPlayer),getResources(eventPlayerId),chosenCard);
-				action = new Action(eventPlayerId,"move a card",getResources(chosenPlayer),getResources(eventPlayerId),chosenCard,lastAction);
+				action = new Action(eventPlayerId,"move a card",getResources(gameStatus.getChosenPlayer()),getResources(eventPlayerId),chosenCard,lastAction);
 				listOfActions.add(action);
 				return listOfActions;
     		}
@@ -332,12 +333,12 @@ public class GameControllerImpl implements GameController {
     }  
 
     private void removeCardFromPlayersHand(Card cardPlayed, int playerId) {
-        playerCardMap.get(String.valueOf(playerId)).remove(cardPlayed);
+        gameStatus.getPlayerCardMap().get(String.valueOf(playerId)).remove(cardPlayed);
     }
 
     @Override
     public boolean isResourceCardPlayed() {
-        return resourceCardPlayed;
+        return gameStatus.isResourceCardPlayed();
     }
 
     private boolean cardIsEvent(Card cardPlayed) {
@@ -355,7 +356,7 @@ public class GameControllerImpl implements GameController {
     }    
 
     private boolean playerIsNotOnTheMove(int playerId) {
-        return playerId != currentPlayerId;
+        return playerId != gameStatus.getCurrentPlayerId();
     }
 
     private void putCardInPlayersResources(Card card, int playerId) {
@@ -364,7 +365,7 @@ public class GameControllerImpl implements GameController {
     }
 
     private void putCardOnStack(Card card){
-        LinkedList<Card> currentCardStack = getCardStack();
+        LinkedList<Card> currentCardStack =  (LinkedList<Card>) getCardStack();
         currentCardStack.add(card);
     }    
 
@@ -374,63 +375,67 @@ public class GameControllerImpl implements GameController {
     }   
 
     private boolean isNoOfCardsInHandValid() {
-        return playerCardMap.get(String.valueOf(currentPlayerId)).size() < GameConstants.MAX_NUMBER_OF_CARDS_IN_HAND + 1;
+        return gameStatus.getPlayerCardMap().get(String.valueOf(gameStatus.getCurrentPlayerId())).size() < GameConstants.MAX_NUMBER_OF_CARDS_IN_HAND + 1;
     }
 
     @Override
     public boolean getBeginningCardDrawn() {
-        return beginningCardDrawn;
+        return gameStatus.isBeginningCardDrawn();
     }
 
     @Override
     public int getCurrentPlayerId() {
-        return currentPlayerId;
+        return gameStatus.getCurrentPlayerId();
     }
 
     @Override
     public int getNextPlayerId() {
 //        int nextPlayer = (this.currentPlayerId == numberOfPlayersJoined) ? 1 : currentPlayerId++;
         int nextPlayer;
-        if (currentPlayerId == numberOfPlayersJoined) {
+        if (gameStatus.getCurrentPlayerId() == gameStatus.getNumberOfPlayersJoined()) {
             nextPlayer = 1;
         } else {
-            nextPlayer = currentPlayerId + 1;
+            nextPlayer = gameStatus.getCurrentPlayerId() + 1;
         }
         return nextPlayer;
     }
 
     @Override
     public List<Card> getCardsInTheDeck() {
-        return cardDeck;
+        return gameStatus.getCardDeck();
     }
 
     private void dealCards(int numberOfPlayers) {
-        Collections.shuffle(cardDeck);
+        Collections.shuffle(gameStatus.getCardDeck());
+        giveCardsToPlayers(numberOfPlayers);
+    }
+
+    private void giveCardsToPlayers(int numberOfPlayers) {
         for (int i = 1; i < numberOfPlayers + 1; i++) {
-            List<Card> cardsDealtToPlayer = cardDeck.subList(0, GameConstants.BEGINNING_NUMBER_OF_CARDS);
-            playerCardMap.put(String.valueOf(i), new ArrayList<Card>(cardsDealtToPlayer));
-            cardDeck.removeAll(playerCardMap.get(String.valueOf(i)));
+            List<Card> cardsDealtToPlayer = gameStatus.getCardDeck().subList(0, GameConstants.BEGINNING_NUMBER_OF_CARDS);
+            gameStatus.getPlayerCardMap().put(String.valueOf(i), new ArrayList<Card>(cardsDealtToPlayer));
+            gameStatus.getCardDeck().removeAll(gameStatus.getPlayerCardMap().get(String.valueOf(i)));
         }
     }
 
     @Override
     public String resetGame() {
-        this.cardDeck = new ArrayList<Card>(cardDAO.getAllCards());
-        this.playerCardMap = new HashMap<String, List<Card>>();
-        this.resourceCardPlayed = false;
-        this.beginningCardDrawn = false;
-        this.gameStarted = false;
-        this.playersResources = generateEmptyPlayersResources();
-        this.discardedCards = new ArrayList<Card>();
-        this.cardStack = new LinkedList<Card>();
+        this.gameStatus.setCardDeck(new ArrayList<Card>(cardDAO.getAllCards()));
+        this.gameStatus.setPlayerCardMap(new HashMap<String, List<Card>>());
+        this.gameStatus.setResourceCardPlayed(false);
+        this.gameStatus.setBeginningCardDrawn(false);
+        this.gameStatus.setGameStarted(false);
+        this.gameStatus.setPlayersResources(generateEmptyPlayersResources());
+        this.gameStatus.setDiscardedCards(new ArrayList<Card>());
+        this.gameStatus.setCardStack(new LinkedList<Card>());
         Random randomGenerator = new Random();
-        this.currentPlayerId = randomGenerator.nextInt(numberOfPlayersJoined - 1) + 1;
+        this.gameStatus.setCurrentPlayerId(randomGenerator.nextInt(gameStatus.getNumberOfPlayersJoined() - 1) + 1);
         return "Game reset";
     }
 
     private HashMap<String, List<Card>> generateEmptyPlayersResources() {
         HashMap<String, List<Card>> playersResourcesHashMap = new HashMap<String, List<Card>>();
-        for (int playerId = 1; playerId <= numberOfPlayersJoined; playerId++) {
+        for (int playerId = 1; playerId <= gameStatus.getNumberOfPlayersJoined(); playerId++) {
             playersResourcesHashMap.put(String.valueOf(playerId), new ArrayList<Card>());
         }
         return playersResourcesHashMap;
@@ -440,36 +445,36 @@ public class GameControllerImpl implements GameController {
     @Override
     public boolean startGame(int numberOfPlayersJoined) {
         if (numberOfPlayersJoined <= GameConstants.MAX_NUMBER_OF_PLAYERS || numberOfPlayersJoined >= GameConstants.MIN_NUMBER_OF_PLAYERS) {
-            this.numberOfPlayersJoined = numberOfPlayersJoined;
+            this.gameStatus.setNumberOfPlayersJoined(numberOfPlayersJoined);
             resetGame();
-            dealCards(this.numberOfPlayersJoined);
-            this.gameStarted = true;
+            dealCards(this.gameStatus.getNumberOfPlayersJoined());
+            this.gameStatus.setGameStarted(true);
         }
-        return gameStarted;
+        return gameStatus.isGameStarted();
     }
 
     public List<Card> getPlayerCards(int playerId) {
-        return playerCardMap.get(String.valueOf(playerId));
+        return gameStatus.getPlayerCardMap().get(String.valueOf(playerId));
     }
 
     @Override
     public Card drawCard(int playerId) throws ActionNotAllowedException {
-        if (beginningCardDrawn)
+        if (gameStatus.isBeginningCardDrawn())
             throw new ActionNotAllowedException();
 
-        Card cardDrawn = cardDeck.remove(0);
-        playerCardMap.get(String.valueOf(playerId)).add(cardDrawn);
+        Card cardDrawn = gameStatus.getCardDeck().remove(0);
+        gameStatus.getPlayerCardMap().get(String.valueOf(playerId)).add(cardDrawn);
 
         if (playerIsNotOnTheMove(playerId))
             throw new ActionNotAllowedException();
 
-        if (!beginningCardDrawn)
-            beginningCardDrawn = true;
+        if (!gameStatus.isBeginningCardDrawn())
+            gameStatus.setBeginningCardDrawn(true);
         
-        if(cardDeck.isEmpty()) {
-            Collections.shuffle(discardedCards);
-            cardDeck.addAll(discardedCards);
-            discardedCards.clear();
+        if(gameStatus.getCardDeck().isEmpty()) {
+            Collections.shuffle(gameStatus.getDiscardedCards());
+            gameStatus.getCardDeck().addAll(gameStatus.getDiscardedCards());
+            gameStatus.getDiscardedCards().clear();
         }
 
         return cardDrawn;
@@ -477,7 +482,7 @@ public class GameControllerImpl implements GameController {
 
     @Override
     public void setNextPlayersTurn(int playerId) throws ActionNotAllowedException {
-        if (beginningCardDrawn && playerOnTheMove(playerId) && isNoOfCardsInHandValid()) {
+        if (gameStatus.isBeginningCardDrawn() && playerOnTheMove(playerId) && isNoOfCardsInHandValid()) {
             beginTurn();
         } else {
             throw new ActionNotAllowedException();
@@ -485,19 +490,19 @@ public class GameControllerImpl implements GameController {
     }
 
     private void beginTurn() {
-        currentPlayerId = getNextPlayerId();
-        beginningCardDrawn = false;
-        resourceCardPlayed = false;
-        cardStack.clear();
+        gameStatus.setCurrentPlayerId(getNextPlayerId());
+        gameStatus.setBeginningCardDrawn(false);
+        gameStatus.setResourceCardPlayed(false);
+        gameStatus.getCardStack().clear();
     }
 
     private boolean playerOnTheMove(int playerId) {
-        return playerId == currentPlayerId;
+        return playerId == gameStatus.getCurrentPlayerId();
     }
 
     @Override
     public boolean isGameStarted() {
-        return gameStarted;
+        return gameStatus.isGameStarted();
     }
     
     @Override
@@ -510,7 +515,7 @@ public class GameControllerImpl implements GameController {
     private void removeCardFromZone(Card card, List<Card> cardList) {
         if(!cardList.isEmpty()) {
             cardList.remove(card);
-            discardedCards.add(card);
+            gameStatus.getDiscardedCards().add(card);
         }
     }
 
@@ -534,8 +539,8 @@ public class GameControllerImpl implements GameController {
 
     @Override
     public Card flipCardFaceUp() {
-        Card flippedCard = cardDeck.remove(0);
-        discardedCards.add(flippedCard);
+        Card flippedCard = gameStatus.getCardDeck().remove(0);
+        gameStatus.getDiscardedCards().add(flippedCard);
         return flippedCard;
     } 
     

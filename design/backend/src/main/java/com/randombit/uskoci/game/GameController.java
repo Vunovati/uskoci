@@ -5,10 +5,14 @@ import com.randombit.uskoci.card.model.Card;
 import com.randombit.uskoci.game.control.eventmessage.Action;
 import com.randombit.uskoci.game.control.eventmessage.Response;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public interface GameController {
+
+    public GameStatus getGameStatus();
+
+    void setGameStatus(GameStatus gameStatus);
+
     public int getCurrentPlayerId();
 
     public int getNextPlayerId();
@@ -51,7 +55,7 @@ public interface GameController {
 
     public Card flipCardFaceUp();
 
-    public LinkedList<Card> getCardStack();
+    public List<Card> getCardStack();
     
     public List<Action> resolveCardsOnStack();
     

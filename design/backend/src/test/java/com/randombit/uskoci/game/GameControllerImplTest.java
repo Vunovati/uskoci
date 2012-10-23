@@ -11,23 +11,58 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class GameControllerImplTest {
 
     private static final int STARTING_NUMBER_OF_CARDS = 4;
     GameController gameController;
     CardDAO cardDAO;
-    private static final int INITIAL_NUMBER_OF_CARDS_IN_THE_DECK = 60;
+    GameStatus gameStatus;
+
 
     int testNumberOfPlayers = 4;
 
     @Before
     public void setUp() throws Exception {
-        gameController = new GameControllerImpl(new CardDAOSimple());
-        gameController.startGame(testNumberOfPlayers);
+
+        cardDAO = new CardDAOSimple();
+        gameController = new GameControllerImpl(cardDAO);
+//        gameController.startGame(testNumberOfPlayers);
+        gameStatus = intializeGameStatus();
+        gameController.setGameStatus(gameStatus);
+    }
+
+    private GameStatus intializeGameStatus() {
+        gameStatus = new GameStatus();
+        gameStatus.setNumberOfPlayersJoined(testNumberOfPlayers);
+        gameStatus.setCardDeck(new ArrayList<Card>(cardDAO.getAllCards()));
+        gameStatus.setPlayerCardMap(new HashMap<String, List<Card>>());
+        gameStatus.setResourceCardPlayed(false);
+        gameStatus.setBeginningCardDrawn(false);
+        gameStatus.setGameStarted(true);
+        gameStatus.setDiscardedCards(new ArrayList<Card>());
+        gameStatus.setPlayersResources(generateEmptyPlayersResources());
+        gameStatus.setCardStack(new LinkedList<Card>());
+        gameStatus.setCurrentPlayerId(1);
+        giveCardsToPlayers(testNumberOfPlayers);
+        return gameStatus;
+    }
+
+    private HashMap<String, List<Card>> generateEmptyPlayersResources() {
+        HashMap<String, List<Card>> playersResourcesHashMap = new HashMap<String, List<Card>>();
+        for (int playerId = 1; playerId <= gameStatus.getNumberOfPlayersJoined(); playerId++) {
+            playersResourcesHashMap.put(String.valueOf(playerId), new ArrayList<Card>());
+        }
+        return playersResourcesHashMap;
+    }
+
+    private void giveCardsToPlayers(int numberOfPlayers) {
+        for (int i = 1; i < numberOfPlayers + 1; i++) {
+            List<Card> cardsDealtToPlayer = gameStatus.getCardDeck().subList(0, GameConstants.BEGINNING_NUMBER_OF_CARDS);
+            gameStatus.getPlayerCardMap().put(String.valueOf(i), new ArrayList<Card>(cardsDealtToPlayer));
+            gameStatus.getCardDeck().removeAll(gameStatus.getPlayerCardMap().get(String.valueOf(i)));
+        }
     }
 
     @Test
@@ -40,13 +75,13 @@ public class GameControllerImplTest {
     @Test
     public void testCardShuffle() throws Exception {
 
-        List<Card> cardsInTheDeck = gameController.getCardsInTheDeck();
-        int expectedNumberOfCards = INITIAL_NUMBER_OF_CARDS_IN_THE_DECK - (testNumberOfPlayers * STARTING_NUMBER_OF_CARDS);
+        List<Card> cardsInTheDeck = gameStatus.getCardDeck();
+        int expectedNumberOfCards = GameConstants.INITIAL_NUMBER_OF_CARDS_IN_THE_DECK - (gameStatus.getNumberOfPlayersJoined() * STARTING_NUMBER_OF_CARDS);
         Assert.assertEquals("Remaining number of cards is smaller after dealing", expectedNumberOfCards, cardsInTheDeck.size());
 
         List<Card> allPlayersHands = new ArrayList<Card>();
 
-        for (int i = 1; i < testNumberOfPlayers + 1; i++) {
+        for (int i = 1; i < gameStatus.getNumberOfPlayersJoined() + 1; i++) {
             allPlayersHands.addAll(gameController.getPlayerCards(i));
         }
 
@@ -101,7 +136,7 @@ public class GameControllerImplTest {
 
         Assert.assertTrue("First player is set", firstPlayer > 0);
 
-        gameController.startGame(testNumberOfPlayers);
+        gameController.startGame(gameStatus.getNumberOfPlayersJoined());
         Assert.assertTrue("First player is re-set", firstPlayer > 0);
     }
 
@@ -190,37 +225,31 @@ public class GameControllerImplTest {
     }
 
     // Opcionalno: nakon što igrač potroši špil, karte koje se nalaze u groblju se zamiješaju (USK: da)
-    // TODO: rewrite this test, not good
-    @Ignore
+
     @Test
     public void testCardsReshuffle() throws Exception {
 
-
         List<Card> discardedCards;
         List<Card> allPlayersHands = new ArrayList<Card>();
+        List<Card> cards = new ArrayList<Card>();
+        cards.add(new Card());
 
         int testPlayerId = gameController.getCurrentPlayerId();
-        int expectedNumberOfCards = INITIAL_NUMBER_OF_CARDS_IN_THE_DECK - (testNumberOfPlayers * STARTING_NUMBER_OF_CARDS) - 1;
+        int expectedNumberOfCards = GameConstants.INITIAL_NUMBER_OF_CARDS_IN_THE_DECK - 1;
 
-        List<Card> deckContaningOnlyOneCard = new ArrayList<Card>();
-        deckContaningOnlyOneCard.add(new Card());
-
-        gameController.setCardDeck(deckContaningOnlyOneCard);
-        List<Card> cardsInTheDeck = gameController.getCardsInTheDeck();
-
+        discardedCards = new ArrayList<Card>(gameStatus.getCardDeck());
+        gameStatus.setDiscardedCards(discardedCards);
+        gameStatus.setCardDeck(cards);
         gameController.drawCard(testPlayerId); // Draw last card from the deck.
-        discardedCards = gameController.getDiscardPile();
 
-        Assert.assertTrue("Number of cards in the deck is smaller then discard pile after reshuffling the pile", expectedNumberOfCards > cardsInTheDeck.size());
-        Assert.assertEquals("Discard pile is not empty", 0, discardedCards.size());
-
+        Assert.assertTrue("Number of cards in the deck is bigger then discard pile after reshuffling the pile", expectedNumberOfCards > gameStatus.getCardDeck().size());
+        Assert.assertEquals("Discard pile is empty", 0, gameStatus.getDiscardedCards().size());
 
         for (int i = 1; i < testNumberOfPlayers + 1; i++) {
             allPlayersHands.addAll(gameController.getPlayerCards(i));
         }
 
-        cardsAreNotDuplicatedDuringShuffling(cardsInTheDeck, allPlayersHands);
-
+        cardsAreNotDuplicatedDuringShuffling(gameStatus.getCardDeck(), allPlayersHands);
     }
 
     /*  5.  Opcionalno: Odigravanje karte – Igrač (opcionalno) mora platiti neke resurse ili se karta vraća u hand.
@@ -288,40 +317,28 @@ public class GameControllerImplTest {
         String testCardId = "1";
         Card testCard;
 
+        gameStatus.setResourceCardPlayed(true);
+
         testCard = EasyMock.createMock(Card.class);
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
-        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(2);
-        EasyMock.expect(testCard.getType()).andReturn(GameConstants.RESOURCE).times(9);
-        EasyMock.expect(testCard.getValue()).andReturn("1").times(4);
-        EasyMock.expect(testCard.getSummary()).andReturn("").times(2);
+        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(1);
+        EasyMock.expect(testCard.getType()).andReturn(GameConstants.RESOURCE).times(4);
+        EasyMock.expect(testCard.getValue()).andReturn("1").times(2);
+        EasyMock.expect(testCard.getSummary()).andReturn("").times(1);
         EasyMock.replay(cardDAO, testCard);
 
-        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
     }
 
     @Test
     public void testResourceCardPlayedResetEachTurn() throws Exception {
-    	int currentPlayerId = gameController.getCurrentPlayerId();
-        String testCardId = "1";
-        Card testCard;
+        int currentPlayerId = gameController.getCurrentPlayerId();
 
-        testCard = EasyMock.createMock(Card.class);
-        cardDAO = EasyMock.createMock(CardDAO.class);
-        gameController.setCardDAO(cardDAO);
-        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(2);
-        EasyMock.expect(testCard.getType()).andReturn("resource").times(5);
-        EasyMock.expect(testCard.getValue()).andReturn("1").times(2);
-        EasyMock.expect(testCard.getSummary()).andReturn("").times(1);
-        EasyMock.replay(cardDAO, testCard);
-
-        gameController.drawCard(currentPlayerId);
-        gameController.playCard(currentPlayerId, Integer.valueOf(testCardId));
-
+       gameStatus.setResourceCardPlayed(true);
+       gameStatus.setBeginningCardDrawn(true);
         // When
         gameController.setNextPlayersTurn(currentPlayerId);
-
         Assert.assertFalse("Resource Card played is reset at beginning of new turn", gameController.isResourceCardPlayed());
     }
 
@@ -393,25 +410,32 @@ public class GameControllerImplTest {
     Ograničavanje igranja nekih tipova karata : Igrač ne smije odigrati kartu plijena ili eventa
     ako bi prešao 25 bodova njezinim odigravanjem (ili za event izvršavanjem)
     */
-    
-    // TODO: MODIFY
-    @Test (expected = ActionNotAllowedException.class)    
+
+    @Test(expected = ActionNotAllowedException.class)
 
     public void testMaximumPlayerPoints() throws Exception {
         int playerOnTheMove = gameController.getCurrentPlayerId();
         String testCardId = "1";
         Card testCard;
+        List<Card> gameCards = new ArrayList<Card>();
 
         testCard = EasyMock.createMock(Card.class);
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
-        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(3);
+        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(1);
         EasyMock.expect(testCard.getType()).andReturn(GameConstants.RESOURCE).times(10);
-        EasyMock.expect(testCard.getValue()).andReturn("9").times(6);
+        EasyMock.expect(testCard.getValue()).andReturn("9").times(3);
         EasyMock.replay(cardDAO, testCard);
 
-        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
-        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+        for(int i = 0; i < 2; i++){
+            gameCards.add(testCard);
+        }
+
+        Map playerMap = new HashMap<String, List<Card>>();
+        playerMap.put(String.valueOf(playerOnTheMove), gameCards);
+
+        gameStatus.setPlayersResources(playerMap);
+
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
 
     }
@@ -429,15 +453,16 @@ public class GameControllerImplTest {
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(2);
-        EasyMock.expect(testCard.getType()).andReturn(GameConstants.EVENT).times(4);
+//        EasyMock.expect(testCard.getType()).andReturn(GameConstants.EVENT).times(4);
         EasyMock.expect(testCard.getType()).andReturn(GameConstants.RESOURCE).times(4);
         EasyMock.expect(testCard.getSummary()).andReturn("").times(2);
         EasyMock.expect(testCard.getValue()).andReturn("1").times(4);
         EasyMock.replay(cardDAO, testCard);
 
+        List<Card> stack = gameStatus.getCardStack();
+        stack.add(testCard);
+        gameStatus.setCardStack(stack);
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
-        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
-
     }
 
     @Test(expected = ActionNotAllowedException.class)
@@ -449,13 +474,15 @@ public class GameControllerImplTest {
         testCard = EasyMock.createMock(Card.class);
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
-        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(2);
-        EasyMock.expect(testCard.getType()).andReturn(GameConstants.EVENT).times(8);
-        EasyMock.expect(testCard.getValue()).andReturn("1").times(4);
-        EasyMock.expect(testCard.getSummary()).andReturn("").times(2);
+        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard);
+        EasyMock.expect(testCard.getType()).andReturn(GameConstants.EVENT).times(4);
+        EasyMock.expect(testCard.getValue()).andReturn("1").times(2);
+        EasyMock.expect(testCard.getSummary()).andReturn("");
         EasyMock.replay(cardDAO, testCard);
 
-        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+        List<Card> stack = gameStatus.getCardStack();
+        stack.add(testCard);
+        gameStatus.setCardStack(stack);
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
 
     }
@@ -472,11 +499,12 @@ public class GameControllerImplTest {
         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(2);
         EasyMock.expect(testCard.getType()).andReturn(GameConstants.EVENT).times(8);
         EasyMock.expect(testCard.getValue()).andReturn("1").times(4);
-        EasyMock.expect(testCard.getSummary()).andReturn("");
-        EasyMock.expect(testCard.getSummary()).andReturn("Will of God");
+        EasyMock.expect(testCard.getSummary()).andReturn(GameConstants.WILL);
         EasyMock.replay(cardDAO, testCard);
 
-        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+        List<Card> stack = gameStatus.getCardStack();
+        stack.add(testCard);
+        gameStatus.setCardStack(stack);
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
 
         Assert.assertTrue("Event response on event not on stack", gameController.getCardStack().contains(testCard));
@@ -485,21 +513,11 @@ public class GameControllerImplTest {
     @Test
     public void testStackEmptyAfterNextTurn() throws Exception {
         int playerOnTheMove = gameController.getCurrentPlayerId();
-        String testCardId = "1";
-        Card testCard;
 
-        testCard = EasyMock.createMock(Card.class);
-        cardDAO = EasyMock.createMock(CardDAO.class);
-        gameController.setCardDAO(cardDAO);
-        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(2);
-        EasyMock.expect(testCard.getType()).andReturn(GameConstants.EVENT).times(8);
-        EasyMock.expect(testCard.getValue()).andReturn("1").times(4);
-        EasyMock.expect(testCard.getSummary()).andReturn("").times(2);
-        EasyMock.replay(cardDAO, testCard);
-
-        gameController.drawCard(playerOnTheMove);
-        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
-        Assert.assertFalse("Card stack is not empty after playing an event", gameController.getCardStack().isEmpty());
+        LinkedList<Card> cardStack = new LinkedList<Card>();
+        cardStack.add(new Card());
+        gameStatus.setCardStack(cardStack);
+        gameStatus.setBeginningCardDrawn(true);
         gameController.setNextPlayersTurn(playerOnTheMove);
         Assert.assertTrue("Card stack is emptied after next turn set", gameController.getCardStack().isEmpty());
     }
@@ -508,7 +526,7 @@ public class GameControllerImplTest {
       Karta obavijesti (x2 karte) mogu se odbaciti s flote u discard pile u bilo kojem trenutku
     */
     @Test
-    public void testMultiplierRemovedFromPile() throws Exception { 
+    public void testMultiplierRemovedFromPile() throws Exception {
         int playerOnTheMove = gameController.getCurrentPlayerId();
         String testCardId = "1";
         Card testCard;
@@ -528,18 +546,18 @@ public class GameControllerImplTest {
         Assert.assertEquals("Multiplier card is zero", 1, discardedCards.size());
         Assert.assertFalse("Multiplier card not removed from resource pile.", gameController.getResources(playerOnTheMove).contains(testCard));
     }
-    
+
     /* EVENT: Will of God: Cancels any card that has just been played, regardless of the car type. 
-     * The cancelled card has no effect and is discarded.
-     */
+    * The cancelled card has no effect and is discarded.
+    */
     // TODO : modify test
     @Ignore
     @Test
-    public void testEventWillOfGod() throws Exception{
-    	int playerOnTheMove = gameController.getCurrentPlayerId();
+    public void testEventWillOfGod() throws Exception {
+        int playerOnTheMove = gameController.getCurrentPlayerId();
         String testCardId = "1";
         Card testCard;
-     
+
         testCard = EasyMock.createMock(Card.class);
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
@@ -549,25 +567,25 @@ public class GameControllerImplTest {
         EasyMock.expect(testCard.getSummary()).andReturn("Storm");
         EasyMock.expect(testCard.getSummary()).andReturn("Will of God").times(3);
         EasyMock.replay(cardDAO, testCard);
-        
+
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
         gameController.resolveCardsOnStack();
-        
-        
+
+
         Assert.assertTrue("Event response on event not on stack", gameController.getCardStack().isEmpty());
-    	
+
     }
-    
+
     // EVENT: Storm : Destroy all cards and resource piles in play. The cards are discarded.
     // TODO : modify test
     @Ignore
     @Test
     public void testEventStorm() throws Exception {
-    	int playerOnTheMove = gameController.getCurrentPlayerId();
+        int playerOnTheMove = gameController.getCurrentPlayerId();
         String testCardId = "1";
         Card testCard;
-     
+
         testCard = EasyMock.createMock(Card.class);
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
@@ -577,7 +595,7 @@ public class GameControllerImplTest {
         EasyMock.expect(testCard.getValue()).andReturn("1").times(12);
         EasyMock.expect(testCard.getSummary()).andReturn("Storm").times(2);
         EasyMock.replay(cardDAO, testCard);
-        
+
         gameController.drawCard(playerOnTheMove);
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
         gameController.setNextPlayersTurn(playerOnTheMove);
@@ -594,78 +612,78 @@ public class GameControllerImplTest {
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
         gameController.resolveCardsOnStack();
-        
+
         Assert.assertTrue("Event on stack", gameController.getCardStack().isEmpty());
         Assert.assertTrue("Resource for player1 not empty", gameController.getResources(1).isEmpty());
         Assert.assertTrue("Resource for player2 not empty", gameController.getResources(2).isEmpty());
         Assert.assertTrue("Resource for player3 not empty", gameController.getResources(3).isEmpty());
         Assert.assertTrue("Resource for player4 not empty", gameController.getResources(4).isEmpty());
-        
-        Assert.assertFalse("Cards are not in the discard pile",gameController.getDiscardPile().isEmpty());
-        
+
+        Assert.assertFalse("Cards are not in the discard pile", gameController.getDiscardPile().isEmpty());
+
     }
-    
+
     // EVENT: Spyglass: Look at the hands of all players.
     @Test
-    public void testEventSpyGlass() throws Exception{
-    	  int playerOnTheMove = gameController.getCurrentPlayerId();
-          String testCardId = "1";
-          int playerId = 1;
-          Card testCard;
-          List<Action> listOfActions = new ArrayList<Action>();
-          List<Card> cardsInPlayersHand = new ArrayList<Card>();
-          testCard = EasyMock.createMock(Card.class);
-          cardDAO = EasyMock.createMock(CardDAO.class);
-          gameController.setCardDAO(cardDAO);
-          EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(2);
-          EasyMock.expect(testCard.getType()).andReturn(GameConstants.EVENT).times(4);
-          EasyMock.expect(testCard.getValue()).andReturn("1").times(2);
-          EasyMock.expect(testCard.getSummary()).andReturn(GameConstants.SPYGLASS).times(2);
-          EasyMock.replay(cardDAO, testCard);
+    public void testEventSpyGlass() throws Exception {
+        int playerOnTheMove = gameController.getCurrentPlayerId();
+        String testCardId = "1";
+        int playerId = 1;
+        Card testCard;
+        List<Action> listOfActions = new ArrayList<Action>();
+        List<Card> cardsInPlayersHand = new ArrayList<Card>();
+        testCard = EasyMock.createMock(Card.class);
+        cardDAO = EasyMock.createMock(CardDAO.class);
+        gameController.setCardDAO(cardDAO);
+        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(2);
+        EasyMock.expect(testCard.getType()).andReturn(GameConstants.EVENT).times(4);
+        EasyMock.expect(testCard.getValue()).andReturn("1").times(2);
+        EasyMock.expect(testCard.getSummary()).andReturn(GameConstants.SPYGLASS).times(2);
+        EasyMock.replay(cardDAO, testCard);
 
-          gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
-          listOfActions = gameController.responseToEvent(testCard,playerOnTheMove,Collections.<Response> emptyList());
-          for(Action action : listOfActions){
-        	  cardsInPlayersHand = gameController.getPlayerCards(playerId++); 
-        	  Assert.assertTrue("Revealed cards are not in player hand", cardsInPlayersHand.containsAll(action.getArea()));
-          }
+        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+        listOfActions = gameController.responseToEvent(testCard, playerOnTheMove, Collections.<Response>emptyList());
+        for (Action action : listOfActions) {
+            cardsInPlayersHand = gameController.getPlayerCards(playerId++);
+            Assert.assertTrue("Revealed cards are not in player hand", cardsInPlayersHand.containsAll(action.getArea()));
+        }
     }
-    
+
     // EVENT: Spy: Look at all the cards in an opponents hand. You may play up to two of them.
     @Test
-    public void testEventSpy()throws Exception {
-    	 int playerOnTheMove = gameController.getCurrentPlayerId();
-         String testCardId = "1";
-         Card testCard,pickedCard;
-         Action action;
-         List<Action> listOfActions = new ArrayList<Action>();
-         List<Response> responseList= new ArrayList<Response>();
-         List<Card> listOfCards = new ArrayList<Card>();
-         List<Integer> listOfPlayers = new ArrayList<Integer>();
-         testCard = EasyMock.createMock(Card.class);
-         cardDAO = EasyMock.createMock(CardDAO.class);
-         gameController.setCardDAO(cardDAO);
-         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(2);
-         EasyMock.expect(testCard.getType()).andReturn(GameConstants.EVENT).times(4);
-         EasyMock.expect(testCard.getValue()).andReturn("1").times(2);
-         EasyMock.expect(testCard.getSummary()).andReturn(GameConstants.SPY).times(4);
-         EasyMock.replay(cardDAO, testCard);
-         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
-         listOfActions = gameController.responseToEvent(testCard,playerOnTheMove,Collections.<Response> emptyList());
-         listOfPlayers.add(2);
-         Response resp = new Response(playerOnTheMove,"Players",Collections.<Card> emptyList(),listOfPlayers);
-         responseList.add(resp);
-         listOfActions = gameController.responseToEvent(testCard,playerOnTheMove,responseList);
-         action = listOfActions.remove(0);
-         pickedCard = action.getArea().remove(0);
-         listOfCards.add(pickedCard);
-         resp = new Response(playerOnTheMove,"Cards",listOfCards,listOfPlayers);
-         responseList.clear();
-         responseList.add(resp);
-         listOfActions = gameController.responseToEvent(testCard,playerOnTheMove,responseList);
-         action = listOfActions.remove(0);
-         Assert.assertFalse("No action",action.getArea().isEmpty());
-         Assert.assertTrue("Action play cards is missing",action.getActionType() == "Play cards");
+    public void testEventSpy() throws Exception {
+        int playerOnTheMove = gameController.getCurrentPlayerId();
+        String testCardId = "1";
+        Card testCard, pickedCard;
+        Action action;
+        List<Action> listOfActions = new ArrayList<Action>();
+        List<Response> responseList = new ArrayList<Response>();
+        List<Card> listOfCards = new ArrayList<Card>();
+        List<Integer> listOfPlayers = new ArrayList<Integer>();
+        testCard = EasyMock.createMock(Card.class);
+        cardDAO = EasyMock.createMock(CardDAO.class);
+        gameController.setCardDAO(cardDAO);
+        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(2);
+        EasyMock.expect(testCard.getType()).andReturn(GameConstants.EVENT).times(4);
+        EasyMock.expect(testCard.getValue()).andReturn("1").times(2);
+        EasyMock.expect(testCard.getSummary()).andReturn(GameConstants.SPY).times(4);
+        EasyMock.replay(cardDAO, testCard);
+        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+        listOfActions = gameController.responseToEvent(testCard, playerOnTheMove, Collections.<Response>emptyList());
+        listOfPlayers.add(2);
+        Response resp = new Response(playerOnTheMove, "Players", Collections.<Card>emptyList(), listOfPlayers);
+        responseList.add(resp);
+        listOfActions = gameController.responseToEvent(testCard, playerOnTheMove, responseList);
+        action = listOfActions.remove(0);
+        pickedCard = action.getArea().remove(0);
+        listOfCards.add(pickedCard);
+        resp = new Response(playerOnTheMove, "Cards", listOfCards, listOfPlayers);
+        responseList.clear();
+        responseList.add(resp);
+        listOfActions = gameController.responseToEvent(testCard, playerOnTheMove, responseList);
+        action = listOfActions.remove(0);
+        Assert.assertFalse("No action", action.getArea().isEmpty());
+        Assert.assertTrue("Action play cards is missing", action.getActionType() == "Play cards");
     }
-    
+
 }
