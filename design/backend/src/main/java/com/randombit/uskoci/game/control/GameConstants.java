@@ -1,4 +1,4 @@
-package com.randombit.uskoci.game;
+package com.randombit.uskoci.game.control;
 
 class GameConstants {
     static final int INITIAL_NUMBER_OF_CARDS_IN_THE_DECK = 60;

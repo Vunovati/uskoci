@@ -1,7 +1,8 @@
-package com.randombit.uskoci.game;
+package com.randombit.uskoci.game.control;
 
 import com.randombit.uskoci.card.dao.CardDAO;
 import com.randombit.uskoci.card.model.Card;
+import com.randombit.uskoci.game.ActionNotAllowedException;
 import com.randombit.uskoci.game.control.eventmessage.Action;
 import com.randombit.uskoci.game.control.eventmessage.Response;
 
