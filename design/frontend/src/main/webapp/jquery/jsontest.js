@@ -38,10 +38,10 @@ $(function () {
     };
 
     function paintDeckAndRestartNextTurnButtons() {
-        $("#game").append('<div id="deck"><div class="card"><div class="face front"></div><div class="face back"></div></div></div>');
+        $("#deckAndButtons").append('<div id="deck"><div class="card"><div class="face front"></div><div class="face back"></div></div></div>');
         $("#deck").click(drawCard);
-        $("#game").append('<button id="nextTurn" class="uskociButton">Next player!</button>');
-        $("#game").append('<button id="restartGame" class="uskociButton">Restart game</button>');
+        $("#deckAndButtons").append('<button id="nextTurn" class="uskociButton btn btn-primary btn-large">Next player!</button>');
+        $("#deckAndButtons").append('<button id="restartGame" class="uskociButton btn btn-primary btn-large">Restart game</button>');
         $("#nextTurn").click(nextTurn);
         $("#restartGame").click(restartGame);
     }
@@ -85,7 +85,7 @@ $(function () {
 
         $('#startGame').remove();
         $('#playerSelect').toggleClass('hidden');
-        $('#gameNavigation').append('<button id="joinGame" class="uskociButton">Join game</button>');
+        $('#gameNavigation').append('<button id="joinGame" class="uskociButton btn btn-primary btn-large">Join game</button>');
         $('#joinGame').click(joinGame_MouseClick);
         content.append("Game started! ");
         content.append("Player " + response.currentPlayerId + " starts first.");
@@ -140,8 +140,7 @@ $(function () {
         repaintTable(null);
         paintDeckAndRestartNextTurnButtons();
 
-        $('#joinGame').remove();
-        $('#playerSelect').remove();
+        $('#welcomeScreen').remove();
         game.initialized = true;
     }
 
