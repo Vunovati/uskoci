@@ -7,10 +7,8 @@ import com.randombit.uskoci.game.ActionNotAllowedException;
 import com.randombit.uskoci.game.control.eventmessage.Action;
 import com.randombit.uskoci.game.control.eventmessage.Response;
 import org.easymock.EasyMock;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.ExpectedException;
 
 import java.util.*;
 
@@ -23,6 +21,9 @@ public class GameControllerImplTest {
 
 
     int testNumberOfPlayers = 4;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
@@ -155,14 +156,18 @@ public class GameControllerImplTest {
                 gameController.getPlayerCards(testPlayerId).contains(cardDrawn));
     }
 
-    @Test(expected = ActionNotAllowedException.class)
+    @Test
     public void testPlayerNotOnMoveDrawCard() throws Exception {
+        thrown.expect(ActionNotAllowedException.class);
+        thrown.expectMessage(GameConstants.EXCEPTION_DRAW_CARD_NOT_ON_THE_MOVE);
         int playerNotOnTheMoveId = gameController.getNextPlayerId();
         Card cardDrawn = gameController.drawCard(playerNotOnTheMoveId);
     }
 
-    @Test(expected = ActionNotAllowedException.class)
+    @Test
     public void testPlayerOnMoveDrawMoreThanOneCard() throws Exception {
+        thrown.expect(ActionNotAllowedException.class);
+        thrown.expectMessage(GameConstants.EXCEPTION_DRAW_MORE_THAN_ONE_CARD);
         int playerOnTheMoveId = gameController.getCurrentPlayerId();
         Card cardDrawn = gameController.drawCard(playerOnTheMoveId);
         gameController.drawCard(playerOnTheMoveId);
@@ -199,30 +204,44 @@ public class GameControllerImplTest {
         Assert.assertFalse("At the beginning of next players turn card has not yet been drawn", gameController.getBeginningCardDrawn());
     }
 
-    @Test(expected = ActionNotAllowedException.class)
+    @Test
     public void testSetNextPlayerTurnNoCardDrawn() throws Exception {
+        thrown.expect(ActionNotAllowedException.class);
+        thrown.expectMessage(GameConstants.EXCEPTION_NEXT_TURN_NO_BEGINNING_CARD_DRAWN);
         int currentPlayerId = gameController.getCurrentPlayerId();
         gameController.setNextPlayersTurn(currentPlayerId);
     }
 
-    @Test(expected = ActionNotAllowedException.class)
+    @Test
     public void testSetNextPlayerTurnPlayerNotOnTheMove() throws Exception {
+        thrown.expect(ActionNotAllowedException.class);
+        thrown.expectMessage(GameConstants.EXCEPTION_NEXT_PLAYER_BY_PLAYER_NOT_ON_THE_MOVE);
         int currentPlayerId = gameController.getCurrentPlayerId();
-        gameController.drawCard(currentPlayerId);
+        gameStatus.setBeginningCardDrawn(true);
+        addANumberofCardsToPlayersHand(1, currentPlayerId);
 
         int playerNotOnTheMove = gameController.getNextPlayerId();
         gameController.setNextPlayersTurn(playerNotOnTheMove);
     }
 
-    @Test(expected = ActionNotAllowedException.class)
+    @Test
     public void testNextPlayerButTooMuchCardsInHandAtEndOfTurn() throws Exception {
+        thrown.expect(ActionNotAllowedException.class);
+        thrown.expectMessage(GameConstants.EXCEPTION_NEXT_PLAYER_TOO_MUCH_CARDS_IN_HAND);
         // given
         int currentPlayerId = gameController.getCurrentPlayerId();
-        gameController.drawCard(currentPlayerId);
-        gameController.drawCard(currentPlayerId);
+        gameStatus.setBeginningCardDrawn(true);
+        addANumberofCardsToPlayersHand(2, currentPlayerId);
 
         // when
         gameController.setNextPlayersTurn(currentPlayerId);
+    }
+
+    private void addANumberofCardsToPlayersHand(int numberOfCardsToAdd, int currentPlayerId) {
+        List<Card> playersCards = gameStatus.getPlayerCardMap().get(String.valueOf(currentPlayerId));
+        for (int i = 0; i < numberOfCardsToAdd; i++) {
+            playersCards.add(new Card());
+        }
     }
 
     // Opcionalno: nakon što igrač potroši špil, karte koje se nalaze u groblju se zamiješaju (USK: da)
@@ -281,8 +300,11 @@ public class GameControllerImplTest {
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
     }
 
-    @Test(expected = ActionNotAllowedException.class)
+    @Test
     public void testPlayerNotOnTheMovePlayResourceCard() throws Exception {
+        gameStatus.setBeginningCardDrawn(true);
+        thrown.expect(ActionNotAllowedException.class);
+        thrown.expectMessage(GameConstants.EXCEPTION_PLAYER_NOT_ON_MOVE_PLAYS_RESOURCE);
         int playerNotOnTheMove = gameController.getNextPlayerId();
         String testCardId = "1";
         Card testCard = EasyMock.createMock(Card.class);
@@ -315,13 +337,16 @@ public class GameControllerImplTest {
         Assert.assertFalse("Card is in the players resource zone because it is an event card", gameController.getResources(playerNotOnTheMove).contains(testCard));
     }
 
-    @Test(expected = ActionNotAllowedException.class)
+    @Test
     public void testPlayResourceCardTwiceInSameTurn() throws Exception {
+        gameStatus.setResourceCardPlayed(true);
+        gameStatus.setBeginningCardDrawn(true);
+        thrown.expect(ActionNotAllowedException.class);
+        thrown.expectMessage(GameConstants.EXCEPTION_PLAY_RESOURCE_TWICE);
         int playerOnTheMove = gameController.getCurrentPlayerId();
         String testCardId = "1";
         Card testCard;
 
-        gameStatus.setResourceCardPlayed(true);
 
         testCard = EasyMock.createMock(Card.class);
         cardDAO = EasyMock.createMock(CardDAO.class);
@@ -346,9 +371,10 @@ public class GameControllerImplTest {
         Assert.assertFalse("Resource Card played is reset at beginning of new turn", gameController.isResourceCardPlayed());
     }
 
-    // TODO: check if necessary rule
-    @Test(expected = ActionNotAllowedException.class)
+    @Test
     public void testPlayCardBeginningCardNotDrawn() throws Exception {
+        thrown.expect(ActionNotAllowedException.class);
+        thrown.expectMessage(GameConstants.EXCEPTION_PLAY_CARD_BEGINNING_CARD_NOT_DRAWN);
         // Given player is on the move
         int currentPlayer = gameController.getCurrentPlayerId();
         // beginning card has not been drawn
@@ -414,9 +440,11 @@ public class GameControllerImplTest {
     ako bi prešao 25 bodova njezinim odigravanjem (ili za event izvršavanjem)
     */
 
-    @Test(expected = ActionNotAllowedException.class)
-
+    @Test
     public void testMaximumPlayerPoints() throws Exception {
+        thrown.expect(ActionNotAllowedException.class);
+        thrown.expectMessage(GameConstants.EXCEPTION_PLAY_TOO_MUCH_RESOURCES);
+        gameStatus.setBeginningCardDrawn(true);
         int playerOnTheMove = gameController.getCurrentPlayerId();
         String testCardId = "1";
         Card testCard;
@@ -446,8 +474,11 @@ public class GameControllerImplTest {
     /*  Specificno pravilo 4
     Ograničavanje igranja nekih tipova karata: Nakon što je odigran event, niti jedna druga karta se ne može odigrati (iznimka su karte: „Božja volja“ i „Utvrda nehaj“)
     */
-    @Test(expected = ActionNotAllowedException.class)
+    @Test
     public void testResourceCardPlayedAfterEvent() throws Exception {
+        thrown.expect(ActionNotAllowedException.class);
+        thrown.expectMessage(GameConstants.EXCEPTION_RESOURCE_AFTER_EVENT);
+        gameStatus.setBeginningCardDrawn(true);
         int playerOnTheMove = gameController.getCurrentPlayerId();
         String testCardId = "1";
         Card testCard;
@@ -468,8 +499,11 @@ public class GameControllerImplTest {
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
     }
 
-    @Test(expected = ActionNotAllowedException.class)
+    @Test
     public void testEventCardPlayedAfterEvent() throws Exception {
+        thrown.expect(ActionNotAllowedException.class);
+        thrown.expectMessage(GameConstants.EXCEPTION_EVENT_AFTER_EVENT);
+        gameStatus.setBeginningCardDrawn(true);
         int playerOnTheMove = gameController.getCurrentPlayerId();
         String testCardId = "1";
         Card testCard;
