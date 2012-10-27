@@ -19,4 +19,17 @@ class GameConstants {
     static final String SNITCH = "Snitch";
     static final String SEADOG = "Old Sea Dog";
     static final String FORT = "Fortress of Nehaj";
+
+    // Exceptions
+    public static final String EXCEPTION_DRAW_CARD_NOT_ON_THE_MOVE = "You cannot draw a card, you are not on the move";
+    public static final String EXCEPTION_DRAW_MORE_THAN_ONE_CARD = "You cannot draw more than one card";
+    public static final String EXCEPTION_NEXT_TURN_NO_BEGINNING_CARD_DRAWN = "You must draw a card before you can set next players turn";
+    public static final String EXCEPTION_NEXT_PLAYER_BY_PLAYER_NOT_ON_THE_MOVE = "You are not on the move so you cannot set next players turn";
+    public static final String EXCEPTION_NEXT_PLAYER_TOO_MUCH_CARDS_IN_HAND = "You have more than " + MAX_NUMBER_OF_CARDS_IN_HAND + " cards in your hand, you must discard some cards first";
+    public static final String EXCEPTION_PLAYER_NOT_ON_MOVE_PLAYS_RESOURCE = "You cannot play resource cards, it is not your turn";
+    public static final String EXCEPTION_PLAY_RESOURCE_TWICE = "You cannot play two resource cards in same turn";
+    public static final String EXCEPTION_PLAY_CARD_BEGINNING_CARD_NOT_DRAWN = "You must draw a card at the beginning of you turn";
+    public static final String EXCEPTION_PLAY_TOO_MUCH_RESOURCES = "You cannot play resources because you have more than " + MAX_NUMBER_OF_PLAYER_POINTS + "points";
+    public static String EXCEPTION_RESOURCE_AFTER_EVENT = "You cannot play resource after an event card";
+    public static String EXCEPTION_EVENT_AFTER_EVENT = "You cannot play event card after another event";
 }
