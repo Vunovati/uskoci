@@ -79,6 +79,10 @@ public class GameControllerImpl implements GameController {
         
     	Card cardPlayed = cardDAO.getCard(cardId);
 
+        if(!gameStatus.beginningCardDrawn) {
+            throw new ActionNotAllowedException();
+        }
+
         if(playerPointsTooHigh(playerId, cardPlayed)){
             throw new ActionNotAllowedException();
         }
