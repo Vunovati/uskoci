@@ -48,9 +48,11 @@ $(function () {
 
     function checkLastMessageAndPerformAction(response) {
         if (response.actionStatus != "OK") {
-            console.log(response.actionStatus);
+            $('#turnInfo').html(response.actionStatus).addClass('alert-error');
             return;
         }
+
+        $('#turnInfo').html(response.actionStatus).removeClass('alert-error');
 
         //noinspection FallthroughInSwitchStatementJS
         switch (response.lastAction["action"]) {
@@ -88,7 +90,7 @@ $(function () {
         $('#gameNavigation').append('<button id="joinGame" class="uskociButton btn btn-primary btn-large">Join game</button>');
         $('#joinGame').click(joinGame_MouseClick);
         content.append("Game started! ");
-        content.append("Player " + response.currentPlayerId + " starts first.");
+        content.append("Player " + response.currentPlayerId + " is on the move.");
         game.started = true;
 
     }
@@ -100,6 +102,7 @@ $(function () {
         game.myTurn = response.currentPlayerId == playerID;
         game.currentPlayerID = response.currentPlayerId;
         game.resourcePiles = response.playersResources;
+        game.actionStatus = response.actionStatus;
     }
 
     function repaintTable(response) {
@@ -107,7 +110,7 @@ $(function () {
         repaintResourcePiles();
         repaintHand();
 
-        if (response != null)
+        if (response !== null)
             modifyGameStatus(response);
     }
 
