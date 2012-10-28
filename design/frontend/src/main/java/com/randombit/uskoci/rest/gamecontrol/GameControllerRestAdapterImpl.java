@@ -26,10 +26,10 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
             gameResponse.actionStatus = OK;
         } catch (ActionNotAllowedException e) {
             e.printStackTrace();
-            gameResponse = new UnsupportedActionResponse();
-            gameResponse.lastAction = message;
+            gameResponse = new GameStatusResponse(gameController);
             gameResponse.actionStatus = e.getMessage();
         }
+        gameResponse.lastAction = message;
         return gameResponse;
     }
 
@@ -39,10 +39,7 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
 
     private GameStatusResponse makeMove(GameStatusMessage message, GameController gameController) throws ActionNotAllowedException{
         changeGameStateWithAction(gameController, message);
-
-        GameStatusResponse gameResponse = new GameStatusResponse(gameController);
-        gameResponse.lastAction = message;
-        return gameResponse;
+        return new GameStatusResponse(gameController);
     }
 
     private void changeGameStateWithAction(GameController gameController, GameStatusMessage message) throws ActionNotAllowedException {
