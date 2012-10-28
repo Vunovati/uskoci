@@ -16,6 +16,14 @@ public class GameStatusResponse {
     private int numberOfPlayersJoined;
     private String currentPlayerId;
     private boolean beginningCardDrawn;
+    private boolean resourceCardPlayed;
+    private List<String> discardedCards;
+    private Map<String, List<String>> playersCards;
+    private Map<String, List<String>> playersResources;
+    private Map<String, Map<String, List<String>>> playersResourcesByType;
+    private List<String> playersPoints;
+    private GameStatusMessage lastAction;
+    private String actionStatus;
 
     @XmlElement
     public boolean isGameStarted() {
@@ -89,6 +97,34 @@ public class GameStatusResponse {
         this.playersResources = playersResources;
     }
 
+    public Map<String, Map<String, List<String>>> getPlayersResourcesByType() {
+        return playersResourcesByType;
+    }
+
+    private void generatePlayerResourcesByType(GameController gameController) {
+        playersResourcesByType = new HashMap<String, Map<String, List<String>>>();
+        for (int i = 1; i <= numberOfPlayersJoined; i++) {
+           playersResourcesByType.put(String.valueOf(i), getPlayersResourcesForEachType(i, gameController));
+        }
+    }
+
+    private Map<String, List<String>> getPlayersResourcesForEachType(int playerId, GameController gameController) {
+        Map<String, List<String>> playersResourceMap = new HashMap<String, List<String>>();
+        List<String> woodCardIds = getCardIds(gameController.getPlayersResourcesByType(playerId, "wood"));
+        playersResourceMap.put("wood", woodCardIds);
+
+        List<String> foodCardIds = getCardIds(gameController.getPlayersResourcesByType(playerId, "food"));
+        playersResourceMap.put("food", foodCardIds);
+
+        List<String> moneyCardIds = getCardIds(gameController.getPlayersResourcesByType(playerId, "money"));
+        playersResourceMap.put("money", moneyCardIds);
+
+        List<String> weaponCardIds = getCardIds(gameController.getPlayersResourcesByType(playerId, "weapon"));
+        playersResourceMap.put("weapon", weaponCardIds);
+
+        return playersResourceMap;
+    }
+
     @XmlElement
     public List<String> getPlayersPoints() {
         return playersPoints;
@@ -116,14 +152,6 @@ public class GameStatusResponse {
         this.actionStatus = actionStatus;
     }
 
-    private boolean resourceCardPlayed;
-    private List<String> discardedCards;
-    private Map<String, List<String>> playersCards;
-    private Map<String, List<String>> playersResources;
-    private List<String> playersPoints;
-    private GameStatusMessage lastAction;
-    private String actionStatus;
-
     public GameStatusResponse() {
     }
 
@@ -137,6 +165,7 @@ public class GameStatusResponse {
         this.playersResources = getPlayersResourceIdMap(gameController);
         this.playersCards = getPlayersCardIdMap(gameController);
         this.playersPoints = getPlayersPoints(gameController);
+        generatePlayerResourcesByType(gameController);
     }
 
     private List<String> getPlayersPoints(GameController gameController) {
