@@ -560,6 +560,19 @@ public class GameControllerImpl implements GameController {
         // TODO : Implement old Sea Dog interface towards frontend
     }
 
+    @Override
+    public List<Card> getPlayersResourcesByType(int playerId, String resourceType) {
+        List<Card> playersResources = getResources(playerId);
+        List<Card> playersResourcesOfSelectedType = new ArrayList<Card>();
+
+        for (Card resource:playersResources) {
+           if (resource.getSummary().contains(resourceType)) {
+               playersResourcesOfSelectedType.add(resource);
+           }
+        }
+        return playersResourcesOfSelectedType;
+    }
+
 
     private <T> List<Card> peakCards(List<Card> area, int start, int end, T delimiter) {
         List<Card> cards = new ArrayList<Card>();
