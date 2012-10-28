@@ -162,6 +162,7 @@ public class GameControllerImpl implements GameController {
         return resolveEvent(event, playerId, responseList);
     }
 
+    // TODO: refaktorirati obavezno: izgleda koma !!!!
     public List<Action> resolveEvent(Card event, int eventPlayerId, List<Response> responseList) {
         List<Card> cards = new ArrayList<Card>();
         List<Integer> playersAffectedByAction = new ArrayList<Integer>();
@@ -323,8 +324,6 @@ public class GameControllerImpl implements GameController {
             //TODO
             return false;
         }
-
-
         return false;
     }
 
@@ -342,12 +341,10 @@ public class GameControllerImpl implements GameController {
     }
 
     private boolean cardIsResource(Card cardPlayed) {
-
         return GameConstants.RESOURCE.equals(cardPlayed.getType());
     }
 
     private boolean cardIsMultiplier(Card cardPlayed) {
-
         return GameConstants.MULTIPLIER.equals(cardPlayed.getType());
     }
 

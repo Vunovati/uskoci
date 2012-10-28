@@ -25,13 +25,13 @@ public class GameControllerRestAdapterIntegrationTest {
     }
 
     private GameStatusResponse playerDrawsACard(GameStatusResponse gameStatus) {
-        String playerId = gameStatus.currentPlayerId;
+        String playerId = gameStatus.getCurrentPlayerId();
         GameStatusMessage gameMessage = new GameStatusMessage(playerId, "drawcard", "", "0");
         return getResponse(gameMessage);
     }
 
     private GameStatusResponse playerPlaysACard(GameStatusResponse gameStatus) {
-        String playerId = gameStatus.currentPlayerId;
+        String playerId = gameStatus.getCurrentPlayerId();
 
         String cardId = pickAResourceCard(gameStatus, playerId);
 
@@ -39,7 +39,7 @@ public class GameControllerRestAdapterIntegrationTest {
             GameStatusMessage gameMessage = new GameStatusMessage(playerId, "playcard", cardId, "0");
 
             GameStatusResponse newStatus = getResponse(gameMessage);
-            List<String> playersCards = newStatus.playersCards.get(playerId);
+            List<String> playersCards = newStatus.getPlayersCards().get(playerId);
             Assert.assertFalse("Players hand does not contain the card that has been played", playersCards.contains(cardId));
             return newStatus;
         }   else {
@@ -49,7 +49,7 @@ public class GameControllerRestAdapterIntegrationTest {
 
     private String pickAResourceCard(GameStatusResponse gameStatus, String playerId) {
         String resourceCardId = "";
-        List<String> playersCardIds = gameStatus.playersCards.get(playerId);
+        List<String> playersCardIds = gameStatus.getPlayersCards().get(playerId);
         for (String cardId:playersCardIds) {
             Card cardInHand = MongoDBCard.instance.getModel().get(cardId);
             if ("resource".equals(cardInHand.getType())) {
@@ -60,11 +60,11 @@ public class GameControllerRestAdapterIntegrationTest {
     }
 
     private GameStatusResponse playerSetsNextTurn(GameStatusResponse gameStatus) {
-        String playerId = gameStatus.currentPlayerId;
+        String playerId = gameStatus.getCurrentPlayerId();
         GameStatusMessage gameMessage = new GameStatusMessage(playerId, "setnextturn", "", "0");
 
         GameStatusResponse newStatus = getResponse(gameMessage);
-        Assert.assertFalse("Player is no longer on the move", playerId.equals(newStatus.currentPlayerId));
+        Assert.assertFalse("Player is no longer on the move", playerId.equals(newStatus.getCurrentPlayerId()));
 
         return newStatus;
     }
@@ -80,7 +80,7 @@ public class GameControllerRestAdapterIntegrationTest {
         GameStatusResponse gameStatusResponse = restAdapter.getResponse(gameMessage, "0");
 
         responseIsValid(gameMessage, gameStatusResponse);
-        Assert.assertTrue("Game is started", gameStatusResponse.gameStarted);
+        Assert.assertTrue("Game is started", gameStatusResponse.isGameStarted());
 
         return gameStatusResponse;
     }
@@ -92,10 +92,10 @@ public class GameControllerRestAdapterIntegrationTest {
     }
 
     private void responseIsNotEmpty(GameStatusResponse gameStatusResponse) {
-        Assert.assertFalse("Current player id is sent", "".equals(gameStatusResponse.currentPlayerId));
+        Assert.assertFalse("Current player id is sent", "".equals(gameStatusResponse.getCurrentPlayerId()));
     }
 
     private void lastMessageIsResentInResponse(GameStatusMessage testGameStatusMessage, GameStatusResponse gameStatusResponse) {
-        Assert.assertEquals("Last action is resent in response", testGameStatusMessage, gameStatusResponse.lastAction);
+        Assert.assertEquals("Last action is resent in response", testGameStatusMessage, gameStatusResponse.getLastAction());
     }
 }
