@@ -25,8 +25,7 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
             e.printStackTrace();
             gameResponse = new UnsupportedActionResponse();
             gameResponse.lastAction = message;
-            //gameResponse.actionStatus = e.getMessage();
-            gameResponse.actionStatus = "Error";
+            gameResponse.actionStatus = e.getMessage();
         }
         return gameResponse;
     }
