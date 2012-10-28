@@ -14,12 +14,9 @@ import java.util.*;
 
 public class GameControllerImplTest {
 
-    private static final int STARTING_NUMBER_OF_CARDS = 4;
     GameController gameController;
     CardDAO cardDAO;
     GameStatus gameStatus;
-
-
     int testNumberOfPlayers = 4;
 
     @Rule
@@ -30,7 +27,6 @@ public class GameControllerImplTest {
 
         cardDAO = new CardDAOSimple();
         gameController = new GameControllerImpl(cardDAO);
-//        gameController.startGame(testNumberOfPlayers);
         gameStatus = intializeGameStatus();
         gameController.setGameStatus(gameStatus);
     }
@@ -78,7 +74,7 @@ public class GameControllerImplTest {
     public void testCardShuffle() throws Exception {
 
         List<Card> cardsInTheDeck = gameStatus.getCardDeck();
-        int expectedNumberOfCards = GameConstants.INITIAL_NUMBER_OF_CARDS_IN_THE_DECK - (gameStatus.getNumberOfPlayersJoined() * STARTING_NUMBER_OF_CARDS);
+        int expectedNumberOfCards = GameConstants.INITIAL_NUMBER_OF_CARDS_IN_THE_DECK - (gameStatus.getNumberOfPlayersJoined() * GameConstants.BEGINNING_NUMBER_OF_CARDS);
         Assert.assertEquals("Remaining number of cards is smaller after dealing", expectedNumberOfCards, cardsInTheDeck.size());
 
         List<Card> allPlayersHands = new ArrayList<Card>();
@@ -134,7 +130,7 @@ public class GameControllerImplTest {
     //    Početni igrač se odredi nasumično
     @Test
     public void testFirstPlayer() throws Exception {
-        int firstPlayer = gameController.getCurrentPlayerId();
+        int firstPlayer = gameStatus.getCurrentPlayerId();
 
         Assert.assertTrue("First player is set", firstPlayer > 0);
 
@@ -145,7 +141,7 @@ public class GameControllerImplTest {
     // Opcionalno: Na početku poteza vuče se n karata (USK: da, n=1)
     @Test
     public void testDrawCard() throws Exception {
-        int testPlayerId = gameController.getCurrentPlayerId();
+        int testPlayerId = gameStatus.getCurrentPlayerId();
         Card cardDrawn = gameController.drawCard(testPlayerId);
 
         Assert.assertNotNull("Card has been drawn",
@@ -168,8 +164,8 @@ public class GameControllerImplTest {
     public void testPlayerOnMoveDrawMoreThanOneCard() throws Exception {
         thrown.expect(ActionNotAllowedException.class);
         thrown.expectMessage(GameConstants.EXCEPTION_DRAW_MORE_THAN_ONE_CARD);
-        int playerOnTheMoveId = gameController.getCurrentPlayerId();
-        Card cardDrawn = gameController.drawCard(playerOnTheMoveId);
+        int playerOnTheMoveId = gameStatus.getCurrentPlayerId();
+        gameStatus.setBeginningCardDrawn(true);
         gameController.drawCard(playerOnTheMoveId);
     }
 
@@ -179,7 +175,7 @@ public class GameControllerImplTest {
     @Test
     public void testNextPlayer() throws Exception {
 
-        int currentPlayer = gameController.getCurrentPlayerId();
+        int currentPlayer = gameStatus.getCurrentPlayerId();
         int expectedPlayer;
 
         if (currentPlayer == 4) {
@@ -190,12 +186,12 @@ public class GameControllerImplTest {
         Assert.assertEquals("When previous player was " + currentPlayer + " next one is " + expectedPlayer, expectedPlayer, gameController.getNextPlayerId());
     }
 
-    //    Opcionalno: Igrač na kraju poteza smije imati maksimalno n karata u ruci (USK: da, 5); modifikacija ovog pravila
+//    Opcionalno: Igrač na kraju poteza smije imati maksimalno n karata u ruci (USK: da, 5); modifikacija ovog pravila
 //    je „u svakom trenutku“ gdje će se svaki trenutak provjeravati na kraju svake faze/stepa igre (USK: ne)
     @Test
     public void testSetNextPlayersTurn() throws Exception {
         int currentPlayerId = gameController.getCurrentPlayerId();
-        gameController.drawCard(currentPlayerId);
+        gameStatus.setBeginningCardDrawn(true);
 
         int expectedPlayerOnTheMove = gameController.getNextPlayerId();
         gameController.setNextPlayersTurn(currentPlayerId);
@@ -208,7 +204,7 @@ public class GameControllerImplTest {
     public void testSetNextPlayerTurnNoCardDrawn() throws Exception {
         thrown.expect(ActionNotAllowedException.class);
         thrown.expectMessage(GameConstants.EXCEPTION_NEXT_TURN_NO_BEGINNING_CARD_DRAWN);
-        int currentPlayerId = gameController.getCurrentPlayerId();
+        int currentPlayerId = gameStatus.getCurrentPlayerId();
         gameController.setNextPlayersTurn(currentPlayerId);
     }
 
@@ -216,7 +212,7 @@ public class GameControllerImplTest {
     public void testSetNextPlayerTurnPlayerNotOnTheMove() throws Exception {
         thrown.expect(ActionNotAllowedException.class);
         thrown.expectMessage(GameConstants.EXCEPTION_NEXT_PLAYER_BY_PLAYER_NOT_ON_THE_MOVE);
-        int currentPlayerId = gameController.getCurrentPlayerId();
+        int currentPlayerId = gameStatus.getCurrentPlayerId();
         gameStatus.setBeginningCardDrawn(true);
         addANumberofCardsToPlayersHand(1, currentPlayerId);
 
@@ -229,7 +225,7 @@ public class GameControllerImplTest {
         thrown.expect(ActionNotAllowedException.class);
         thrown.expectMessage(GameConstants.EXCEPTION_NEXT_PLAYER_TOO_MUCH_CARDS_IN_HAND);
         // given
-        int currentPlayerId = gameController.getCurrentPlayerId();
+        int currentPlayerId = gameStatus.getCurrentPlayerId();
         gameStatus.setBeginningCardDrawn(true);
         addANumberofCardsToPlayersHand(2, currentPlayerId);
 
@@ -254,7 +250,7 @@ public class GameControllerImplTest {
         List<Card> cards = new ArrayList<Card>();
         cards.add(new Card());
 
-        int testPlayerId = gameController.getCurrentPlayerId();
+        int testPlayerId = gameStatus.getCurrentPlayerId();
         int expectedNumberOfCards = GameConstants.INITIAL_NUMBER_OF_CARDS_IN_THE_DECK - 1;
 
         discardedCards = new ArrayList<Card>(gameStatus.getCardDeck());
@@ -284,11 +280,11 @@ public class GameControllerImplTest {
     @Test
     public void testPlayCard() throws Exception {
         gameStatus.setBeginningCardDrawn(true);
-        int playerOnTheMove = gameController.getCurrentPlayerId();
-        Card testCard = gameController.getPlayerCards(playerOnTheMove).get(0);
+        int playerOnTheMove = gameStatus.getCurrentPlayerId();
+        Card testCard = gameStatus.getPlayerCardMap().get(String.valueOf(playerOnTheMove)).get(0);
         String testCardId = testCard.getId();
 
-        playerOnTheMovePlaysACard(playerOnTheMove, testCardId);
+        playerPlaysACard(playerOnTheMove, testCardId);
 
         List<Card> resources = gameController.getResources(playerOnTheMove);
         Assert.assertTrue("Card is in the players resource zone", resources.contains(testCard));
@@ -296,7 +292,7 @@ public class GameControllerImplTest {
         Assert.assertFalse("Card is no longer in players hand", testCardId.equals(playerCards.get(0).getId()));
     }
 
-    private void playerOnTheMovePlaysACard(int playerOnTheMove, String testCardId) throws ActionNotAllowedException {
+    private void playerPlaysACard(int playerOnTheMove, String testCardId) throws ActionNotAllowedException {
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
     }
 
@@ -666,7 +662,7 @@ public class GameControllerImplTest {
     @Test
     public void testEventSpyGlass() throws Exception {
         gameStatus.setBeginningCardDrawn(true);
-        int playerOnTheMove = gameController.getCurrentPlayerId();
+        int playerOnTheMove = gameStatus.getCurrentPlayerId();
         String testCardId = "1";
         int playerId = 1;
         Card testCard;
@@ -693,7 +689,7 @@ public class GameControllerImplTest {
     @Test
     public void testEventSpy() throws Exception {
         gameStatus.setBeginningCardDrawn(true);
-        int playerOnTheMove = gameController.getCurrentPlayerId();
+        int playerOnTheMove = gameStatus.getCurrentPlayerId();
         String testCardId = "1";
         Card testCard, pickedCard;
         Action action;
