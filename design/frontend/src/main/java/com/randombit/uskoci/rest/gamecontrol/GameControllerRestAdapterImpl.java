@@ -17,19 +17,21 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
     public static final String START_GAME = "startgame";
     public static final String OK = "OK";
 
+
+    // TODO: add logs
     @Override
     public GameStatusResponse getResponse(GameStatusMessage message, String gameId) {
         GameController gameController = getGameController();
         GameStatusResponse gameResponse;
         try {
             gameResponse = makeMove(message, gameController);
-            gameResponse.actionStatus = OK;
+            gameResponse.setActionStatus(OK);
         } catch (ActionNotAllowedException e) {
             e.printStackTrace();
             gameResponse = new GameStatusResponse(gameController);
-            gameResponse.actionStatus = e.getMessage();
+            gameResponse.setActionStatus(e.getMessage());
         }
-        gameResponse.lastAction = message;
+        gameResponse.setLastAction(message);
         return gameResponse;
     }
 

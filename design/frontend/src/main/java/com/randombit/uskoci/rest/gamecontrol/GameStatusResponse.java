@@ -3,6 +3,7 @@ package com.randombit.uskoci.rest.gamecontrol;
 import com.randombit.uskoci.card.model.Card;
 import com.randombit.uskoci.game.control.GameController;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,17 +12,117 @@ import java.util.Map;
 
 @XmlRootElement
 public class GameStatusResponse {
-    public boolean gameStarted;
-    public int numberOfPlayersJoined;
-    public String currentPlayerId;
-    public boolean beginningCardDrawn;
-    public boolean resourceCardPlayed;
-    public List<String> discardedCards;
-    public Map<String, List<String>> playersCards;
-    public Map<String, List<String>> playersResources;
-    public List<String> playersPoints;
-    public GameStatusMessage lastAction;
-    public String actionStatus;
+    private boolean gameStarted;
+    private int numberOfPlayersJoined;
+    private String currentPlayerId;
+    private boolean beginningCardDrawn;
+
+    @XmlElement
+    public boolean isGameStarted() {
+        return gameStarted;
+    }
+
+    public void setGameStarted(boolean gameStarted) {
+        this.gameStarted = gameStarted;
+    }
+
+    @XmlElement
+    public int getNumberOfPlayersJoined() {
+        return numberOfPlayersJoined;
+    }
+
+    public void setNumberOfPlayersJoined(int numberOfPlayersJoined) {
+        this.numberOfPlayersJoined = numberOfPlayersJoined;
+    }
+
+    @XmlElement
+    public String getCurrentPlayerId() {
+        return currentPlayerId;
+    }
+
+    public void setCurrentPlayerId(String currentPlayerId) {
+        this.currentPlayerId = currentPlayerId;
+    }
+
+    @XmlElement
+    public boolean isBeginningCardDrawn() {
+        return beginningCardDrawn;
+    }
+
+    public void setBeginningCardDrawn(boolean beginningCardDrawn) {
+        this.beginningCardDrawn = beginningCardDrawn;
+    }
+
+    @XmlElement
+    public boolean isResourceCardPlayed() {
+        return resourceCardPlayed;
+    }
+
+    public void setResourceCardPlayed(boolean resourceCardPlayed) {
+        this.resourceCardPlayed = resourceCardPlayed;
+    }
+
+    @XmlElement
+    public List<String> getDiscardedCards() {
+        return discardedCards;
+    }
+
+    public void setDiscardedCards(List<String> discardedCards) {
+        this.discardedCards = discardedCards;
+    }
+
+    @XmlElement
+    public Map<String, List<String>> getPlayersCards() {
+        return playersCards;
+    }
+
+    public void setPlayersCards(Map<String, List<String>> playersCards) {
+        this.playersCards = playersCards;
+    }
+
+    @XmlElement
+    public Map<String, List<String>> getPlayersResources() {
+        return playersResources;
+    }
+
+    public void setPlayersResources(Map<String, List<String>> playersResources) {
+        this.playersResources = playersResources;
+    }
+
+    @XmlElement
+    public List<String> getPlayersPoints() {
+        return playersPoints;
+    }
+
+    public void setPlayersPoints(List<String> playersPoints) {
+        this.playersPoints = playersPoints;
+    }
+
+    @XmlElement
+    public GameStatusMessage getLastAction() {
+        return lastAction;
+    }
+
+    public void setLastAction(GameStatusMessage lastAction) {
+        this.lastAction = lastAction;
+    }
+
+    @XmlElement
+    public String getActionStatus() {
+        return actionStatus;
+    }
+
+    public void setActionStatus(String actionStatus) {
+        this.actionStatus = actionStatus;
+    }
+
+    private boolean resourceCardPlayed;
+    private List<String> discardedCards;
+    private Map<String, List<String>> playersCards;
+    private Map<String, List<String>> playersResources;
+    private List<String> playersPoints;
+    private GameStatusMessage lastAction;
+    private String actionStatus;
 
     public GameStatusResponse() {
     }
@@ -88,7 +189,4 @@ public class GameStatusResponse {
         }
         return discardedCards;
     }
-
-
-
 }
