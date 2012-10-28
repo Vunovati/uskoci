@@ -722,4 +722,48 @@ public class GameControllerImplTest {
         Assert.assertFalse("No action", action.getArea().isEmpty());
         Assert.assertTrue("Action play cards is missing", action.getActionType() == "Play cards");
     }
+
+    @Test
+    public void testGetPlayersResourcesByType() throws Exception {
+        Map<String, List<Card>> playersResources = new HashMap<String, List<Card>>();
+        List<Card> cards = getListOfCardsWithEachTypeOfResource();
+
+        int testPlayerId = 1;
+        playersResources.put(String.valueOf(testPlayerId), cards);
+        gameStatus.setPlayersResources(playersResources);
+
+        Assert.assertTrue(gameController.getResources(testPlayerId).containsAll(cards));
+        List<Card> expectedWoodResources = gameController.getPlayersResourcesByType(testPlayerId, GameConstants.WOOD);
+        Assert.assertTrue("List contains only one item", expectedWoodResources.size() == 1);
+        Assert.assertTrue("The list contains wood resources", expectedWoodResources.get(0).getSummary().contains(GameConstants.WOOD));
+
+        List<Card> expectedFoodResources = gameController.getPlayersResourcesByType(testPlayerId, GameConstants.FOOD);
+        Assert.assertTrue("List contains only one item", expectedFoodResources.size() == 1);
+        Assert.assertTrue("The list contains food resources", expectedFoodResources.get(0).getSummary().contains(GameConstants.FOOD));
+
+        List<Card> expectedMoneyResources = gameController.getPlayersResourcesByType(testPlayerId, GameConstants.MONEY);
+        Assert.assertTrue("List contains only one item", expectedMoneyResources.size() == 1);
+        Assert.assertTrue("The list contains money resources", expectedMoneyResources.get(0).getSummary().contains(GameConstants.MONEY));
+
+        List<Card> expectedWeaponResources = gameController.getPlayersResourcesByType(testPlayerId, GameConstants.WEAPON);
+        Assert.assertTrue("List contains only one item", expectedWeaponResources.size() == 1);
+        Assert.assertTrue("The list contains weapon resources", expectedWeaponResources.get(0).getSummary().contains(GameConstants.WEAPON));
+    }
+
+    private List<Card> getListOfCardsWithEachTypeOfResource() {
+        List<Card> cards = new ArrayList<Card>();
+        Card moneyCard = new Card();
+        moneyCard.setSummary("money1");
+        Card woodCard = new Card();
+        woodCard.setSummary("wood1");
+        Card weaponCard = new Card();
+        weaponCard.setSummary("weapon1");
+        Card foodCard = new Card();
+        foodCard.setSummary("food1");
+        cards.add(moneyCard);
+        cards.add(woodCard);
+        cards.add(weaponCard);
+        cards.add(foodCard);
+        return cards;
+    }
 }

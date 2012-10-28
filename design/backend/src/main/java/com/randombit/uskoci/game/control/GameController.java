@@ -70,4 +70,5 @@ public interface GameController {
     
     public void changeValue(Card card);
 
+    public List<Card> getPlayersResourcesByType(int playerId, String resourceType);
 }
