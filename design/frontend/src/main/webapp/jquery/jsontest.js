@@ -25,16 +25,13 @@ $(function () {
         var message = response.responseBody;
         try {
             var json = jQuery.parseJSON(message);
+            if (playerID !== null && json.actionStatus === "OK")
+                assignValues(json);
+            checkLastMessageAndPerformAction(json);
         } catch (e) {
             console.log('This doesn\'t look like a valid JSON: ', message.data);
             return;
         }
-
-        if (playerID != null && json.actionStatus == "OK")
-            assignValues(json);
-
-        checkLastMessageAndPerformAction(json);
-
     };
 
     function paintDeckAndRestartNextTurnButtons() {
@@ -56,13 +53,6 @@ $(function () {
 
         //noinspection FallthroughInSwitchStatementJS
         switch (response.lastAction["action"]) {
-            case "isGameStarted":
-                if (!response.gameStarted && game.numOfRetries < 50)
-                    setTimeout(function () {
-                        checkIfGameStarted();
-                        game.numOfRetries++;
-                    }, 100);
-                //TODO: obavijest o timeoutu
             case "startGame":
                 if (!game.started)
                     drawJoinPlayerControls(response);
@@ -116,15 +106,11 @@ $(function () {
 
 
     request.onError = function (response) {
-        content.html($('<p>', { text:'Sorry, but there\'s some problem with your '
-            + 'socket or the server is down' }));
+        content.html($('<p>', { text:'Sorry, but there\'s some problem with your socket or the server is down' }));
     };
 
     function modifyGameStatus(gameStatusResponse) {
-        content.append('<p>PlayerID / lastAction / cardID: '
-            + gameStatusResponse.lastAction["userId"] + ' / '
-            + gameStatusResponse.lastAction["action"] + ' / '
-            + gameStatusResponse.lastAction["cardId"] + '</p>');
+        content.append('<p>PlayerID / lastAction / cardID: ' + gameStatusResponse.lastAction["userId"] + ' / ' + gameStatusResponse.lastAction["action"] + ' / ' + gameStatusResponse.lastAction["cardId"] + '</p>');
     }
 
     var subSocket = socket.subscribe(request);
@@ -135,7 +121,7 @@ $(function () {
     }
 
     function joinGame_MouseClick() {
-        if (game.playerCards == null)
+        if (game.playerCards === null)
             return;
 
         $("#game").height(800);
@@ -169,8 +155,7 @@ $(function () {
         for (var i = 1; i <= game.numberOfPlayers; i++) {
             var resourcePile = game.resourcePiles[i.toString()];
             var resourcePileID = 'player' + i.toString() + 'Resources';
-            $("#resourcePiles").append('<div id=' + resourcePileID + ' class="resourcePile"><p class="resourcePileText">Player '
-                + i.toString() + ' resource pile (' + game.playersPoints[(i-1).toString()] + ')</p><ul id="list' + resourcePileID + '"></ul></div>');
+            $("#resourcePiles").append('<div id=' + resourcePileID + ' class="resourcePile"><p class="resourcePileText">Player ' + i.toString() + ' resource pile (' + game.playersPoints[(i-1).toString()] + ')</p><ul id="list' + resourcePileID + '"></ul></div>');
 
             for (var j = 0; j < resourcePile.length; j++) {
                 var cardID = resourcePile[j.toString()];
@@ -212,7 +197,7 @@ $(function () {
 
         $("#playerCards").empty();
 
-        if(game.playerCards.length == 0)
+        if(game.playerCards.length === 0)
             return;
 
         $("#playerCards").append('<div class="card"><div class="face front"></div><div class="face back"></div></div>');
@@ -233,6 +218,7 @@ $(function () {
             $('.' + pattern).css("background-position", getCardPosition(pattern));
             $(this).toggleClass("card-flipped");
             $(this).click(playCard);
+            $(this).hover(card_onHoverIn, card_onHoverOut)
         });
 
     }
@@ -242,6 +228,20 @@ $(function () {
             $("#turnInfo").html("Your turn!");
         else
             $("#turnInfo").html("Wait... Player " + game.currentPlayerID + " is on turn.");
+    }
+
+    function card_onHoverIn()
+    {
+        var cardID = $(this).attr("data-pattern");
+        var descriptionDIV = '<div class="description">' + getCardDescription(cardID) +'</div>'
+        $(this).append(descriptionDIV);
+        $(this).toggleClass('zoomed');
+    }
+
+    function card_onHoverOut()
+    {
+        $('div').remove('.description');
+        $(this).toggleClass('zoomed');
     }
 
     function restartGame() {
@@ -277,6 +277,22 @@ $(function () {
             dataType:'json',
             success:function (card) {
                 cardSummary = card.summary;
+            }
+        });
+
+        return cardSummary;
+    }
+
+     function getCardDescription(cardID) {
+        var cardSummary = null;
+
+        $.ajax({
+            type:'GET',
+            url:document.location.toString() + 'rest/card/' + cardID,
+            async:false,
+            dataType:'json',
+            success:function (card) {
+                cardSummary = card.description;
             }
         });
 
