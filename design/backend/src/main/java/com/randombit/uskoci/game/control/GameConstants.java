@@ -1,6 +1,6 @@
 package com.randombit.uskoci.game.control;
 
-class GameConstants {
+public class GameConstants {
     static final int INITIAL_NUMBER_OF_CARDS_IN_THE_DECK = 60;
     static final int MAX_NUMBER_OF_PLAYERS = 6;
     static final int MIN_NUMBER_OF_PLAYERS = 3;
@@ -21,10 +21,24 @@ class GameConstants {
     static final String FORT = "Fortress of Nehaj";
 
     // Card types
-    public static final String WOOD = "wood";
-    public static final String FOOD = "food";
-    public static final String MONEY = "money";
-    public static final String WEAPON = "weapon";
+//    public static final String WOOD = "wood";
+//    public static final String FOOD = "food";
+//    public static final String MONEY = "money";
+//    public static final String WEAPON = "weapon";
+    public enum RESOURCE_TYPE {
+        WOOD("wood"), FOOD("food"), MONEY("money"), WEAPON("weapon");
+
+        private String name;
+
+        private RESOURCE_TYPE(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
 
     // Exceptions
     public static final String EXCEPTION_DRAW_CARD_NOT_ON_THE_MOVE = "You cannot draw a card, you are not on the move";

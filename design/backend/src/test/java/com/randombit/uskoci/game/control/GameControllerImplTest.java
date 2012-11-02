@@ -12,6 +12,8 @@ import org.junit.rules.ExpectedException;
 
 import java.util.*;
 
+import static com.randombit.uskoci.game.control.GameConstants.*;
+
 public class GameControllerImplTest {
 
     GameController gameController;
@@ -57,7 +59,7 @@ public class GameControllerImplTest {
 
     private void giveCardsToPlayers(int numberOfPlayers) {
         for (int i = 1; i < numberOfPlayers + 1; i++) {
-            List<Card> cardsDealtToPlayer = gameStatus.getCardDeck().subList(0, GameConstants.BEGINNING_NUMBER_OF_CARDS);
+            List<Card> cardsDealtToPlayer = gameStatus.getCardDeck().subList(0, BEGINNING_NUMBER_OF_CARDS);
             gameStatus.getPlayerCardMap().put(String.valueOf(i), new ArrayList<Card>(cardsDealtToPlayer));
             gameStatus.getCardDeck().removeAll(gameStatus.getPlayerCardMap().get(String.valueOf(i)));
         }
@@ -74,7 +76,7 @@ public class GameControllerImplTest {
     public void testCardShuffle() throws Exception {
 
         List<Card> cardsInTheDeck = gameStatus.getCardDeck();
-        int expectedNumberOfCards = GameConstants.INITIAL_NUMBER_OF_CARDS_IN_THE_DECK - (gameStatus.getNumberOfPlayersJoined() * GameConstants.BEGINNING_NUMBER_OF_CARDS);
+        int expectedNumberOfCards = INITIAL_NUMBER_OF_CARDS_IN_THE_DECK - (gameStatus.getNumberOfPlayersJoined() * BEGINNING_NUMBER_OF_CARDS);
         Assert.assertEquals("Remaining number of cards is smaller after dealing", expectedNumberOfCards, cardsInTheDeck.size());
 
         List<Card> allPlayersHands = new ArrayList<Card>();
@@ -155,7 +157,7 @@ public class GameControllerImplTest {
     @Test
     public void testPlayerNotOnMoveDrawCard() throws Exception {
         thrown.expect(ActionNotAllowedException.class);
-        thrown.expectMessage(GameConstants.EXCEPTION_DRAW_CARD_NOT_ON_THE_MOVE);
+        thrown.expectMessage(EXCEPTION_DRAW_CARD_NOT_ON_THE_MOVE);
         int playerNotOnTheMoveId = gameController.getNextPlayerId();
         Card cardDrawn = gameController.drawCard(playerNotOnTheMoveId);
     }
@@ -163,7 +165,7 @@ public class GameControllerImplTest {
     @Test
     public void testPlayerOnMoveDrawMoreThanOneCard() throws Exception {
         thrown.expect(ActionNotAllowedException.class);
-        thrown.expectMessage(GameConstants.EXCEPTION_DRAW_MORE_THAN_ONE_CARD);
+        thrown.expectMessage(EXCEPTION_DRAW_MORE_THAN_ONE_CARD);
         int playerOnTheMoveId = gameStatus.getCurrentPlayerId();
         gameStatus.setBeginningCardDrawn(true);
         gameController.drawCard(playerOnTheMoveId);
@@ -203,7 +205,7 @@ public class GameControllerImplTest {
     @Test
     public void testSetNextPlayerTurnNoCardDrawn() throws Exception {
         thrown.expect(ActionNotAllowedException.class);
-        thrown.expectMessage(GameConstants.EXCEPTION_NEXT_TURN_NO_BEGINNING_CARD_DRAWN);
+        thrown.expectMessage(EXCEPTION_NEXT_TURN_NO_BEGINNING_CARD_DRAWN);
         int currentPlayerId = gameStatus.getCurrentPlayerId();
         gameController.setNextPlayersTurn(currentPlayerId);
     }
@@ -211,7 +213,7 @@ public class GameControllerImplTest {
     @Test
     public void testSetNextPlayerTurnPlayerNotOnTheMove() throws Exception {
         thrown.expect(ActionNotAllowedException.class);
-        thrown.expectMessage(GameConstants.EXCEPTION_NEXT_PLAYER_BY_PLAYER_NOT_ON_THE_MOVE);
+        thrown.expectMessage(EXCEPTION_NEXT_PLAYER_BY_PLAYER_NOT_ON_THE_MOVE);
         int currentPlayerId = gameStatus.getCurrentPlayerId();
         gameStatus.setBeginningCardDrawn(true);
         addANumberofCardsToPlayersHand(1, currentPlayerId);
@@ -223,7 +225,7 @@ public class GameControllerImplTest {
     @Test
     public void testNextPlayerButTooMuchCardsInHandAtEndOfTurn() throws Exception {
         thrown.expect(ActionNotAllowedException.class);
-        thrown.expectMessage(GameConstants.EXCEPTION_NEXT_PLAYER_TOO_MUCH_CARDS_IN_HAND);
+        thrown.expectMessage(EXCEPTION_NEXT_PLAYER_TOO_MUCH_CARDS_IN_HAND);
         // given
         int currentPlayerId = gameStatus.getCurrentPlayerId();
         gameStatus.setBeginningCardDrawn(true);
@@ -251,7 +253,7 @@ public class GameControllerImplTest {
         cards.add(new Card());
 
         int testPlayerId = gameStatus.getCurrentPlayerId();
-        int expectedNumberOfCards = GameConstants.INITIAL_NUMBER_OF_CARDS_IN_THE_DECK - 1;
+        int expectedNumberOfCards = INITIAL_NUMBER_OF_CARDS_IN_THE_DECK - 1;
 
         discardedCards = new ArrayList<Card>(gameStatus.getCardDeck());
         gameStatus.setDiscardedCards(discardedCards);
@@ -300,14 +302,14 @@ public class GameControllerImplTest {
     public void testPlayerNotOnTheMovePlayResourceCard() throws Exception {
         gameStatus.setBeginningCardDrawn(true);
         thrown.expect(ActionNotAllowedException.class);
-        thrown.expectMessage(GameConstants.EXCEPTION_PLAYER_NOT_ON_MOVE_PLAYS_RESOURCE);
+        thrown.expectMessage(EXCEPTION_PLAYER_NOT_ON_MOVE_PLAYS_RESOURCE);
         int playerNotOnTheMove = gameController.getNextPlayerId();
         String testCardId = "1";
         Card testCard = EasyMock.createMock(Card.class);
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard);
-        EasyMock.expect(testCard.getType()).andReturn(GameConstants.RESOURCE).times(4);
+        EasyMock.expect(testCard.getType()).andReturn(RESOURCE).times(4);
         EasyMock.expect(testCard.getValue()).andReturn("1").times(2);
         EasyMock.replay(cardDAO, testCard);
 
@@ -324,7 +326,7 @@ public class GameControllerImplTest {
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard);
-        EasyMock.expect(testCard.getType()).andReturn(GameConstants.EVENT).times(4);
+        EasyMock.expect(testCard.getType()).andReturn(EVENT).times(4);
         EasyMock.expect(testCard.getSummary()).andReturn("");
         EasyMock.replay(cardDAO, testCard);
 
@@ -338,7 +340,7 @@ public class GameControllerImplTest {
         gameStatus.setResourceCardPlayed(true);
         gameStatus.setBeginningCardDrawn(true);
         thrown.expect(ActionNotAllowedException.class);
-        thrown.expectMessage(GameConstants.EXCEPTION_PLAY_RESOURCE_TWICE);
+        thrown.expectMessage(EXCEPTION_PLAY_RESOURCE_TWICE);
         int playerOnTheMove = gameController.getCurrentPlayerId();
         String testCardId = "1";
         Card testCard;
@@ -348,7 +350,7 @@ public class GameControllerImplTest {
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(1);
-        EasyMock.expect(testCard.getType()).andReturn(GameConstants.RESOURCE).times(4);
+        EasyMock.expect(testCard.getType()).andReturn(RESOURCE).times(4);
         EasyMock.expect(testCard.getValue()).andReturn("1").times(2);
         EasyMock.expect(testCard.getSummary()).andReturn("").times(1);
         EasyMock.replay(cardDAO, testCard);
@@ -370,7 +372,7 @@ public class GameControllerImplTest {
     @Test
     public void testPlayCardBeginningCardNotDrawn() throws Exception {
         thrown.expect(ActionNotAllowedException.class);
-        thrown.expectMessage(GameConstants.EXCEPTION_PLAY_CARD_BEGINNING_CARD_NOT_DRAWN);
+        thrown.expectMessage(EXCEPTION_PLAY_CARD_BEGINNING_CARD_NOT_DRAWN);
         // Given player is on the move
         int currentPlayer = gameController.getCurrentPlayerId();
         // beginning card has not been drawn
@@ -420,7 +422,7 @@ public class GameControllerImplTest {
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard);
-        EasyMock.expect(testCard.getType()).andReturn(GameConstants.RESOURCE).times(5);
+        EasyMock.expect(testCard.getType()).andReturn(RESOURCE).times(5);
         EasyMock.expect(testCard.getValue()).andReturn("5").times(2);
         EasyMock.replay(cardDAO, testCard);
 
@@ -439,7 +441,7 @@ public class GameControllerImplTest {
     @Test
     public void testMaximumPlayerPoints() throws Exception {
         thrown.expect(ActionNotAllowedException.class);
-        thrown.expectMessage(GameConstants.EXCEPTION_PLAY_TOO_MUCH_RESOURCES);
+        thrown.expectMessage(EXCEPTION_PLAY_TOO_MUCH_RESOURCES);
         gameStatus.setBeginningCardDrawn(true);
         int playerOnTheMove = gameController.getCurrentPlayerId();
         String testCardId = "1";
@@ -450,7 +452,7 @@ public class GameControllerImplTest {
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(1);
-        EasyMock.expect(testCard.getType()).andReturn(GameConstants.RESOURCE).times(10);
+        EasyMock.expect(testCard.getType()).andReturn(RESOURCE).times(10);
         EasyMock.expect(testCard.getValue()).andReturn("9").times(3);
         EasyMock.replay(cardDAO, testCard);
 
@@ -473,7 +475,7 @@ public class GameControllerImplTest {
     @Test
     public void testResourceCardPlayedAfterEvent() throws Exception {
         thrown.expect(ActionNotAllowedException.class);
-        thrown.expectMessage(GameConstants.EXCEPTION_RESOURCE_AFTER_EVENT);
+        thrown.expectMessage(EXCEPTION_RESOURCE_AFTER_EVENT);
         gameStatus.setBeginningCardDrawn(true);
         int playerOnTheMove = gameController.getCurrentPlayerId();
         String testCardId = "1";
@@ -484,7 +486,7 @@ public class GameControllerImplTest {
         gameController.setCardDAO(cardDAO);
         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(2);
 //        EasyMock.expect(testCard.getType()).andReturn(GameConstants.EVENT).times(4);
-        EasyMock.expect(testCard.getType()).andReturn(GameConstants.RESOURCE).times(4);
+        EasyMock.expect(testCard.getType()).andReturn(RESOURCE).times(4);
         EasyMock.expect(testCard.getSummary()).andReturn("").times(2);
         EasyMock.expect(testCard.getValue()).andReturn("1").times(4);
         EasyMock.replay(cardDAO, testCard);
@@ -498,7 +500,7 @@ public class GameControllerImplTest {
     @Test
     public void testEventCardPlayedAfterEvent() throws Exception {
         thrown.expect(ActionNotAllowedException.class);
-        thrown.expectMessage(GameConstants.EXCEPTION_EVENT_AFTER_EVENT);
+        thrown.expectMessage(EXCEPTION_EVENT_AFTER_EVENT);
         gameStatus.setBeginningCardDrawn(true);
         int playerOnTheMove = gameController.getCurrentPlayerId();
         String testCardId = "1";
@@ -508,7 +510,7 @@ public class GameControllerImplTest {
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard);
-        EasyMock.expect(testCard.getType()).andReturn(GameConstants.EVENT).times(4);
+        EasyMock.expect(testCard.getType()).andReturn(EVENT).times(4);
         EasyMock.expect(testCard.getValue()).andReturn("1").times(2);
         EasyMock.expect(testCard.getSummary()).andReturn("");
         EasyMock.replay(cardDAO, testCard);
@@ -531,9 +533,9 @@ public class GameControllerImplTest {
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(2);
-        EasyMock.expect(testCard.getType()).andReturn(GameConstants.EVENT).times(8);
+        EasyMock.expect(testCard.getType()).andReturn(EVENT).times(8);
         EasyMock.expect(testCard.getValue()).andReturn("1").times(4);
-        EasyMock.expect(testCard.getSummary()).andReturn(GameConstants.WILL);
+        EasyMock.expect(testCard.getSummary()).andReturn(WILL);
         EasyMock.replay(cardDAO, testCard);
 
         List<Card> stack = gameStatus.getCardStack();
@@ -572,7 +574,7 @@ public class GameControllerImplTest {
         gameController.setCardDAO(cardDAO);
 
         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(3);
-        EasyMock.expect(testCard.getType()).andReturn(GameConstants.MULTIPLIER).times(6);
+        EasyMock.expect(testCard.getType()).andReturn(MULTIPLIER).times(6);
         EasyMock.replay(cardDAO, testCard);
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
         Assert.assertTrue("Multiplier card not in resource pile after playing it.", gameController.getResources(playerOnTheMove).contains(testCard));
@@ -597,7 +599,7 @@ public class GameControllerImplTest {
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(2);
-        EasyMock.expect(testCard.getType()).andReturn(GameConstants.EVENT).times(8);
+        EasyMock.expect(testCard.getType()).andReturn(EVENT).times(8);
         EasyMock.expect(testCard.getValue()).andReturn("1").times(4);
         EasyMock.expect(testCard.getSummary()).andReturn("Storm");
         EasyMock.expect(testCard.getSummary()).andReturn("Will of God").times(3);
@@ -625,8 +627,8 @@ public class GameControllerImplTest {
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(5);
-        EasyMock.expect(testCard.getType()).andReturn(GameConstants.RESOURCE).times(16);
-        EasyMock.expect(testCard.getType()).andReturn(GameConstants.EVENT).times(4);
+        EasyMock.expect(testCard.getType()).andReturn(RESOURCE).times(16);
+        EasyMock.expect(testCard.getType()).andReturn(EVENT).times(4);
         EasyMock.expect(testCard.getValue()).andReturn("1").times(12);
         EasyMock.expect(testCard.getSummary()).andReturn("Storm").times(2);
         EasyMock.replay(cardDAO, testCard);
@@ -672,9 +674,9 @@ public class GameControllerImplTest {
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(2);
-        EasyMock.expect(testCard.getType()).andReturn(GameConstants.EVENT).times(4);
+        EasyMock.expect(testCard.getType()).andReturn(EVENT).times(4);
         EasyMock.expect(testCard.getValue()).andReturn("1").times(2);
-        EasyMock.expect(testCard.getSummary()).andReturn(GameConstants.SPYGLASS).times(2);
+        EasyMock.expect(testCard.getSummary()).andReturn(SPYGLASS).times(2);
         EasyMock.replay(cardDAO, testCard);
 
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
@@ -701,9 +703,9 @@ public class GameControllerImplTest {
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(2);
-        EasyMock.expect(testCard.getType()).andReturn(GameConstants.EVENT).times(4);
+        EasyMock.expect(testCard.getType()).andReturn(EVENT).times(4);
         EasyMock.expect(testCard.getValue()).andReturn("1").times(2);
-        EasyMock.expect(testCard.getSummary()).andReturn(GameConstants.SPY).times(4);
+        EasyMock.expect(testCard.getSummary()).andReturn(SPY).times(4);
         EasyMock.replay(cardDAO, testCard);
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
         listOfActions = gameController.responseToEvent(testCard, playerOnTheMove, Collections.<Response>emptyList());
@@ -733,21 +735,21 @@ public class GameControllerImplTest {
         gameStatus.setPlayersResources(playersResources);
 
         Assert.assertTrue(gameController.getResources(testPlayerId).containsAll(cards));
-        List<Card> expectedWoodResources = gameController.getPlayersResourcesByType(testPlayerId, GameConstants.WOOD);
+        List<Card> expectedWoodResources = gameController.getPlayersResourcesByType(testPlayerId, RESOURCE_TYPE.WOOD.toString());
         Assert.assertTrue("List contains only one item", expectedWoodResources.size() == 1);
-        Assert.assertTrue("The list contains wood resources", expectedWoodResources.get(0).getSummary().contains(GameConstants.WOOD));
+        Assert.assertTrue("The list contains wood resources", expectedWoodResources.get(0).getSummary().contains(RESOURCE_TYPE.WOOD.toString()));
 
-        List<Card> expectedFoodResources = gameController.getPlayersResourcesByType(testPlayerId, GameConstants.FOOD);
+        List<Card> expectedFoodResources = gameController.getPlayersResourcesByType(testPlayerId, RESOURCE_TYPE.FOOD.toString());
         Assert.assertTrue("List contains only one item", expectedFoodResources.size() == 1);
-        Assert.assertTrue("The list contains food resources", expectedFoodResources.get(0).getSummary().contains(GameConstants.FOOD));
+        Assert.assertTrue("The list contains food resources", expectedFoodResources.get(0).getSummary().contains(RESOURCE_TYPE.FOOD.toString()));
 
-        List<Card> expectedMoneyResources = gameController.getPlayersResourcesByType(testPlayerId, GameConstants.MONEY);
+        List<Card> expectedMoneyResources = gameController.getPlayersResourcesByType(testPlayerId, RESOURCE_TYPE.MONEY.toString());
         Assert.assertTrue("List contains only one item", expectedMoneyResources.size() == 1);
-        Assert.assertTrue("The list contains money resources", expectedMoneyResources.get(0).getSummary().contains(GameConstants.MONEY));
+        Assert.assertTrue("The list contains money resources", expectedMoneyResources.get(0).getSummary().contains(RESOURCE_TYPE.MONEY.toString()));
 
-        List<Card> expectedWeaponResources = gameController.getPlayersResourcesByType(testPlayerId, GameConstants.WEAPON);
+        List<Card> expectedWeaponResources = gameController.getPlayersResourcesByType(testPlayerId, RESOURCE_TYPE.WEAPON.toString());
         Assert.assertTrue("List contains only one item", expectedWeaponResources.size() == 1);
-        Assert.assertTrue("The list contains weapon resources", expectedWeaponResources.get(0).getSummary().contains(GameConstants.WEAPON));
+        Assert.assertTrue("The list contains weapon resources", expectedWeaponResources.get(0).getSummary().contains(RESOURCE_TYPE.WEAPON.toString()));
     }
 
     private List<Card> getListOfCardsWithEachTypeOfResource() {
