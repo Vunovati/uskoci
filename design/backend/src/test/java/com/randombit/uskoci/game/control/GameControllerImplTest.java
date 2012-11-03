@@ -382,6 +382,32 @@ public class GameControllerImplTest {
     }
 
     @Test
+    public void testPlayMultiplier() throws Exception {
+        int currentPlayerId = gameController.getCurrentPlayerId();
+        String testCardId = "1";
+        gameStatus.setResourceCardPlayed(true);
+        gameStatus.setBeginningCardDrawn(true);
+
+        Card testCard = new Card();
+        testCard.setId(testCardId);
+        testCard.setType(MULTIPLIER);
+        testCard.setSummary(RESOURCE_TYPE.WOOD.toString());
+        testCard.setValue("0");
+
+        addThreeCardsToPlayersResourcePile(currentPlayerId);
+
+        cardDAO = EasyMock.createMock(CardDAO.class);
+        gameController.setCardDAO(cardDAO);
+        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard);
+        EasyMock.replay(cardDAO);
+
+        gameController.playCard(currentPlayerId, Integer.valueOf(testCardId));
+        Assert.assertEquals("Players Resource pile is multiplied by two", 27*2, gameController.getPlayersResourcePile(currentPlayerId).getValue());
+//        Assert.assertTrue("Multiplier is in players Resource pile", 27*2, gameController.getPlayersResourcePile(currentPlayerId).);
+    }
+
+
+    @Test
     public void testInitialBeginningCardDrawnStatus() throws Exception {
         gameController.startGame(testNumberOfPlayers);
         Assert.assertFalse("At the beginning of the game beginning card has not yet been drawn", gameController.getBeginningCardDrawn());
@@ -443,6 +469,13 @@ public class GameControllerImplTest {
         gameStatus.setBeginningCardDrawn(true);
         int playerOnTheMove = gameController.getCurrentPlayerId();
 
+        addThreeCardsToPlayersResourcePile(playerOnTheMove);
+
+        gameController.playCard(playerOnTheMove, 1);
+
+    }
+
+    private void addThreeCardsToPlayersResourcePile(int playerOnTheMove) {
         Card testCard1 = new Card();
         testCard1.setSummary(RESOURCE_TYPE.WOOD.toString());
         testCard1.setValue("9");
@@ -460,9 +493,6 @@ public class GameControllerImplTest {
         resourcePile.put(testCard3);
 
         playersResources.put(String.valueOf(playerOnTheMove), resourcePile);
-
-        gameController.playCard(playerOnTheMove, 1);
-
     }
 
     /*  Specificno pravilo 4

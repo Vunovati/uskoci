@@ -350,7 +350,6 @@ public class GameControllerImpl implements GameController {
     private void putCardInPlayersResources(Card card, int playerId) {
         ResourcePile playersResourcePile = getPlayersResourcePile(playerId);
         playersResourcePile.put(card);
-
     }
 
     public ResourcePile getPlayersResourcePile(int playerId) {

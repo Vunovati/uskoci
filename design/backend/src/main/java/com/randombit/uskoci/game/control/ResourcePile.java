@@ -71,17 +71,21 @@ public class ResourcePile {
 
 class ResourcePileForType {
     RESOURCE_TYPE type;
+    boolean multiplierPresent;
+    List<Card> resources = new ArrayList<Card>();
 
     public List<Card> getResources() {
         return resources;
     }
 
-    List<Card> resources = new ArrayList<Card>();
     ResourcePileForType(RESOURCE_TYPE type) {
         this.type = type;
     }
 
     public void add(Card card) {
+        if (GameConstants.MULTIPLIER.equals(card.getType()))   {
+            multiplierPresent = true;
+        }
         resources.add(card);
     }
 
@@ -90,10 +94,16 @@ class ResourcePileForType {
         for (Card card: resources) {
             value += Integer.valueOf(card.getValue());
         }
+        if (multiplierPresent) {
+            value *= GameConstants.MULTIPLIER_FACTOR;
+        }
         return value;
     }
 
     public void remove(Card card) {
+        if (GameConstants.MULTIPLIER.equals(card.getType()))   {
+            multiplierPresent = false;
+        }
         resources.remove(card);
     }
 }
