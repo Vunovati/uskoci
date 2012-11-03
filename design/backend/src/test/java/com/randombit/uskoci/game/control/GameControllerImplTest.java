@@ -49,10 +49,10 @@ public class GameControllerImplTest {
         return gameStatus;
     }
 
-    private HashMap<String, List<Card>> generateEmptyPlayersResources() {
-        HashMap<String, List<Card>> playersResourcesHashMap = new HashMap<String, List<Card>>();
+    private HashMap<String, ResourcePile> generateEmptyPlayersResources() {
+        HashMap<String, ResourcePile> playersResourcesHashMap = new HashMap<String, ResourcePile>();
         for (int playerId = 1; playerId <= gameStatus.getNumberOfPlayersJoined(); playerId++) {
-            playersResourcesHashMap.put(String.valueOf(playerId), new ArrayList<Card>());
+            playersResourcesHashMap.put(String.valueOf(playerId), new ResourcePile(playerId));
         }
         return playersResourcesHashMap;
     }
@@ -415,20 +415,18 @@ public class GameControllerImplTest {
 
     @Test
     public void testGetPlayersPoints() throws Exception {
-        int playerOnTheMove = gameController.getCurrentPlayerId();
-        String testCardId = "1";
-        gameStatus.setBeginningCardDrawn(true);
-        Card testCard = EasyMock.createMock(Card.class);
-        cardDAO = EasyMock.createMock(CardDAO.class);
-        gameController.setCardDAO(cardDAO);
-        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard);
-        EasyMock.expect(testCard.getType()).andReturn(RESOURCE).times(5);
-        EasyMock.expect(testCard.getValue()).andReturn("5").times(2);
-        EasyMock.replay(cardDAO, testCard);
+        int playerOnTheMove = gameStatus.getCurrentPlayerId();
 
-        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+        Card testCard = new Card();
+        testCard.setSummary("weapon1");
+        testCard.setValue("5");
 
-        Assert.assertTrue("Card is in the players resource zone because it is an event card", gameController.getResources(playerOnTheMove).contains(testCard));
+        Map<String, ResourcePile> stringResourcePileMap = gameStatus.getPlayersResources();
+        ResourcePile resourcePile = new ResourcePile(playerOnTheMove);
+        resourcePile.put(testCard);
+
+        stringResourcePileMap.put(String.valueOf(playerOnTheMove), resourcePile);
+
         int playersPoints = gameController.getPlayersPoints(gameController.getCurrentPlayerId());
         Assert.assertTrue("Players points are increased when he plays an resource card", playersPoints == 5);
     }
@@ -444,28 +442,26 @@ public class GameControllerImplTest {
         thrown.expectMessage(EXCEPTION_PLAY_TOO_MUCH_RESOURCES);
         gameStatus.setBeginningCardDrawn(true);
         int playerOnTheMove = gameController.getCurrentPlayerId();
-        String testCardId = "1";
-        Card testCard;
-        List<Card> gameCards = new ArrayList<Card>();
 
-        testCard = EasyMock.createMock(Card.class);
-        cardDAO = EasyMock.createMock(CardDAO.class);
-        gameController.setCardDAO(cardDAO);
-        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(1);
-        EasyMock.expect(testCard.getType()).andReturn(RESOURCE).times(10);
-        EasyMock.expect(testCard.getValue()).andReturn("9").times(3);
-        EasyMock.replay(cardDAO, testCard);
+        Card testCard1 = new Card();
+        testCard1.setSummary(RESOURCE_TYPE.WOOD.toString());
+        testCard1.setValue("9");
+        Card testCard2 = new Card();
+        testCard2.setSummary(RESOURCE_TYPE.WOOD.toString());
+        testCard2.setValue("9");
+        Card testCard3 = new Card();
+        testCard3.setSummary(RESOURCE_TYPE.WOOD.toString());
+        testCard3.setValue("9");
 
-        for(int i = 0; i < 2; i++){
-            gameCards.add(testCard);
-        }
+        Map<String, ResourcePile> playersResources = gameStatus.getPlayersResources();
+        ResourcePile resourcePile = new ResourcePile(playerOnTheMove);
+        resourcePile.put(testCard1);
+        resourcePile.put(testCard2);
+        resourcePile.put(testCard3);
 
-        Map playerMap = new HashMap<String, List<Card>>();
-        playerMap.put(String.valueOf(playerOnTheMove), gameCards);
+        playersResources.put(String.valueOf(playerOnTheMove), resourcePile);
 
-        gameStatus.setPlayersResources(playerMap);
-
-        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
+        gameController.playCard(playerOnTheMove, 1);
 
     }
 
@@ -569,18 +565,19 @@ public class GameControllerImplTest {
         Card testCard;
         List<Card> discardedCards;
 
-        testCard = EasyMock.createMock(Card.class);
+        testCard = new Card();
+        testCard.setType(MULTIPLIER);
+        testCard.setSummary(RESOURCE_TYPE.FOOD.toString());
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
 
         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard).times(3);
-        EasyMock.expect(testCard.getType()).andReturn(MULTIPLIER).times(6);
-        EasyMock.replay(cardDAO, testCard);
+        EasyMock.replay(cardDAO);
         gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
         Assert.assertTrue("Multiplier card not in resource pile after playing it.", gameController.getResources(playerOnTheMove).contains(testCard));
         gameController.removeMultiplierFromResourcePile(playerOnTheMove, Integer.valueOf(testCardId));
         discardedCards = gameController.getDiscardPile();
-        Assert.assertEquals("Multiplier card is zero", 1, discardedCards.size());
+        Assert.assertEquals("Multiplier card is added to resource pile", 1, discardedCards.size());
         Assert.assertFalse("Multiplier card not removed from resource pile.", gameController.getResources(playerOnTheMove).contains(testCard));
     }
 
@@ -727,11 +724,17 @@ public class GameControllerImplTest {
 
     @Test
     public void testGetPlayersResourcesByType() throws Exception {
-        Map<String, List<Card>> playersResources = new HashMap<String, List<Card>>();
+        Map<String, ResourcePile> playersResources = new HashMap<String, ResourcePile>();
         List<Card> cards = getListOfCardsWithEachTypeOfResource();
 
         int testPlayerId = 1;
-        playersResources.put(String.valueOf(testPlayerId), cards);
+        ResourcePile testPlayersResourcePile = new ResourcePile(testPlayerId);
+
+        for (Card card:cards) {
+            testPlayersResourcePile.put(card);
+        }
+
+        playersResources.put(String.valueOf(testPlayerId), testPlayersResourcePile);
         gameStatus.setPlayersResources(playersResources);
 
         Assert.assertTrue(gameController.getResources(testPlayerId).containsAll(cards));
