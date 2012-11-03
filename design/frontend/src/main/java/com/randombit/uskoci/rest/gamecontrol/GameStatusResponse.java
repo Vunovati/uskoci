@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.randombit.uskoci.game.control.GameConstants.RESOURCE_TYPE;
+
 @XmlRootElement
 public class GameStatusResponse {
     private boolean gameStarted;
@@ -110,18 +112,11 @@ public class GameStatusResponse {
 
     private Map<String, List<String>> getPlayersResourcesForEachType(int playerId, GameController gameController) {
         Map<String, List<String>> playersResourceMap = new HashMap<String, List<String>>();
-        List<String> woodCardIds = getCardIds(gameController.getPlayersResourcesByType(playerId, "wood"));
-        playersResourceMap.put("wood", woodCardIds);
 
-        List<String> foodCardIds = getCardIds(gameController.getPlayersResourcesByType(playerId, "food"));
-        playersResourceMap.put("food", foodCardIds);
-
-        List<String> moneyCardIds = getCardIds(gameController.getPlayersResourcesByType(playerId, "money"));
-        playersResourceMap.put("money", moneyCardIds);
-
-        List<String> weaponCardIds = getCardIds(gameController.getPlayersResourcesByType(playerId, "weapon"));
-        playersResourceMap.put("weapon", weaponCardIds);
-
+        for (RESOURCE_TYPE type: RESOURCE_TYPE.values())    {
+            List<String> cardIds = getCardIds(gameController.getPlayersResourcesByType(playerId, type.toString()));
+            playersResourceMap.put(type.toString(), cardIds);
+        }
         return playersResourceMap;
     }
 
