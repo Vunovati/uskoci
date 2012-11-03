@@ -7,6 +7,7 @@ public class GameConstants {
     static final int BEGINNING_NUMBER_OF_CARDS = 4;
     static final int MAX_NUMBER_OF_CARDS_IN_HAND = 5;
     static final int MAX_NUMBER_OF_PLAYER_POINTS = 25;
+    static final int MULTIPLIER_FACTOR = 2;
     static final String MULTIPLIER = "x2";
     static final String RESOURCE = "resource";
     static final String EVENT = "instant";
