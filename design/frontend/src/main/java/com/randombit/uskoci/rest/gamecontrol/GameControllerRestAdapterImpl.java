@@ -9,14 +9,7 @@ import com.randombit.uskoci.game.dao.GameControllerPool;
  */
 public class GameControllerRestAdapterImpl implements GameControllerRestAdapter {
 
-    public static final String DRAW_CARD = "drawcard";
-    public static final String SET_NEXT_TURN = "setnextturn";
-    public static final String DISCARD_FROM_HAND = "discardfromhand";
-    public static final String DISCARD_FROM_RESOURCES = "discardfromresources";
-    public static final String PLAY_CARD = "playcard";
-    public static final String START_GAME = "startgame";
     public static final String OK = "OK";
-
 
     // TODO: add logs
     @Override
@@ -35,6 +28,7 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
         return gameResponse;
     }
 
+
     private GameController getGameController() {
         return GameControllerPool.instance.getController(1);
     }
@@ -47,34 +41,63 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
     private void changeGameStateWithAction(GameController gameController, GameStatusMessage message) throws ActionNotAllowedException {
         String action = message.action;
 
-        if (START_GAME.equals((action.toLowerCase()))) {
-            gameController.startGame(4);
-        }
-
-        if (DRAW_CARD.equals(action.toLowerCase())) {
-            gameController.drawCard(Integer.valueOf(message.userId));
-        }
-
-        if (SET_NEXT_TURN.equals(action.toLowerCase())) {
-            gameController.setNextPlayersTurn(Integer.valueOf(message.userId));
-        }
-
-        if (DISCARD_FROM_HAND.equals(action.toLowerCase())) {
-            gameController.discardCardFromPlayersHand(Integer.valueOf(message.cardId), Integer.valueOf(message.userId));
-        }
-
-        if (DISCARD_FROM_RESOURCES.equals(action.toLowerCase())) {
-            gameController.discardCardFromResourcePile(Integer.valueOf(message.cardId), Integer.valueOf(message.userId));
-        }
-
-        if (PLAY_CARD.equals(action.toLowerCase())) {
-            if (userIdAndCardIdAreSent(message)) {
-                gameController.playCard(Integer.valueOf(message.userId), Integer.valueOf(message.cardId));
-            }
+        for (ACTION supportedAction:ACTION.values()) {
+             if (supportedAction.actionName.equals(action.toLowerCase())) {
+                 supportedAction.perform(message, gameController);
+             }
         }
     }
 
-    private boolean userIdAndCardIdAreSent(GameStatusMessage message) {
-        return !("".equals(message.userId) && "".equals(message.cardId));
+    public enum ACTION {
+        DRAW_CARD("drawcard") {
+            @Override
+            public void perform(GameStatusMessage message, GameController gameController) throws ActionNotAllowedException {
+                gameController.drawCard(Integer.valueOf(message.userId));
+            }
+        },
+        SET_NEXT_TURN("setnextturn") {
+            @Override
+            public void perform(GameStatusMessage message, GameController gameController) throws ActionNotAllowedException {
+                gameController.setNextPlayersTurn(Integer.valueOf(message.userId));
+            }
+        },
+        DISCARD_FROM_HAND("discardfromhand") {
+            @Override
+            public void perform(GameStatusMessage message, GameController gameController) throws ActionNotAllowedException {
+                gameController.discardCardFromPlayersHand(Integer.valueOf(message.cardId), Integer.valueOf(message.userId));
+            }
+        },
+        DISCARD_FROM_RESOURCES("discardfromresources") {
+            @Override
+            public void perform(GameStatusMessage message, GameController gameController) throws ActionNotAllowedException {
+                gameController.discardCardFromResourcePile(Integer.valueOf(message.cardId), Integer.valueOf(message.userId));
+            }
+        },
+        PLAY_CARD("playcard") {
+            @Override
+            public void perform(GameStatusMessage message, GameController gameController) throws ActionNotAllowedException {
+                if (userIdAndCardIdAreSent(message)) {
+                    gameController.playCard(Integer.valueOf(message.userId), Integer.valueOf(message.cardId));
+                }
+            }
+            private boolean userIdAndCardIdAreSent(GameStatusMessage message) {
+                return !("".equals(message.userId) && "".equals(message.cardId));
+            }
+        },
+        START_GAME("startgame"){
+            @Override
+            public void perform(GameStatusMessage message, GameController gameController) throws ActionNotAllowedException {
+                gameController.startGame(4);
+            }
+        };
+
+        private String actionName;
+
+        private ACTION(String actionName) {
+            this.actionName = actionName;
+        }
+
+        public void perform(GameStatusMessage message, GameController gameController) throws ActionNotAllowedException {
+        }
     }
 }
