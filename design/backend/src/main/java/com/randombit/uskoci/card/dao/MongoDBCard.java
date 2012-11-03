@@ -2,7 +2,11 @@ package com.randombit.uskoci.card.dao;
 
 import com.mongodb.*;
 import com.randombit.uskoci.card.model.Card;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 // Singleton DAO
 public enum MongoDBCard implements CardDAO {
@@ -34,7 +38,7 @@ public enum MongoDBCard implements CardDAO {
                     String cardPosition = card.get("position").toString();
                     String cardValue = card.get("value").toString();
 
-                    contentProvider.put(cardID, new Card(cardID, cardSummary, cardType, cardDescription, cardPosition, cardValue, ""));
+                    contentProvider.put(cardID, new Card(cardID, cardSummary, cardType, cardDescription, cardPosition, cardValue));
                 }
 
                 //preostale karte punimo istim podacima
@@ -43,7 +47,7 @@ public enum MongoDBCard implements CardDAO {
                     String cardID = String.valueOf(i);
                     Card tempCard = contentProvider.get(String.valueOf((i-1)%8 + 1));
                     contentProvider.put(cardID, new Card(cardID, tempCard.getSummary(),
-                            tempCard.getType(), tempCard.getDescription(), tempCard.getPosition(), tempCard.getValue(), ""));
+                            tempCard.getType(), tempCard.getDescription(), tempCard.getPosition(), tempCard.getValue()));
                 }
             }
         }
