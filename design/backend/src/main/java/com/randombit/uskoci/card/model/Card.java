@@ -12,18 +12,23 @@ public class Card {
     private String type = "";
     private String description = "";
     private String position = "";
+
     private String value = "";
+
     private String color = "";
-    
     public Card() {
     }
 
-    public Card(String id, String summary, String type, String description, String position, String value, String resourceType) {
+    public Card(String id, String summary, String type, String description, String position, String value) {
         this.id = id;
         this.summary = summary;
         this.type = type;
         this.description = description;
         this.position = position;
+        this.value = value;
+    }
+
+    public void setValue(String value) {
         this.value = value;
     }
 

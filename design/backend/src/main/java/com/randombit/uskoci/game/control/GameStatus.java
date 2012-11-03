@@ -87,13 +87,13 @@ public class GameStatus {
         this.resourceCardPlayed = resourceCardPlayed;
     }
 
-    Map<String, List<Card>> playersResources;
+    Map<String, ResourcePile> playersResources;
 
-    public Map<String, List<Card>> getPlayersResources() {
+    public Map<String, ResourcePile> getPlayersResources() {
         return playersResources;
     }
 
-    public void setPlayersResources(Map<String, List<Card>> playersResources) {
+    public void setPlayersResources(Map<String, ResourcePile> playersResources) {
         this.playersResources = playersResources;
     }
 
