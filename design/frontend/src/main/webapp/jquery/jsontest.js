@@ -159,8 +159,8 @@ $(function () {
 
             for (var j = 0; j < resourcePile.length; j++) {
                 var cardID = resourcePile[j.toString()];
-                $('#list' + resourcePileID).append(createCard(cardID));
-                $('.' + cardID).css("background-position", getCardPosition(cardID));
+                $('#list' + resourcePileID).append(cardTemplate({cardID: cardID}));
+                $('.' + cardID).css("background-position", getCard(cardID).position);
 
             }
 
@@ -172,12 +172,9 @@ $(function () {
         }
     }
 
-    function createCard(cardID) {
-        return '<li class="card card-flipped" data-pattern="' + cardID + '"><div class="face front"></div><div class="face back ' + cardID + '"></div></li>';
-    }
-
     function playCard() {
-        var cardID = $(this).attr("data-pattern");
+        var card = $.parseJSON($(this).attr("data-pattern"))
+        var cardID = card.id;
         cardClicked(cardID);
         subSocket.push(jQuery.stringifyJSON({userId:playerID, action:"playCard", cardId:cardID, gameId:"0"}));
     }
@@ -201,7 +198,6 @@ $(function () {
             return;
 
         $("#playerCards").append('<div class="card"><div class="face front"></div><div class="face back"></div></div>');
-        <!-- .card -->
 
         for (var i = 0; i < game.playerCards.length - 1; i++) {
             $("#playerCards .card:first-child").clone().appendTo("#playerCards");
@@ -212,13 +208,14 @@ $(function () {
             $(this).css({"left":($(this).width() + 20) * (index % 4), "top":($(this).height() + 20) * Math.floor(index / 4)
             });
 
-            var pattern = game.playerCards.sort().pop();
-            $(this).find(".back").addClass(pattern);
-            $(this).attr("data-pattern", pattern);
-            $('.' + pattern).css("background-position", getCardPosition(pattern));
+            var cardID = game.playerCards.sort().pop();
+            var card = getCard(cardID);
+            $(this).find(".back").addClass(cardID);
+            $(this).attr("data-pattern", jsonToString(card));
+            $('.' + cardID).css("background-position", card.position);
             $(this).toggleClass("card-flipped");
             $(this).click(playCard);
-            $(this).hover(card_onHoverIn, card_onHoverOut)
+            $(this).hover(card_onHoverIn, card_onHoverOut);
         });
 
     }
@@ -232,8 +229,8 @@ $(function () {
 
     function card_onHoverIn()
     {
-        var cardID = $(this).attr("data-pattern");
-        var descriptionDIV = '<div class="description">' + getCardDescription(cardID) +'</div>'
+        var card = $.parseJSON($(this).attr("data-pattern"));
+        var descriptionDIV = '<div class="description">' + card.description +'</div>';
         $(this).append(descriptionDIV);
         $(this).toggleClass('zoomed');
     }
@@ -263,56 +260,30 @@ $(function () {
     }
 
     function cardClicked(cardID) {
-        $('#console').append("<p>CardID / Summary: " + cardID + " / " + getCardSummary(cardID) + "</p>");
+        $('#console').append("<p>CardID / Summary: " + cardID + " / " + getCard(cardID).summary + "</p>");
     }
 
 
-    function getCardSummary(cardID) {
-        var cardSummary = null;
+    function getCard(cardID) {
+
+        var card = null;
 
         $.ajax({
             type:'GET',
             url:document.location.toString() + 'rest/card/' + cardID,
             async:false,
             dataType:'json',
-            success:function (card) {
-                cardSummary = card.summary;
+            success:function (json) {
+                card = json;
             }
         });
 
-        return cardSummary;
+        return card;
     }
 
-     function getCardDescription(cardID) {
-        var cardSummary = null;
-
-        $.ajax({
-            type:'GET',
-            url:document.location.toString() + 'rest/card/' + cardID,
-            async:false,
-            dataType:'json',
-            success:function (card) {
-                cardSummary = card.description;
-            }
-        });
-
-        return cardSummary;
-    }
-
-    function getCardPosition(cardID) {
-        var cardPosition = null;
-
-        $.ajax({
-            type:'GET',
-            url:document.location.toString() + 'rest/card/' + cardID,
-            async:false,
-            dataType:'json',
-            success:function (card) {
-                cardPosition = card.position;
-            }
-        });
-
-        return cardPosition;
+    function jsonToString(json)
+    {
+        return JSON.stringify(json);
     }
 
 });
