@@ -15,58 +15,71 @@
     <script src="js/bootstrap.min.js" type="text/javascript"></script>
     <script type="text/javascript" src="jquery/jquery.atmosphere.js">
     </script>
-    <script type="text/javascript" src="jquery/jquery-ui-1.9.0.custom.min.js" />
+    <script type="text/javascript" src="jquery/jquery-ui-1.9.0.custom.min.js"></script>
     <script type="text/javascript" src="jquery/underscore-min.js"></script>
     <script type="text/javascript" src="jquery/templates.js"></script>
 </head>
 <body>
-<div class="container">
-    <div class="container-fluid">
-        <div class="row-fluid">
-            <div class="alert" id="turnInfo">
-                        <button type="button" class="close" data-dismiss="alert">close</button>
-                        <strong>Game not started...</strong>
+    <div class="container">
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="alert" id="turnInfo">
+                    <button type="button" class="close" data-dismiss="alert">close</button>
+                    <strong>Game not started...</strong>
+                </div>
+                <div id="welcomeScreen" class="hero-unit">
+                    <h1>Uskoci</h1>
+
+                    <p>a card game of Croatian Pirates</p>
+
+                    <div id="gameNavigation">
+                        <button id="startGame" class="btn btn-primary btn-large">Start</button>
+                        <select id="playerSelect" class="hidden">
+                            <option></option>
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                        </select>
                     </div>
-            <div id="game" class="span12">
-                    <div id="welcomeScreen" class="hero-unit">
-                        <h1>Uskoci</h1>
-
-                        <p>a card game of Croatian Pirates</p>
-
-                        <div id="gameNavigation">
-                            <button id="startGame" class="btn btn-primary btn-large">Start</button>
-                            <select id="playerSelect" class="hidden">
-                                <option></option>
-                                <option>1</option>
-                                <option>2</option>
-                                <option>3</option>
-                                <option>4</option>
-                            </select>
+                </div>
+                <div id="game" class="span12">
+                    <div id="otherResources2" class="row">
+                        <div class="span4" id="resource5"></div>
+                        <div class="span4" id="resource4"></div>
+                        <div class="span4" id="resource6"></div>
+                    </div>
+                    <div id="otherResources1" class="row">
+                        <div class="span4" id="resource3"></div>
+                        <div class="span4" id="emptySpace"></div>
+                        <div class="span4" id="resource2"></div>
+                    </div>
+                    <div class="row" id="control">
+                        <div class="span2">
+                            <textarea id="console"></textarea>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="span9">
+                        <div id="myStuff" class="span8">
                             <div class="row">
-                                <div id="resourcePiles" class="span6"></div>
-                                <div id="deckAndButtons" class="span2"></div>
+                                <div id="deck" class="span2"></div>
+                                <div id="activeCard" class="span4"></div>
+                                <div id="discardPile" class="span2"></div>
                             </div>
+                            <div class="row">
+                                <div class="row" id="myResources">
+                                    <!-- <div id="wood" class="span2"></div>
+                                    <div id="food" class="span2"></div>
+                                    <div id="weapon" class="span2"></div>
+                                    <div id="money" class="span2"></div> -->
+                                </div>
+                            </div>
+                            <div id="playerCards" class="row"></div>
                         </div>
+                        <div id="controlButtons" class="span2"></div>
                     </div>
-                    <div id="activeCard"></div>
-                    <div class="row">
-                        <div class="span9">
-                            <div id="playerCards"></div>
-                        </div>
-                        
-                    </div>
-            </div>
-            <div class="span3">
-                <p class="text-info">Game status:</p>
-                <textarea rows="3" id="console"></textarea>
+                </div>
             </div>
             <div id="dialog-confirm" class="hidden" title="Restart game?"></div>
         </div>
     </div>
-</div>
 </body>
 </html>
