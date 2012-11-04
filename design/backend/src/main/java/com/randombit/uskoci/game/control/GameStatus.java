@@ -2,12 +2,26 @@ package com.randombit.uskoci.game.control;
 
 import com.randombit.uskoci.card.model.Card;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class GameStatus {
+    
+    Map<String, List<Card>> playerCardMap;
+    Map<String, List<Card>> playersResources;
     List<Card> cardDeck;
+    List<Card> discardedCards;
+    LinkedList<Card> cardStack;
+    int currentPlayerId;
+    int numberOfPlayersJoined;
+    int chosenPlayer;
+    boolean beginningCardDrawn;
+    boolean gameStarted;
+    boolean resourceCardPlayed;
+    
+
 
     public List<Card> getCardDeck() {
         return cardDeck;
@@ -17,7 +31,6 @@ public class GameStatus {
         this.cardDeck = cardDeck;
     }
 
-    List<Card> discardedCards;
 
     public List<Card> getDiscardedCards() {
         return discardedCards;
@@ -27,7 +40,6 @@ public class GameStatus {
         this.discardedCards = discardedCards;
     }
 
-    Map<String, List<Card>> playerCardMap;
 
     public Map<String, List<Card>> getPlayerCardMap() {
         return playerCardMap;
@@ -37,7 +49,6 @@ public class GameStatus {
         this.playerCardMap = playerCardMap;
     }
 
-    int currentPlayerId;
 
     public int getCurrentPlayerId() {
         return currentPlayerId;
@@ -47,7 +58,6 @@ public class GameStatus {
         this.currentPlayerId = currentPlayerId;
     }
 
-    boolean beginningCardDrawn;
 
     public boolean isBeginningCardDrawn() {
         return beginningCardDrawn;
@@ -56,8 +66,7 @@ public class GameStatus {
     public void setBeginningCardDrawn(boolean beginningCardDrawn) {
         this.beginningCardDrawn = beginningCardDrawn;
     }
-
-    boolean gameStarted;
+  
 
     public boolean isGameStarted() {
         return gameStarted;
@@ -67,7 +76,6 @@ public class GameStatus {
         this.gameStarted = gameStarted;
     }
 
-    int numberOfPlayersJoined;
 
     public int getNumberOfPlayersJoined() {
         return numberOfPlayersJoined;
@@ -77,7 +85,6 @@ public class GameStatus {
         this.numberOfPlayersJoined = numberOfPlayersJoined;
     }
 
-    boolean resourceCardPlayed;
 
     public boolean isResourceCardPlayed() {
         return resourceCardPlayed;
@@ -87,7 +94,6 @@ public class GameStatus {
         this.resourceCardPlayed = resourceCardPlayed;
     }
 
-    Map<String, List<Card>> playersResources;
 
     public Map<String, List<Card>> getPlayersResources() {
         return playersResources;
@@ -97,7 +103,6 @@ public class GameStatus {
         this.playersResources = playersResources;
     }
 
-    LinkedList<Card> cardStack;
 
     public List<Card> getCardStack() {
         return cardStack;
@@ -106,8 +111,6 @@ public class GameStatus {
     public void setCardStack(List<Card> cardStack) {
         this.cardStack = (LinkedList<Card>) cardStack;
     }
-
-    int chosenPlayer;
 
     public int getChosenPlayer() {
         return chosenPlayer;
@@ -118,5 +121,17 @@ public class GameStatus {
     }
 
     public GameStatus() {
+    }
+
+    public List<Card> getPlayerCards(int playerId) {
+        return getPlayerCardMap().get(String.valueOf(playerId));
+    }
+    
+    public List<Card> getResources(int playerId) {
+        List<Card> playerResources = getPlayersResources().get(String.valueOf(playerId));
+
+        if (playerResources == null)
+            playerResources = Collections.<Card>emptyList();
+        return playerResources;
     }
 }

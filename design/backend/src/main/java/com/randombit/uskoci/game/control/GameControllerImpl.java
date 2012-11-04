@@ -3,8 +3,9 @@ package com.randombit.uskoci.game.control;
 import com.randombit.uskoci.card.dao.CardDAO;
 import com.randombit.uskoci.card.model.Card;
 import com.randombit.uskoci.game.ActionNotAllowedException;
-import com.randombit.uskoci.game.control.eventmessage.Action;
-import com.randombit.uskoci.game.control.eventmessage.Response;
+import com.randombit.uskoci.game.control.eventHandling.Action;
+import com.randombit.uskoci.game.control.eventHandling.EventHandler;
+import com.randombit.uskoci.game.control.eventHandling.Response;
 
 import java.util.*;
 
@@ -13,6 +14,7 @@ public class GameControllerImpl implements GameController {
     private CardDAO cardDAO;
 
     private GameStatus gameStatus = new GameStatus();
+    private EventHandler eventHandler = new EventHandler();
 
     public GameStatus getGameStatus() {
         return gameStatus;
@@ -124,6 +126,15 @@ public class GameControllerImpl implements GameController {
            putCardOnStack(cardPlayed); 
        }
     }
+    @Override
+    public List<Action> resolveEventOnStack(int eventPlayerId){
+    	List<Action> listOfActions = new ArrayList<Action>();
+    	
+    	Card event = removeCardFromStack();
+    	listOfActions = eventHandler.resolveEvent(event, eventPlayerId);
+    	
+    	return listOfActions;
+    }
 
     private boolean cardCanBePlayedInResponse(String cardSummary) {
         return GameConstants.WILL.equals(cardSummary) || GameConstants.FORT.equals(cardSummary);
@@ -143,176 +154,6 @@ public class GameControllerImpl implements GameController {
         }
         gameStatus.setResourceCardPlayed(true);
         putCardInPlayersResources(cardPlayed, playerId);
-    }
-
-    @Override
-    public List<Action> resolveCardsOnStack() {
-    	 List<Action> response = new ArrayList<Action>();
-    	 Card event;
-    	 LinkedList<Card> cardStack = (LinkedList<Card>) getCardStack();
-    	 
-    	 while(!cardStack.isEmpty()){
-    		 event = cardStack.remove();
-    		 response = resolveEvent(event,0,Collections.<Response>emptyList());
-    	 }
-    	return response;
-    }
-    
-    @Override
-	public List<Action> responseToEvent(Card event, int playerId, List<Response> responseList) {
-		return resolveEvent(event,playerId, responseList);
-	}
-    
-    public List<Action> resolveEvent(Card event, int eventPlayerId, List<Response> responseList){
-    	List<Card> cards = new ArrayList<Card>();
-    	List<Integer> playersAffectedByAction = new ArrayList<Integer>();
-    	List<Action> listOfActions = new ArrayList<Action>();
-    	String cardSummary = event.getSummary();
-    	List <Card> cardStack = getCardStack();
-    	
-    	boolean lastAction = true;
-    	boolean moreActions = false;
-    	Action action;
-    	
-    	if(GameConstants.WILL.equals(cardSummary)){
-//    		cards.add(cardStack.get(0));
-    		action = new Action(eventPlayerId,"remove from stack",lastAction);
-    		//cardStack.remove();
-    		return listOfActions;
-    	}
-    	if(GameConstants.STORM.equals(cardSummary)){
-    		for(int playerId= 1; playerId < (getNumberOfPlayersJoined() + 1); playerId++){
-    			//moveCards(getResources(playerId), getDiscardPile(), 0, 0, "all");
-    			if(playerId < getNumberOfPlayersJoined()) {
-    				action = new Action(playerId,"move cards",getResources(playerId),getDiscardPile(),0,0,"all",moreActions);
-    			}
-    			else {
-    				action = new Action(playerId,"move cards",getResources(playerId),getDiscardPile(),0,0,"all",lastAction);
-    			}
-    			listOfActions.add(action);
-    		}
-    		return listOfActions;
-    	}
-    	if(GameConstants.SPYGLASS.equals(cardSummary)){
-    		playersAffectedByAction.add(eventPlayerId);
-    		for(int playerId= 1; playerId < (getNumberOfPlayersJoined() + 1); playerId++){
-    			if(playerId != getNumberOfPlayersJoined() ){
-    				action = new Action(playerId,"Reveal",getPlayerCards(playerId),playersAffectedByAction,moreActions);
-    				listOfActions.add(action);
-    			}
-    			else {
-    				action = new Action(playerId,"Reveal",getPlayerCards(playerId),playersAffectedByAction,lastAction);
-    				listOfActions.add(action);
-    			}
-    		}
-    	}
-    	if(GameConstants.SPY.equals(cardSummary)){
-    		
-    		if(responseList.isEmpty()){
-    			action = new Action(eventPlayerId,"Choose player",moreActions);
-    			listOfActions.add(action);
-    			return listOfActions;
-    		}
-    		else {
-    			Response response = responseList.remove(0);
-    			String responseType = response.getResponseType();
-    			if(responseType == "Players") {
-    				List<Integer> choseFromPlayers = new ArrayList<Integer>();
-    				int chosenPlayerId = response.getPlayersAffectedByResponse().remove(0);
-    				choseFromPlayers.add(chosenPlayerId);
-    				action = new Action(eventPlayerId,"Choose card",getPlayerCards(chosenPlayerId),choseFromPlayers,moreActions);
-    				listOfActions.add(action);
-    				listOfActions.add(action);
-    				return listOfActions;
-    			}
-    			if(responseType == "Cards"){
-    				action = new Action(eventPlayerId,"Play cards",response.getCards(),lastAction);
-    				listOfActions.add(action);
-    				return listOfActions;
-    			}
-    		}
-    	}
-    	if(GameConstants.TRICKERY.equals(cardSummary)){
-    		if(responseList.isEmpty()){
-    			action = new Action(eventPlayerId,"Choose a player",moreActions);
-    			listOfActions.add(action);
-    			return listOfActions;
-    		}
-    		Response response = responseList.remove(0);
-			String responseType = response.getResponseType();
-    		if(responseType == "Players") {
-    			int chosenPlayerId = response.getPlayersAffectedByResponse().remove(0);
-    			int numOfResources = getResources(eventPlayerId).size();
-    			//moveCards(getResources(eventPlayerId), getResources(chosenPlayerId), 0, 0, "all");
-    			action = new Action(eventPlayerId,"move cards",getResources(eventPlayerId),getResources(chosenPlayerId),0,0,"all",moreActions);
-    			listOfActions.add(action);
-    			//moveCards(getResources(chosenPlayerId),getResources(eventPlayerId) , numOfResources, getResources(chosenPlayerId).size(), "");
-    			action = new Action(eventPlayerId,"move cards",getResources(chosenPlayerId),getResources(eventPlayerId),numOfResources,getResources(chosenPlayerId).size(),"",lastAction);
-    			listOfActions.add(action);
-    			return listOfActions;
-    		}
-    		
-    	}
-    	if(GameConstants.THEFT.equals(cardSummary)){
-    		if(responseList.isEmpty()){
-    			action = new Action(eventPlayerId,"Choose a player",moreActions);
-    			listOfActions.add(action);
-    			return listOfActions;
-    		}
-    		Response response = responseList.remove(0);
-			String responseType = response.getResponseType();
-    		if(responseType == "Players") {
-				List<Integer> choseFromPlayers = new ArrayList<Integer>();
-                gameStatus.setChosenPlayer(response.getPlayersAffectedByResponse().remove(0));
-				choseFromPlayers.add(gameStatus.getChosenPlayer());
-				action = new Action(eventPlayerId,"Choose a card",getPlayerCards(gameStatus.getChosenPlayer()),choseFromPlayers,moreActions);
-				listOfActions.add(action);
-				listOfActions.add(action);
-				return listOfActions;
-			}
-    		if(responseType == "Cards"){
-				Card chosenCard = response.getCards().remove(0);
-				//moveCard(getResources(chosenPlayer),getResources(eventPlayerId),chosenCard);
-				action = new Action(eventPlayerId,"move a card",getResources(gameStatus.getChosenPlayer()),getResources(eventPlayerId),chosenCard,lastAction);
-				listOfActions.add(action);
-				return listOfActions;
-    		}
-    		
-    	}
-    	if(GameConstants.SNITCH.equals(cardSummary)){
-    		List<Card> cardDeck = getCardsInTheDeck();
-    		Card card = cardDeck.get(0);
-    		int pos = 1;
-    		cards.add(card);
-    		for(int playerId= 1; playerId < (getNumberOfPlayersJoined() + 1); playerId++){
-    			playersAffectedByAction.add(playerId);
-    		}
-    		while(GameConstants.EVENT.equals(card.getType())) {
-    			action = new Action(eventPlayerId,"Reveal",cards,playersAffectedByAction,moreActions);
-    			listOfActions.add(action);
-    			action = new Action(eventPlayerId,"move a card",cardDeck,getDiscardPile(),card,moreActions);
-    			listOfActions.add(action);
-    			card = cardDeck.get(pos++);
-    		}
-    		action = new Action(eventPlayerId,"Reveal",cards,playersAffectedByAction,moreActions);
-    		for(int playerId= 1; playerId < (getNumberOfPlayersJoined() + 1); playerId++){
-    			if(playerId < getNumberOfPlayersJoined()) {
-    				action = new Action(eventPlayerId,"move cards",getResources(playerId),getDiscardPile(),0,0,card.getColor(),moreActions);
-    			}
-    			else
-    				action = new Action(eventPlayerId,"move cards",getResources(playerId),getDiscardPile(),0,0,card.getColor(),lastAction);
-    			listOfActions.add(action);
-    		}
-    		return listOfActions;	
-    	}
-    	if(GameConstants.SEADOG.equals(cardSummary)){
-    		action = new Action(eventPlayerId,"move a card",Collections.<Card> emptyList(),getResources(eventPlayerId),event,lastAction);
-    		listOfActions.add(action);
-    		return listOfActions;
-    	}
-    	
-   
-    	return Collections.<Action> emptyList();
     }
     
     private boolean playerPointsTooHigh(int playerId, Card cardPlayed){
@@ -370,9 +211,9 @@ public class GameControllerImpl implements GameController {
         currentCardStack.add(card);
     }    
 
-    private void removeCardFromStack(Card card){
+    private Card removeCardFromStack(){
         List<Card> currentCardStack = getCardStack();
-        currentCardStack.remove(card);
+        return currentCardStack.remove(0);
     }   
 
     private boolean isNoOfCardsInHandValid() {

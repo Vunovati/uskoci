@@ -3,8 +3,8 @@ package com.randombit.uskoci.game.control;
 import com.randombit.uskoci.card.dao.CardDAO;
 import com.randombit.uskoci.card.model.Card;
 import com.randombit.uskoci.game.ActionNotAllowedException;
-import com.randombit.uskoci.game.control.eventmessage.Action;
-import com.randombit.uskoci.game.control.eventmessage.Response;
+import com.randombit.uskoci.game.control.eventHandling.Action;
+import com.randombit.uskoci.game.control.eventHandling.Response;
 
 import java.util.List;
 
@@ -57,10 +57,6 @@ public interface GameController {
     public Card flipCardFaceUp();
 
     public List<Card> getCardStack();
-    
-    public List<Action> resolveCardsOnStack();
-    
-    public List<Action> responseToEvent(Card event, int playerId, List<Response> responseList);
 
     public void setCardDeck(List<Card> cards);
     
@@ -69,5 +65,7 @@ public interface GameController {
     public void moveCards(Action action);
     
     public void changeValue(Card card);
+    
+    public List<Action> resolveEventOnStack(int eventPlayerId);
 
 }
