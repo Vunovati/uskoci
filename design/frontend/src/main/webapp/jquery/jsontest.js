@@ -35,10 +35,11 @@ $(function () {
     };
 
     function paintDeckAndRestartNextTurnButtons() {
-        $("#deckAndButtons").append('<div id="deck"><div class="card"><div class="face front"></div><div class="face back"></div></div></div>');
+        $("#deck").append('<div class="card"><div class="face front"></div><div class="face back"></div></div>');
         $("#deck").click(drawCard);
-        $("#deckAndButtons").append('<button id="nextTurn" class="uskociButton btn btn-primary btn-large">Next player!</button>');
-        $("#deckAndButtons").append('<button id="restartGame" class="uskociButton btn btn-primary btn-large">Restart game</button>');
+        $("#deck").toggleClass('hidden');
+        $("#controlButtons").append('<button id="nextTurn" class="uskociButton btn btn-primary btn-large">Next player!</button>');
+        $("#controlButtons").append('<button id="restartGame" class="uskociButton btn btn-primary btn-large">Restart game</button>');
         $("#nextTurn").click(nextTurn);
         $("#restartGame").click(restartGame);
     }
@@ -92,6 +93,7 @@ $(function () {
         game.myTurn = response.currentPlayerId == playerID;
         game.currentPlayerID = response.currentPlayerId;
         game.resourcePiles = response.playersResources;
+        game.playersResourcesByType = response.playersResourcesByType;
         game.actionStatus = response.actionStatus;
     }
 
@@ -150,26 +152,52 @@ $(function () {
     }
 
     function repaintResourcePiles() {
-        $("#resourcePiles").empty();
 
-        for (var i = 1; i <= game.numberOfPlayers; i++) {
-            var resourcePile = game.resourcePiles[i.toString()];
-            var resourcePileID = 'player' + i.toString() + 'Resources';
-            $("#resourcePiles").append('<div id=' + resourcePileID + ' class="resourcePile"><p class="resourcePileText">Player ' + i.toString() + ' resource pile (' + game.playersPoints[(i-1).toString()] + ')</p><ul id="list' + resourcePileID + '"></ul></div>');
+        $('#resource1 .wood').empty();
 
-            for (var j = 0; j < resourcePile.length; j++) {
-                var cardID = resourcePile[j.toString()];
-                $('#list' + resourcePileID).append(cardTemplate({cardID: cardID}));
-                $('.' + cardID).css("background-position", getCard(cardID).position);
+        var myResourcesByType = game.playersResourcesByType[playerID];
 
-            }
-
-            $('#list' + resourcePileID).children().each(function (index) {
-
-                $(this).css({"left":($(this).width() * 0.3 + 5) * (index % 5), "top":($(this).height() * 0.3 + 5) * Math.floor(index / 5)});
-
-            });
+        for(var i=0; i<myResourcesByType["wood"].length; i++)
+        {
+            var cardID = myResourcesByType["wood"][i.toString()];
+            $('#resource1 .wood').append(smallCardTemplate({cardID: cardID}));
+            $('#resource1 .wood .' + cardID).css("background-position", getSmallCardPosition(cardID));
+            $("#resource1 .wood").find('[data-pattern="' + cardID + '"]').css({"top":20*i});
         }
+
+        $('#resource1 .food').empty();
+
+        var myResourcesByType = game.playersResourcesByType[playerID];
+
+        for(var i=0; i<myResourcesByType["food"].length; i++)
+        {
+            var cardID = myResourcesByType["food"][i.toString()];
+            $('#resource1 .food').append(smallCardTemplate({cardID: cardID}));
+            $('#resource1 .food .' + cardID).css("background-position", getSmallCardPosition(cardID));
+            $("#resource1 .food").find('[data-pattern="' + cardID + '"]').css({"top":20*i});
+        }
+
+        $('#resource1 .weapon').empty();
+
+        var myResourcesByType = game.playersResourcesByType[playerID];
+
+        for(var i=0; i<myResourcesByType["weapon"].length; i++)
+        {
+            var cardID = myResourcesByType["weapon"][i.toString()];
+            $('#resource1 .weapon').append(smallCardTemplate({cardID: cardID}));
+            $('#resource1 .weapon .' + cardID).css("background-position", getSmallCardPosition(cardID));
+            $("#resource1 .weapon").find('[data-pattern="' + cardID + '"]').css({"top":20*i});
+        }
+
+    }
+
+    function getSmallCardPosition(cardID) {
+        var regex = /(.+)px\s(.+)px/;
+        var originalPosition = getCard(cardID).position;
+        var regexMatch = originalPosition.match(regex);
+        var positionX_scaled = (parseFloat(regexMatch[1])/2).toString();
+        var positionY_scaled = (parseFloat(regexMatch[2])/2).toString();
+        return positionX_scaled + "px " + positionY_scaled + "px";
     }
 
     function playCard() {
