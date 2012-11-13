@@ -1,1 +1,2 @@
 cardTemplate = _.template('<li class="card card-flipped" data-pattern="<%= cardID %>"><div class="face front"></div><div class="face back <%= cardID %>"></div></li>');
+smallCardTemplate = _.template('<div class="cardSmall card-flipped" data-pattern="<%= cardID %>"><div class="face frontSmall"></div><div class="face backSmall <%= cardID %>"></div></div>');
