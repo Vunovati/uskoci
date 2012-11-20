@@ -153,42 +153,26 @@ $(function () {
 
     function repaintResourcePiles() {
 
-        $('#resource1 .wood').empty();
-
         var myResourcesByType = game.playersResourcesByType[playerID];
 
-        for(var i=0; i<myResourcesByType["wood"].length; i++)
-        {
-            var cardID = myResourcesByType["wood"][i.toString()];
-            $('#resource1 .wood').append(smallCardTemplate({cardID: cardID}));
-            $('#resource1 .wood .' + cardID).css("background-position", getSmallCardPosition(cardID));
-            $("#resource1 .wood").find('[data-pattern="' + cardID + '"]').css({"top":20*i});
+        for(var key in myResourcesByType) {
+            if(myResourcesByType.hasOwnProperty(key)) {
+
+                var selector = '#resource1 .' + key;
+                $(selector).empty();
+
+                var myResourcesByType = game.playersResourcesByType[playerID];
+
+                for(var i=0; i<myResourcesByType[key].length; i++)
+                {
+                    var cardID = myResourcesByType[key][i.toString()];
+                    $(selector).append(smallCardTemplate({cardID: cardID}));
+                    $(selector + ' .' + cardID).css("background-position", getSmallCardPosition(cardID));
+                    $(selector).find('[data-pattern="' + cardID + '"]').css({"top":20*i});
+                }
+
+            }
         }
-
-        $('#resource1 .food').empty();
-
-        var myResourcesByType = game.playersResourcesByType[playerID];
-
-        for(var i=0; i<myResourcesByType["food"].length; i++)
-        {
-            var cardID = myResourcesByType["food"][i.toString()];
-            $('#resource1 .food').append(smallCardTemplate({cardID: cardID}));
-            $('#resource1 .food .' + cardID).css("background-position", getSmallCardPosition(cardID));
-            $("#resource1 .food").find('[data-pattern="' + cardID + '"]').css({"top":20*i});
-        }
-
-        $('#resource1 .weapon').empty();
-
-        var myResourcesByType = game.playersResourcesByType[playerID];
-
-        for(var i=0; i<myResourcesByType["weapon"].length; i++)
-        {
-            var cardID = myResourcesByType["weapon"][i.toString()];
-            $('#resource1 .weapon').append(smallCardTemplate({cardID: cardID}));
-            $('#resource1 .weapon .' + cardID).css("background-position", getSmallCardPosition(cardID));
-            $("#resource1 .weapon").find('[data-pattern="' + cardID + '"]').css({"top":20*i});
-        }
-
     }
 
     function getSmallCardPosition(cardID) {
