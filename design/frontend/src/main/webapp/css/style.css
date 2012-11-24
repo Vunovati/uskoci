@@ -2,15 +2,24 @@
     background-image: url(../images/uskociBackground.jpg)
 }
 
+.wood, .money, .food, .weapon {
+    margin-left: 20px;
+}
 
-#resource1 {
+#otherResources1 {
+    margin-top: 20px;
+}
 
-    height: 150px;
+
+.resource {
     position: relative;
+    border-radius: 7px;
+    border: 3px dashed #FFF;
+    height:200px;
 }
 
 #console {
-
+    padding-top: 20px;
     width: 150px;
     heigth: 300px;
 }

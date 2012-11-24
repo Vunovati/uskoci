@@ -153,25 +153,26 @@ $(function () {
 
     function repaintResourcePiles() {
 
-        var myResourcesByType = game.playersResourcesByType[playerID];
+        for (var i = 1; i <= game.numberOfPlayers; i++) {
 
-        for(var key in myResourcesByType) {
-            if(myResourcesByType.hasOwnProperty(key)) {
+            var playerResourcesByType = game.playersResourcesByType[i];
 
-                var selector = '#resource1 .' + key;
-                $(selector).empty();
+            for (var key in playerResourcesByType) {
+                if (playerResourcesByType.hasOwnProperty(key)) {
 
-                var myResourcesByType = game.playersResourcesByType[playerID];
+                    var selector = '#resource' + i + ' .' + key;
+                    $(selector).empty();
 
-                for(var i=0; i<myResourcesByType[key].length; i++)
-                {
-                    var cardID = myResourcesByType[key][i.toString()];
-                    $(selector).append(smallCardTemplate({cardID: cardID}));
-                    $(selector + ' .' + cardID).css("background-position", getSmallCardPosition(cardID));
-                    $(selector).find('[data-pattern="' + cardID + '"]').css({"top":20*i});
+                    for (var j = 0; j < playerResourcesByType[key].length; j++) {
+                        var cardID = playerResourcesByType[key][j.toString()];
+                        $(selector).append(smallCardTemplate({cardID:cardID}));
+                        $(selector + ' .' + cardID).css("background-position", getSmallCardPosition(cardID));
+                        $(selector).find('[data-pattern="' + cardID + '"]').css({"top":20 * j + 20});
+                    }
+
                 }
-
             }
+
         }
     }
 
