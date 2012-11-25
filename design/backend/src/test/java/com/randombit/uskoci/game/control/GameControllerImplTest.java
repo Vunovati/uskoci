@@ -384,11 +384,17 @@ public class GameControllerImplTest {
     @Test
     public void testPlayMultiplier() throws Exception {
         int currentPlayerId = gameController.getCurrentPlayerId();
+        ResourcePile playersResourcePile = GetResourcePileAfterPlayerPlaysAMultiplierCard(currentPlayerId);
+        int resourcePileValue = playersResourcePile.getValue();
+        Assert.assertEquals("Players Resource pile is multiplied by two", 27*2, resourcePileValue);
+    }
+
+    private ResourcePile GetResourcePileAfterPlayerPlaysAMultiplierCard(int currentPlayerId) throws ActionNotAllowedException {
         String testCardId = "1";
+        Card testCard = new Card();
         gameStatus.setResourceCardPlayed(true);
         gameStatus.setBeginningCardDrawn(true);
 
-        Card testCard = new Card();
         testCard.setId(testCardId);
         testCard.setType(MULTIPLIER);
         testCard.setSummary(RESOURCE_TYPE.WOOD.toString());
@@ -402,10 +408,17 @@ public class GameControllerImplTest {
         EasyMock.replay(cardDAO);
 
         gameController.playCard(currentPlayerId, Integer.valueOf(testCardId));
-        Assert.assertEquals("Players Resource pile is multiplied by two", 27*2, gameController.getPlayersResourcePile(currentPlayerId).getValue());
-//        Assert.assertTrue("Multiplier is in players Resource pile", 27*2, gameController.getPlayersResourcePile(currentPlayerId).);
+        return gameController.getPlayersResourcePile(currentPlayerId);
     }
 
+    @Test
+    public void testMultiplierSetFirstInResourcesPile() throws Exception {
+        int currentPlayerId = gameController.getCurrentPlayerId();
+        ResourcePile playersResourcePile = GetResourcePileAfterPlayerPlaysAMultiplierCard(currentPlayerId);
+        List<Card> resourcesList = gameController.getPlayersResourcePile(currentPlayerId).getResourcesList();
+        Card firstResource = resourcesList.get(0);
+        Assert.assertTrue("Multiplier is first in players Resource pile", firstResource.getType().equals(MULTIPLIER));
+    }
 
     @Test
     public void testInitialBeginningCardDrawnStatus() throws Exception {
