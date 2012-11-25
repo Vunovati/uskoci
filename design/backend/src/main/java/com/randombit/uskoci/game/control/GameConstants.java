@@ -21,11 +21,6 @@ public class GameConstants {
     static final String SEADOG = "Old Sea Dog";
     static final String FORT = "Fortress of Nehaj";
 
-    // Card types
-//    public static final String WOOD = "wood";
-//    public static final String FOOD = "food";
-//    public static final String MONEY = "money";
-//    public static final String WEAPON = "weapon";
     public enum RESOURCE_TYPE {
         WOOD("wood"), FOOD("food"), MONEY("money"), WEAPON("weapon");
 
