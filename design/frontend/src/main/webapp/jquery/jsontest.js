@@ -35,10 +35,11 @@ $(function () {
     };
 
     function paintDeckAndRestartNextTurnButtons() {
-        $("#deckAndButtons").append('<div id="deck"><div class="card"><div class="face front"></div><div class="face back"></div></div></div>');
+        $("#deck").append('<div class="card"><div class="face front"></div><div class="face back"></div></div>');
         $("#deck").click(drawCard);
-        $("#deckAndButtons").append('<button id="nextTurn" class="uskociButton btn btn-primary btn-large">Next player!</button>');
-        $("#deckAndButtons").append('<button id="restartGame" class="uskociButton btn btn-primary btn-large">Restart game</button>');
+        $("#deck").toggleClass('hidden');
+        $("#controlButtons").append('<button id="nextTurn" class="uskociButton btn btn-primary btn-large">Next player!</button>');
+        $("#controlButtons").append('<button id="restartGame" class="uskociButton btn btn-primary btn-large">Restart game</button>');
         $("#nextTurn").click(nextTurn);
         $("#restartGame").click(restartGame);
     }
@@ -79,6 +80,7 @@ $(function () {
         $('#playerSelect').toggleClass('hidden');
         $('#gameNavigation').append('<button id="joinGame" class="uskociButton btn btn-primary btn-large">Join game</button>');
         $('#joinGame').click(joinGame_MouseClick);
+        $("#game").toggleClass("hidden");
         content.append("Game started! ");
         content.append("Player " + response.currentPlayerId + " is on the move.");
         game.started = true;
@@ -92,6 +94,7 @@ $(function () {
         game.myTurn = response.currentPlayerId == playerID;
         game.currentPlayerID = response.currentPlayerId;
         game.resourcePiles = response.playersResources;
+        game.playersResourcesByType = response.playersResourcesByType;
         game.actionStatus = response.actionStatus;
     }
 
@@ -150,26 +153,49 @@ $(function () {
     }
 
     function repaintResourcePiles() {
-        $("#resourcePiles").empty();
+
+        var playersResourcesByType = rotateArray(game.playersResourcesByType, parseInt(playerID)-1);
 
         for (var i = 1; i <= game.numberOfPlayers; i++) {
-            var resourcePile = game.resourcePiles[i.toString()];
-            var resourcePileID = 'player' + i.toString() + 'Resources';
-            $("#resourcePiles").append('<div id=' + resourcePileID + ' class="resourcePile"><p class="resourcePileText">Player ' + i.toString() + ' resource pile (' + game.playersPoints[(i-1).toString()] + ')</p><ul id="list' + resourcePileID + '"></ul></div>');
 
-            for (var j = 0; j < resourcePile.length; j++) {
-                var cardID = resourcePile[j.toString()];
-                $('#list' + resourcePileID).append(cardTemplate({cardID: cardID}));
-                $('.' + cardID).css("background-position", getCard(cardID).position);
+            var playerResourcesByType = playersResourcesByType[i-1];
 
+            for (var key in playerResourcesByType) {
+                if (playerResourcesByType.hasOwnProperty(key)) {
+
+                    var selector = '#resource' + i + ' .' + key;
+                    $(selector).empty();
+
+                    for (var j = 0; j < playerResourcesByType[key].length; j++) {
+                        var cardID = playerResourcesByType[key][j.toString()];
+                        $(selector).append(smallCardTemplate({cardID:cardID}));
+                        $(selector + ' .' + cardID).css("background-position", getSmallCardPosition(cardID));
+                        $(selector).find('[data-pattern="' + cardID + '"]').css({"top":20 * j + 20});
+                    }
+
+                }
             }
 
-            $('#list' + resourcePileID).children().each(function (index) {
-
-                $(this).css({"left":($(this).width() * 0.3 + 5) * (index % 5), "top":($(this).height() * 0.3 + 5) * Math.floor(index / 5)});
-
-            });
         }
+    }
+
+    function rotateArray(array, offset)
+    {
+        var rotatedArray = [];
+        for (var i = 0; i < _.size(array); i++) {
+            rotatedArray[i] = array[((i+offset)%_.size(array))+1];
+        }
+
+        return rotatedArray;
+    }
+
+    function getSmallCardPosition(cardID) {
+        var regex = /(.+)px\s(.+)px/;
+        var originalPosition = getCard(cardID).position;
+        var regexMatch = originalPosition.match(regex);
+        var positionX_scaled = (parseFloat(regexMatch[1])/2).toString();
+        var positionY_scaled = (parseFloat(regexMatch[2])/2).toString();
+        return positionX_scaled + "px " + positionY_scaled + "px";
     }
 
     function playCard() {
