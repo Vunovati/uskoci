@@ -80,6 +80,7 @@ $(function () {
         $('#playerSelect').toggleClass('hidden');
         $('#gameNavigation').append('<button id="joinGame" class="uskociButton btn btn-primary btn-large">Join game</button>');
         $('#joinGame').click(joinGame_MouseClick);
+        $("#game").toggleClass("hidden");
         content.append("Game started! ");
         content.append("Player " + response.currentPlayerId + " is on the move.");
         game.started = true;
@@ -137,7 +138,6 @@ $(function () {
 
     function startGame_MouseClick() {
         subSocket.push(jQuery.stringifyJSON({userId:playerID, action:"startGame", cardId:"", gameId:"0"}));
-        $("#game").toggleClass("hidden");
     }
 
     function nextTurn() {
