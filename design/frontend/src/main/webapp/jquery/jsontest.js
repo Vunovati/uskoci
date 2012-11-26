@@ -137,6 +137,7 @@ $(function () {
 
     function startGame_MouseClick() {
         subSocket.push(jQuery.stringifyJSON({userId:playerID, action:"startGame", cardId:"", gameId:"0"}));
+        $("#game").toggleClass("hidden");
     }
 
     function nextTurn() {
@@ -153,9 +154,11 @@ $(function () {
 
     function repaintResourcePiles() {
 
+        var playersResourcesByType = rotateArray(game.playersResourcesByType, parseInt(playerID)-1);
+
         for (var i = 1; i <= game.numberOfPlayers; i++) {
 
-            var playerResourcesByType = game.playersResourcesByType[i];
+            var playerResourcesByType = playersResourcesByType[i-1];
 
             for (var key in playerResourcesByType) {
                 if (playerResourcesByType.hasOwnProperty(key)) {
@@ -174,6 +177,16 @@ $(function () {
             }
 
         }
+    }
+
+    function rotateArray(array, offset)
+    {
+        var rotatedArray = [];
+        for (var i = 0; i < _.size(array); i++) {
+            rotatedArray[i] = array[((i+offset)%_.size(array))+1];
+        }
+
+        return rotatedArray;
     }
 
     function getSmallCardPosition(cardID) {
