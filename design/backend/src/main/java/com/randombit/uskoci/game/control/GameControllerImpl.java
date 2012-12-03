@@ -451,17 +451,20 @@ public class GameControllerImpl implements GameController {
 
     @Override
     public Card drawCard(int playerId) throws ActionNotAllowedException {
-        if (gameStatus.isBeginningCardDrawn())
+        if (gameStatus.isBeginningCardDrawn()) {
             throw new ActionNotAllowedException(EXCEPTION_DRAW_MORE_THAN_ONE_CARD);
+        }
+
+        if (playerIsNotOnTheMove(playerId)) {
+            throw new ActionNotAllowedException(EXCEPTION_DRAW_CARD_NOT_ON_THE_MOVE);
+        }
 
         Card cardDrawn = gameStatus.getCardDeck().remove(0);
         gameStatus.getPlayerCardMap().get(String.valueOf(playerId)).add(cardDrawn);
 
-        if (playerIsNotOnTheMove(playerId))
-            throw new ActionNotAllowedException(EXCEPTION_DRAW_CARD_NOT_ON_THE_MOVE);
-
-        if (!gameStatus.isBeginningCardDrawn())
+        if (!gameStatus.isBeginningCardDrawn()) {
             gameStatus.setBeginningCardDrawn(true);
+        }
 
         if (gameStatus.getCardDeck().isEmpty()) {
             Collections.shuffle(gameStatus.getDiscardedCards());
