@@ -171,6 +171,21 @@ public class GameControllerImplTest {
         gameController.drawCard(playerOnTheMoveId);
     }
 
+    @Test
+    public void testPlayerNotOnTheMOveDrawACardThenPlayerOnTheMoveDrawACard() throws Exception {
+        int playerOnTheMove = gameStatus.getCurrentPlayerId();
+        int playerNotOnTheMove = gameController.getNextPlayerId();
+
+        try {
+            gameController.drawCard(playerNotOnTheMove);
+        } catch (ActionNotAllowedException e) {
+
+        }
+        gameController.drawCard(playerOnTheMove);
+
+        Assert.assertEquals("Player not on the move does not have the card in his hand", BEGINNING_NUMBER_OF_CARDS, gameController.getPlayerCards(playerNotOnTheMove).size());
+    }
+
     //    Igrač klikom na gumb prelazi iz faze u fazu, prelaskom iz završne faze,
 //    započinje potez sljedećeg igrača (USK: 1 faza, završetkom faze, pokreće se pravilo 6.)
 
