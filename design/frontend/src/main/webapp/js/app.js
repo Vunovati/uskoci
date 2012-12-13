@@ -28,7 +28,7 @@ $(function () {
     App.Views.UskociCard = Backbone.View.extend({
         tagName: 'div',
 
-        template: template('cardTemplate'),
+        template: window.template('cardTemplate'),
 
         events : {
             'click': 'cardClicked',
@@ -145,7 +145,6 @@ $(function () {
                 location.reload();
                 break;
             case "drawCard":
-                animateCardDrawal();
                 break;
         }
 
@@ -232,10 +231,6 @@ $(function () {
         subSocket.push(jQuery.stringifyJSON({userId:playerID, action:"drawCard", cardId:"", gameId:"0"}));
     }
 
-    function animateCardDrawal() {
-        //TODO: create some nice animation sequences
-    }
-
     function repaintResourcePiles() {
 
         var playersResourcesByType = rotateArray(game.playersResourcesByType, parseInt(playerID)-1);
@@ -283,13 +278,6 @@ $(function () {
         return positionX_scaled + "px " + positionY_scaled + "px";
     }
 
-    function playCard() {
-        var card = $.parseJSON($(this).attr("data-pattern"))
-        var cardID = card.id;
-        cardClicked(cardID);
-        subSocket.push(jQuery.stringifyJSON({userId:playerID, action:"playCard", cardId:cardID, gameId:"0"}));
-    }
-
     function setPlayer() {
         if (!game.started)
             return;
@@ -313,20 +301,6 @@ $(function () {
             $("#turnInfo").html("Wait... Player " + game.currentPlayerID + " is on turn.");
     }
 
-    function card_onHoverIn()
-    {
-        var card = $.parseJSON($(this).attr("data-pattern"));
-        var descriptionDIV = '<div class="description">' + card.description +'</div>';
-        $(this).append(descriptionDIV);
-        $(this).toggleClass('zoomed');
-    }
-
-    function card_onHoverOut()
-    {
-        $('div').remove('.description');
-        $(this).toggleClass('zoomed');
-    }
-
     function restartGame() {
         $(function () {
             $("#dialog-confirm").dialog({
@@ -344,11 +318,6 @@ $(function () {
             });
         });
     }
-
-    function cardClicked(cardID) {
-        $('#console').append("<p>CardID / Summary: " + cardID + " / " + getCard(cardID).summary + "</p>");
-    }
-
 
     function getCard(cardID) {
 
