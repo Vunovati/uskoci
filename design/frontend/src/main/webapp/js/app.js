@@ -11,15 +11,14 @@ game.initialized = false;
     };
 
 $(function () {
-    "use strict";
 
-    window.App = {
+    App = {
         Models: {},
         Collections: {},
         Views: {}
     };
 
-    window.template = function(id) {
+    template = function(id) {
         return _.template($('#' + id).html());
     };
 
@@ -28,7 +27,7 @@ $(function () {
     App.Views.UskociCard = Backbone.View.extend({
         tagName: 'div',
 
-        template: window.template('cardTemplate'),
+        template: template('cardTemplate'),
 
         events : {
             'click': 'cardClicked',
@@ -82,12 +81,11 @@ $(function () {
         addOne: function(uskociCard) {
             var uskociCardView = new App.Views.UskociCard({model: uskociCard});
             var index = this.collection.indexOf(uskociCard);
-            if(index < 10)
             this.$el.append(uskociCardView.render(index).el);
         }
     });
 
-    window.uskociCardsCollection = new App.Collections.UskociCards();
+    uskociCardsCollection = new App.Collections.UskociCards();
     
     var content = $('#console');
     var socket = $.atmosphere;
@@ -156,7 +154,7 @@ $(function () {
         if (game.started)
             return;
 
-        window.uskociCardsCollection.fetch();
+        uskociCardsCollection.fetch();
 
         $('#startGame').remove();
         $('#playerSelect').toggleClass('hidden');
@@ -233,7 +231,7 @@ $(function () {
 
     function repaintResourcePiles() {
 
-        var playersResourcesByType = rotateArray(game.playersResourcesByType, parseInt(playerID)-1);
+        var playersResourcesByType = rotateArray(game.playersResourcesByType, parseInt(playerID,10)-1);
         var smallCardTemplate = template('smallCardTemplate');
 
         for (var i = 1; i <= game.numberOfPlayers; i++) {
@@ -291,7 +289,7 @@ $(function () {
 
     function repaintHand() {
         var filteredUskociCardsCollection = _(uskociCardsCollection.filter(function(uskociCard) { return _.include(game.playerCards, uskociCard.id); }));
-        window.uskociCardsView = new App.Views.UskociCards({collection: filteredUskociCardsCollection});
+        uskociCardsView = new App.Views.UskociCards({collection: filteredUskociCardsCollection});
     }
 
     function checkPlayerOnTheMove() {
