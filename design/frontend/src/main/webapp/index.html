@@ -1,4 +1,4 @@
-<!DOCTYPE HTML>
+H<!DOCTYPE HTML>
 <html>
 <head>
     <title>
@@ -8,16 +8,15 @@
     <!--<link rel="stylesheet" type="text/css" href="css/reset.css">-->
     <link rel="stylesheet" type="text/css" href="css/jquery-ui-1.9.0.custom.min.css">
     <link href="css/bootstrap.css" rel="stylesheet" type="text/css">
-    <script src="jquery/jquery-1.7.2.js" type="text/javascript">
-    </script>
-    <script src="jquery/jsontest.js" type="text/javascript">
-    </script>
-    <script src="js/bootstrap.min.js" type="text/javascript"></script>
-    <script type="text/javascript" src="jquery/jquery.atmosphere.js">
-    </script>
-    <script type="text/javascript" src="jquery/jquery-ui-1.9.0.custom.min.js"></script>
-    <script type="text/javascript" src="jquery/underscore-min.js"></script>
-    <script type="text/javascript" src="jquery/templates.js"></script>
+    
+    <script type="text/javascript" src="jquery/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="jquery/jquery.atmosphere.js"></script>
+    <script type="text/javascript" src="js/libs/underscore-min.js"></script>
+    <script type="text/javascript" src="js/libs/backbone-min.js"></script>
+    <script type="text/javascript" src="js/libs/bootstrap.min.js" ></script>
+    <script type="text/javascript" src="js/libs/jquery-ui-1.9.0.custom.min.js"></script>
+    <script type="text/javascript" src="js/app.js" ></script>
+    
 </head>
 <body>
 <div class="container">
@@ -104,5 +103,18 @@
         <div id="dialog-confirm" class="hidden" title="Restart game?"></div>
     </div>
 </div>
+
+<script id="cardTemplate" type="text/template">
+    <div class="card card-flipped" data-id="{{ id }}">
+        <div class="face front"></div>
+        <div class="face back {{ id }}" style="background-position: {{ position }};"></div>
+    </div>
+</script>
+<script id="smallCardTemplate" type="text/template">
+    <div class="cardSmall card-flipped" data-pattern="{{ cardID }}">
+        <div class="face frontSmall"></div>
+        <div class="face backSmall {{ cardID }}"></div>
+    </div>
+</script>
 </body>
 </html>

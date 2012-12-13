@@ -1,5 +1,5 @@
 ﻿body {
-    background-image: url(../images/uskociBackground.jpg)
+    background-image: url(../imgs/uskociBackground.jpg)
 }
 
 .wood, .money, .food, .weapon {
@@ -87,7 +87,7 @@ h1 {
     float: left;
     width: 630px;
     height: 420px;
-    //position: relative;
+    position: relative;
     /*
     -webkit-transform: translate3D(60px, 25px, 0);
     transform: translate3D(60px, 25px, 0);
@@ -152,22 +152,22 @@ h1 {
 }
 
 .frontSmall {
-    background: #999 url(../images/uskociBack_small.png);
+    background: #999 url(../imgs/uskociBack_small.png);
     z-index: 10;
 }
 
 .backSmall {
-    background: #efefef url(../images/uskociNewDeck_small.jpg);
+    background: #efefef url(../imgs/uskociNewDeck_small.jpg);
     z-index: 8;
 }
 
 .front {
-    background: #999 url(../images/uskociBack.png);
+    background: #999 url(../imgs/uskociBack.png);
     z-index: 10;
 }
 
 .back {
-    background: #efefef url(../images/uskociNewDeck.jpg);
+    background: #efefef url(../imgs/uskociNewDeck.jpg);
     /*
     -webkit-transform: rotate3d(0,1,0,-180deg);
     transform: rotate3d(0,1,0,-180deg);
@@ -178,7 +178,7 @@ h1 {
 }
 
 .card:hover .face, .card-flipped .face {
-    box-shadow: 0 0 30px #aaf;
+    /*box-shadow: 0 0 30px #aaf;*/
 }
 
 .card-flipped .front, .card-flipped .frontSmall {
@@ -188,7 +188,7 @@ h1 {
     -moz-transform: rotate3d(0,1,0,180deg);
     -o-transform: rotate3d(0,1,0,180deg);
     */
-    box-shadow: 0 0 30px #aaf;
+    /*box-shadow: 0 0 30px #aaf;*/
     z-index: 8;
 }
 
