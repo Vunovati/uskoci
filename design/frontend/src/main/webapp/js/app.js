@@ -65,10 +65,12 @@ $(function () {
         url: document.location + 'rest/cards'
     });
 
-    App.Views.UskociCards = Backbone.View.extend({
+    App.Views.UskociHand = Backbone.View.extend({
         el: $('#playerCards'),
 
-        initialize: function() {
+        //initialize with uskociCardsCollection's copy filtered by cardsInHand
+        initialize: function(uskociCardsCollection, cardsInHand) {
+            this.collection = _(uskociCardsCollection.filter(function(uskociCard) { return _.include(cardsInHand, uskociCard.id); }));
             this.render();
         },
 
@@ -288,8 +290,7 @@ $(function () {
     $('#playerSelect').change(setPlayer);
 
     function repaintHand() {
-        var filteredUskociCardsCollection = _(uskociCardsCollection.filter(function(uskociCard) { return _.include(game.playerCards, uskociCard.id); }));
-        uskociCardsView = new App.Views.UskociCards({collection: filteredUskociCardsCollection});
+        uskociHandView = new App.Views.UskociHand(uskociCardsCollection, game.playerCards);
     }
 
     function checkPlayerOnTheMove() {
