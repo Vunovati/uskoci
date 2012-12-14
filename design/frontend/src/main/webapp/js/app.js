@@ -25,8 +25,6 @@ $(function () {
     App.Models.UskociCard = Backbone.Model.extend({});
 
     App.Views.UskociCard = Backbone.View.extend({
-        tagName: 'div',
-
         template: template('cardTemplate'),
 
         events : {
@@ -60,6 +58,15 @@ $(function () {
         }
     });
 
+    App.Views.UskociSmallCard = Backbone.View.extend({
+        template: template('smallCardTemplate'),
+
+        render: function() {
+            this.$el.html(this.template(this.model.toJSON()));
+            return this;
+        }
+    });
+
     App.Collections.UskociCards = Backbone.Collection.extend({
         model: App.Models.UskociCard,
         url: document.location + 'rest/cards'
@@ -69,7 +76,7 @@ $(function () {
         el: $('#playerCards'),
 
         //initialize with uskociCardsCollection's copy filtered by cardsInHand
-        initialize: function(uskociCardsCollection, cardsInHand) {
+        initialize: function (uskociCardsCollection, cardsInHand) {
             this.collection = _(uskociCardsCollection.filter(function(uskociCard) { return _.include(cardsInHand, uskociCard.id); }));
             this.render();
         },
@@ -84,6 +91,60 @@ $(function () {
             var uskociCardView = new App.Views.UskociCard({model: uskociCard});
             var index = this.collection.indexOf(uskociCard);
             this.$el.append(uskociCardView.render(index).el);
+        }
+    });
+
+    App.Views.UskociResources = Backbone.View.extend({
+
+        //initialize with uskociCardsCollection's copy filtered by playersResourcesByType
+        initialize: function (uskociCardsCollection, playersResourcesByType) {
+            this.collection = uskociCardsCollection;
+            this.playersResourcesByType = playersResourcesByType;
+            this.render();
+        },
+
+        render: function () {
+
+            try {
+                var playersResourcesByType = this.rotateArray(this.playersResourcesByType, parseInt(playerID,10)-1);
+                var numberOfPlayers = _.keys(playersResourcesByType).length;
+
+                _.each(playersResourcesByType, function (playerResourcesByType) {
+                    _.each(_.keys(playerResourcesByType), function(resourceType) {
+                            
+                            var selector = '#resource' + (_.indexOf(playersResourcesByType, playerResourcesByType)+1) + ' .' + resourceType;
+                            $(selector).empty();
+
+                            _.each(playerResourcesByType[resourceType], function(id) {
+                                var uskociSmallCard = new App.Models.UskociCard({id: id, position: this.getSmallCardPosition(id)});
+                                var uskociSmallCardView = new App.Views.UskociSmallCard({model: uskociSmallCard});
+                                var uskociSmallCardViewElement = $(uskociSmallCardView.render().el);
+                                uskociSmallCardViewElement.children(':first').css({"top":20 * _.indexOf(playerResourcesByType[resourceType], id) + 20});
+                                $(selector).append(uskociSmallCardViewElement);
+
+                            }, this);
+                      }, this);
+                }, this);
+             } catch(e) {
+                console.log(e.message);
+             }
+        },
+
+        rotateArray: function (array, offset) {
+            var rotatedArray = [];
+            for (var i = 0; i < _.size(array); i++) {
+                rotatedArray.push(array[((i+offset)%_.size(array))+1]);
+            }
+            return rotatedArray;
+        },
+
+        getSmallCardPosition: function (id) {
+            var regex = /(.+)px\s(.+)px/;
+            var originalPosition = this.collection.get(id).get('position');
+            var regexMatch = originalPosition.match(regex);
+            var positionX_scaled = (parseFloat(regexMatch[1])/2).toString();
+            var positionY_scaled = (parseFloat(regexMatch[2])/2).toString();
+            return positionX_scaled + "px " + positionY_scaled + "px";
         }
     });
 
@@ -143,8 +204,6 @@ $(function () {
                 game.started = false;
                 subSocket.push(jQuery.stringifyJSON({userId:"", action:"startGame", cardId:"", gameId:"0"}));
                 location.reload();
-                break;
-            case "drawCard":
                 break;
         }
 
@@ -232,50 +291,7 @@ $(function () {
     }
 
     function repaintResourcePiles() {
-
-        var playersResourcesByType = rotateArray(game.playersResourcesByType, parseInt(playerID,10)-1);
-        var smallCardTemplate = template('smallCardTemplate');
-
-        for (var i = 1; i <= game.numberOfPlayers; i++) {
-
-            var playerResourcesByType = playersResourcesByType[i-1];
-
-            for (var key in playerResourcesByType) {
-                if (playerResourcesByType.hasOwnProperty(key)) {
-
-                    var selector = '#resource' + i + ' .' + key;
-                    $(selector).empty();
-
-                    for (var j = 0; j < playerResourcesByType[key].length; j++) {
-                        var cardID = playerResourcesByType[key][j.toString()];
-                        $(selector).append(smallCardTemplate({cardID:cardID}));
-                        $(selector + ' .' + cardID).css("background-position", getSmallCardPosition(cardID));
-                        $(selector).find('[data-pattern="' + cardID + '"]').css({"top":20 * j + 20});
-                    }
-
-                }
-            }
-
-        }
-    }
-
-    function rotateArray(array, offset)
-    {
-        var rotatedArray = [];
-        for (var i = 0; i < _.size(array); i++) {
-            rotatedArray[i] = array[((i+offset)%_.size(array))+1];
-        }
-
-        return rotatedArray;
-    }
-
-    function getSmallCardPosition(cardID) {
-        var regex = /(.+)px\s(.+)px/;
-        var originalPosition = getCard(cardID).position;
-        var regexMatch = originalPosition.match(regex);
-        var positionX_scaled = (parseFloat(regexMatch[1])/2).toString();
-        var positionY_scaled = (parseFloat(regexMatch[2])/2).toString();
-        return positionX_scaled + "px " + positionY_scaled + "px";
+        uskociResourcesView = new App.Views.UskociResources(uskociCardsCollection, game.playersResourcesByType);
     }
 
     function setPlayer() {
@@ -316,28 +332,6 @@ $(function () {
                 }
             });
         });
-    }
-
-    function getCard(cardID) {
-
-        var card = null;
-
-        $.ajax({
-            type:'GET',
-            url:document.location.toString() + 'rest/card/' + cardID,
-            async:false,
-            dataType:'json',
-            success:function (json) {
-                card = json;
-            }
-        });
-
-        return card;
-    }
-
-    function jsonToString(json)
-    {
-        return JSON.stringify(json);
     }
 
 });
