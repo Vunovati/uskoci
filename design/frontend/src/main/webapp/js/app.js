@@ -188,7 +188,9 @@ $(function () {
 
     function checkLastMessageAndPerformAction(response) {
         if (response.actionStatus != "OK") {
-            $('#turnInfo').html(response.actionStatus).addClass('alert-error');
+            if (response.lastAction.userId === playerID) {
+                $('#turnInfo').html(response.actionStatus).addClass('alert-error');
+            }
             return;
         }
 
