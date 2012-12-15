@@ -1,7 +1,28 @@
 ﻿body {
-    background-image: url(../images/uskociBackground.jpg)
+    background-image: url(../imgs/uskociBackground.jpg)
 }
 
+.wood, .money, .food, .weapon {
+    margin-left: 20px;
+}
+
+#otherResources1 {
+    margin-top: 20px;
+}
+
+
+.resource {
+    position: relative;
+    border-radius: 7px;
+    border: 3px dashed #FFF;
+    height:200px;
+}
+
+#console {
+    padding-top: 20px;
+    width: 150px;
+    heigth: 300px;
+}
 
 button .btn {
     background: darkGreen;
@@ -40,79 +61,26 @@ h1 {
     display: none;
 }
 
-#resourcePiles {
-    width: 620px;
-    height: 320px;
-    margin: 0 auto;
-    display: box;
-    box-pack: center;
-    box-align: center;
-}
-
-#resourcePiles p {
-    display: inline;
-    -webkit-margin-before: 0px;
-    -webkit-margin-after: 0px;
-    -webkit-margin-start: 0px;
-    -webkit-margin-end: 0px;
-}
-
-#resourcePiles ul {
-    display: inline;
-    list-style-type: none;
-    -webkit-margin-before: 0px;
-    -webkit-margin-after: 0px;
-    -webkit-margin-start: 0px;
-    -webkit-margin-end: 0px;
-    -webkit-padding-start: 0px;
-}
-
-#resourcePiles .card {
-    -webkit-transform: scale(0.3);
-    -moz-transform: scale(0.3);
-    -ms-transform: scale(0.3);
-    -o-transform: scale(0.3);
-    transform: scale(0.3);
-}
-
 #activeCard {
 
 }
 
+#activeCard {
+    /*background: rgba(0, 0, 0, 0.6);*/
+}
+
 #deck {
     float: left;
-    width: 160px;
-    height: 230px;
-    border-radius: 10px;
-    border: 5px dashed #FFF;
+    width: 190px;
+    height: 260px;
+    border-radius: 7px;
+    border: 3px dashed #FFF;
+    padding: 10px;
     -webkit-transform: scale(0.8);
     -moz-transform: scale(0.8);
     -ms-transform: scale(0.8);
     -o-transform: scale(0.8);
     transform: scale(0.8);
-    padding: 10px;
-    /*margin: 0 auto;
-     display: box;
-     box-pack: center;
-     box-align: center;*/
-}
-
-.resourcePile {
-    float: left;
-    border-radius: 10px;
-    border: 1px solid #FFF;
-    width: 300px;
-    height: 150px;
-
-    -webkit-transform: scale(0.9);
-    -moz-transform: scale(0.9);
-    -ms-transform: scale(0.9);
-    -o-transform: scale(0.9);
-    transform: scale(0.9);
-}
-
-.resourcePileText {
-    color: #FFF;
 }
 
 #playerCards {
@@ -131,9 +99,19 @@ h1 {
     -ms-transform: scale(0.8);
     -o-transform: scale(0.8);
     transform: scale(0.8);
-    display: box;
+    /*display: box;
     box-pack: center;
-    box-align: center;
+    box-align: center;*/
+}
+
+.cardSmall {
+    -webkit-perspective: 600;
+    perspective: 600;
+    -moz-perspective: 600;
+    -o-perspective: 600;
+    width: 81.25px;
+    height: 114.5px;
+    position: absolute;
 }
 
 .card {
@@ -173,13 +151,23 @@ h1 {
     -o-backface-visibility: hidden;
 }
 
+.frontSmall {
+    background: #999 url(../imgs/uskociBack_small.png);
+    z-index: 10;
+}
+
+.backSmall {
+    background: #efefef url(../imgs/uskociNewDeck_small.jpg);
+    z-index: 8;
+}
+
 .front {
-    background: #999 url(../images/uskociBack.png);
+    background: #999 url(../imgs/uskociBack.png);
     z-index: 10;
 }
 
 .back {
-    background: #efefef url(../images/uskociNewDeck.jpg);
+    background: #efefef url(../imgs/uskociNewDeck.jpg);
     /*
     -webkit-transform: rotate3d(0,1,0,-180deg);
     transform: rotate3d(0,1,0,-180deg);
@@ -190,21 +178,21 @@ h1 {
 }
 
 .card:hover .face, .card-flipped .face {
-    box-shadow: 0 0 30px #aaf;
+    /*box-shadow: 0 0 30px #aaf;*/
 }
 
-.card-flipped .front {
+.card-flipped .front, .card-flipped .frontSmall {
     /*
     -webkit-transform: rotate3d(0,1,0,180deg);
     transform: rotate3d(0,1,0,180deg);
     -moz-transform: rotate3d(0,1,0,180deg);
     -o-transform: rotate3d(0,1,0,180deg);
     */
-    box-shadow: 0 0 30px #aaf;
+    /*box-shadow: 0 0 30px #aaf;*/
     z-index: 8;
 }
 
-.card-flipped .back {
+.card-flipped .back, .card-flipped .backSmall {
     /*
     -webkit-transform: rotate3d(0,1,0,0deg);
     transform: rotate3d(0,1,0,0deg);
