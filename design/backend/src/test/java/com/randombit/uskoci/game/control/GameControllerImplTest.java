@@ -500,7 +500,29 @@ public class GameControllerImplTest {
         addThreeCardsToPlayersResourcePile(playerOnTheMove);
 
         gameController.playCard(playerOnTheMove, 1);
+    }
 
+    @Test
+    public void testPlayerNotOver25PlaysACard() throws Exception {
+        int playerOnTheMove = gameController.getCurrentPlayerId();
+        int playerNotOnTheMove = gameController.getNextPlayerId();
+        gameStatus.setBeginningCardDrawn(true);
+
+        addThreeCardsToPlayersResourcePile(playerNotOnTheMove);
+        gameController.playCard(playerOnTheMove, 1);
+    }
+
+    @Test
+    public void testPlayerOver25PlaysNonResource() throws Exception {
+        int playerOnTheMove = gameController.getCurrentPlayerId();
+        String testCardId = "1";
+        gameStatus.setBeginningCardDrawn(true);
+        addThreeCardsToPlayersResourcePile(playerOnTheMove);
+        cardDAO = EasyMock.createMock(CardDAO.class);
+        EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(new Card(testCardId, "", EVENT, "", "", ""));
+        EasyMock.replay(cardDAO);
+        gameController.setCardDAO(cardDAO);
+        gameController.playCard(playerOnTheMove, Integer.valueOf(testCardId));
     }
 
     private void addThreeCardsToPlayersResourcePile(int playerOnTheMove) {

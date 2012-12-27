@@ -45,7 +45,7 @@ public class GameConstants {
     public static final String EXCEPTION_PLAYER_NOT_ON_MOVE_PLAYS_RESOURCE = "You cannot play resource cards, it is not your turn";
     public static final String EXCEPTION_PLAY_RESOURCE_TWICE = "You cannot play two resource cards in same turn";
     public static final String EXCEPTION_PLAY_CARD_BEGINNING_CARD_NOT_DRAWN = "You must draw a card at the beginning of you turn";
-    public static final String EXCEPTION_PLAY_TOO_MUCH_RESOURCES = "You cannot play resources because you have more than " + MAX_NUMBER_OF_PLAYER_POINTS + "points";
+    public static final String EXCEPTION_PLAY_TOO_MUCH_RESOURCES = "You cannot play resources because you have more than " + MAX_NUMBER_OF_PLAYER_POINTS + " points";
     public static final String EXCEPTION_RESOURCE_AFTER_EVENT = "You cannot play resource after an event card";
     public static final String EXCEPTION_EVENT_AFTER_EVENT = "You cannot play event card after another event";
 }
