@@ -73,7 +73,7 @@ public class GameControllerImpl implements GameController {
 
         Card cardPlayed = cardDAO.getCard(cardId);
 
-        if (!gameStatus.beginningCardDrawn) {
+        if (!gameStatus.beginningCardDrawn && playerOnTheMove(playerId)) {
             throw new ActionNotAllowedException(EXCEPTION_PLAY_CARD_BEGINNING_CARD_NOT_DRAWN);
         }
 
@@ -451,7 +451,7 @@ public class GameControllerImpl implements GameController {
 
     @Override
     public Card drawCard(int playerId) throws ActionNotAllowedException {
-        if (gameStatus.isBeginningCardDrawn()) {
+        if (gameStatus.isBeginningCardDrawn() && playerOnTheMove(playerId)) {
             throw new ActionNotAllowedException(EXCEPTION_DRAW_MORE_THAN_ONE_CARD);
         }
 
