@@ -172,6 +172,16 @@ public class GameControllerImplTest {
     }
 
     @Test
+    public void testPlayerNotOnTheMoveDrawsACardAfterPlayerOnTheMoveDrawsACard() throws Exception {
+        thrown.expect(ActionNotAllowedException.class);
+        thrown.expectMessage(EXCEPTION_DRAW_CARD_NOT_ON_THE_MOVE);
+        int playerNotOnTheMove = gameController.getNextPlayerId();
+        gameStatus.setBeginningCardDrawn(true);
+
+        gameController.drawCard(playerNotOnTheMove);
+    }
+
+    @Test
     public void testPlayerNotOnTheMOveDrawACardThenPlayerOnTheMoveDrawACard() throws Exception {
         int playerOnTheMove = gameStatus.getCurrentPlayerId();
         int playerNotOnTheMove = gameController.getNextPlayerId();
@@ -385,7 +395,20 @@ public class GameControllerImplTest {
     }
 
     @Test
-    public void testPlayCardBeginningCardNotDrawn() throws Exception {
+    public void testPlayCardBeginningCardNotDrawnPlayerOnTheMove() throws Exception {
+        thrown.expect(ActionNotAllowedException.class);
+        thrown.expectMessage(EXCEPTION_PLAYER_NOT_ON_MOVE_PLAYS_RESOURCE);
+        // Given player is not on the move
+        int playerNotOnTheMove = gameController.getNextPlayerId();
+        // beginning card has not been drawn
+
+        gameController.playCard(playerNotOnTheMove, 1);
+
+    }
+
+
+    @Test
+    public void testPlayCardBeginningCardNotDrawnPlayerNotOnTheMove() throws Exception {
         thrown.expect(ActionNotAllowedException.class);
         thrown.expectMessage(EXCEPTION_PLAY_CARD_BEGINNING_CARD_NOT_DRAWN);
         // Given player is on the move
