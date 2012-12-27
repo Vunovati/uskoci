@@ -60,7 +60,11 @@
             <version>${atmosphere-jquery.version}</version>
             <type>war</type>
         </dependency>
-
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.14</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>uskoci-REST-API</finalName>
