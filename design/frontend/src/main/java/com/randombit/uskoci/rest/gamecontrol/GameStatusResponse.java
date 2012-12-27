@@ -14,6 +14,7 @@ import static com.randombit.uskoci.game.control.GameConstants.RESOURCE_TYPE;
 
 @XmlRootElement
 public class GameStatusResponse {
+    private static final String lineSeparator = System.getProperty("line.separator");
     private boolean gameStarted;
     private int numberOfPlayersJoined;
     private String currentPlayerId;
@@ -212,5 +213,23 @@ public class GameStatusResponse {
             discardedCards.add(card.getId());
         }
         return discardedCards;
+    }
+
+    @Override
+    public String toString() {
+        return "GameStatusResponse{" +
+                "gameStarted=" + gameStarted +
+                lineSeparator + " numberOfPlayersJoined=" + numberOfPlayersJoined +
+                lineSeparator + " currentPlayerId='" + currentPlayerId + '\'' +
+                lineSeparator + " beginningCardDrawn=" + beginningCardDrawn +
+                lineSeparator + " resourceCardPlayed=" + resourceCardPlayed +
+                lineSeparator + " discardedCards=" + discardedCards +
+                lineSeparator + " playersCards=" + playersCards +
+                lineSeparator + " playersResources=" + playersResources +
+                lineSeparator + " playersResourcesByType=" + playersResourcesByType +
+                lineSeparator + " playersPoints=" + playersPoints +
+                lineSeparator + " lastAction=" + lastAction +
+                lineSeparator + " actionStatus='" + actionStatus + '\'' +
+                '}';
     }
 }
