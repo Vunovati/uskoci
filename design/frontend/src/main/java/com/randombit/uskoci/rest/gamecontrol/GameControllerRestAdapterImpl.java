@@ -3,6 +3,7 @@ package com.randombit.uskoci.rest.gamecontrol;
 import com.randombit.uskoci.game.ActionNotAllowedException;
 import com.randombit.uskoci.game.control.GameController;
 import com.randombit.uskoci.game.dao.GameControllerPool;
+import org.apache.log4j.Logger;
 
 /**
  * Interprets game messages into game control method calls
@@ -10,8 +11,8 @@ import com.randombit.uskoci.game.dao.GameControllerPool;
 public class GameControllerRestAdapterImpl implements GameControllerRestAdapter {
 
     public static final String OK = "OK";
+    private static org.apache.log4j.Logger log = Logger.getLogger(GameControllerRestAdapterImpl.class);
 
-    // TODO: add logs
     @Override
     public GameStatusResponse getResponse(GameStatusMessage message, String gameId) {
         GameController gameController = getGameController();
@@ -20,9 +21,9 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
             gameResponse = makeMove(message, gameController);
             gameResponse.setActionStatus(OK);
         } catch (ActionNotAllowedException e) {
-            e.printStackTrace();
             gameResponse = new GameStatusResponse(gameController);
             gameResponse.setActionStatus(e.getMessage());
+            log.debug("Action not allowed " + e.getMessage() + " thrown to player " + message.userId);
         }
         gameResponse.setLastAction(message);
         return gameResponse;
@@ -35,7 +36,10 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
 
     private GameStatusResponse makeMove(GameStatusMessage message, GameController gameController) throws ActionNotAllowedException{
         changeGameStateWithAction(gameController, message);
-        return new GameStatusResponse(gameController);
+        log.debug("Game " + message.gameId + " Player " + message.userId + " performs " + message.action + " (card " + message.cardId + ")" );
+        GameStatusResponse gameStatusResponse = new GameStatusResponse(gameController);
+        log.debug("New game status: " + System.getProperty("line.separator") + gameStatusResponse.toString());
+        return gameStatusResponse;
     }
 
     private void changeGameStateWithAction(GameController gameController, GameStatusMessage message) throws ActionNotAllowedException {
