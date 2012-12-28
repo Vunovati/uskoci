@@ -1,4 +1,4 @@
-﻿var game = {};
+var game = {};
 playerID = null;
 game.myTurn = false;
 game.started = false;
@@ -35,8 +35,12 @@ $(function () {
 
         hoverIn: function (e) {
             e.preventDefault();
-            var descriptionDIV = '<div class="description">' + this.model.get('description') +'</div>';
-            this.$el.children(":first").append(descriptionDIV);
+            var type = this.model.get('type');
+            var color = this.model.get('color');
+            var value = this.model.get('value');
+            var description = this.model.get('description');
+            var detailsDIV = '<div class="description">' + 'Color: ' + color + '<br>Type: ' + type + '<br> Value: ' + value +  '<br> Description: ' + description + '</div>';
+            this.$el.children(":first").append(detailsDIV);
             this.$el.children(":first").toggleClass('zoomed');
         },
         
@@ -61,6 +65,28 @@ $(function () {
 App.Views.UskociSmallCard = Backbone.View.extend({
     template: template('smallCardTemplate'),
 
+    events : {
+        'mouseenter': 'hoverIn',
+        'mouseleave': 'hoverOut'
+    },
+
+    hoverIn: function (e) {
+        e.preventDefault();
+        var type = this.model.get('type');
+        var color = this.model.get('color');
+        var value = this.model.get('value');
+        var description = this.model.get('description');
+        var detailsDIV = '<div class="description">' + 'Color: ' + color + '<br>Type: ' + type + '<br> Value: ' + value +  '<br> Description: ' + description + '</div>';
+        this.$el.children(":first").append(detailsDIV);
+        this.$el.children(":first").toggleClass('zoomed');
+    },
+
+    hoverOut: function (e) {
+        e.preventDefault();
+        this.$el.children(":first").toggleClass('zoomed');
+        this.$el.find('.description').remove();
+    },
+
     render: function() {
         this.$el.html(this.template(this.model.toJSON()));
         return this;
@@ -69,6 +95,7 @@ App.Views.UskociSmallCard = Backbone.View.extend({
 
 App.Collections.UskociCards = Backbone.Collection.extend({
     model: App.Models.UskociCard,
+    // http://uskoci-dev.randombit.cloudbees.net/rest/cards
     url: document.location + 'rest/cards'
 });
 
@@ -116,7 +143,9 @@ App.Views.UskociResources = Backbone.View.extend({
                         $(selector).empty();
 
                         _.each(playerResourcesByType[resourceType], function(id) {
-                            var uskociSmallCard = new App.Models.UskociCard({id: id, position: this.getSmallCardPosition(id)});
+                            var card = uskociCardsCollection.get(id);
+                            var cardAttributes = card.toJSON();
+                            var uskociSmallCard = new App.Models.UskociCard({id: id, position: this.getSmallCardPosition(id), value: cardAttributes.value, description: cardAttributes.description, type: cardAttributes.type, color: cardAttributes.color});
                             var uskociSmallCardView = new App.Views.UskociSmallCard({model: uskociSmallCard});
                             var uskociSmallCardViewElement = $(uskociSmallCardView.render().el);
                             uskociSmallCardViewElement.children(':first').css({"top":20 * _.indexOf(playerResourcesByType[resourceType], id) + 20});
@@ -150,7 +179,8 @@ getSmallCardPosition: function (id) {
 
 uskociCardsCollection = new App.Collections.UskociCards();
 
-var content = $('#console');
+var gameConsole= $('#console');
+var gameStatistics = $('#gameStatistics');
 var socket = $.atmosphere;
 var request = { url:document.location.toString() + 'rest' + '/gamecontrol',
 contentType:"application/json",
@@ -160,7 +190,7 @@ fallbackTransport:'long-polling'};
 
 
 request.onOpen = function (response) {
-    content.html($('<p>', { text:'Uskoci (gameControl) connected using ' + response.transport }));
+    gameConsole.html($('<p>', { text:'Uskoci (gameControl) connected using ' + response.transport }));
 };
 
 request.onMessage = function (response) {
@@ -209,7 +239,7 @@ function checkLastMessageAndPerformAction(response) {
             location.reload();
             break;
         }
-            
+
         if (game.initialized) {
             repaintTable(response);
         }
@@ -228,8 +258,6 @@ function drawJoinPlayerControls(response) {
     $('#gameNavigation').append('<button id="joinGame" class="uskociButton btn btn-primary btn-large">Join game</button>');
     $('#joinGame').click(joinGame_MouseClick);
     $("#game").toggleClass("hidden");
-    content.append("Game started! ");
-    content.append("Player " + response.currentPlayerId + " is on the move.");
     game.started = true;
 
 }
@@ -250,17 +278,31 @@ function repaintTable(response) {
     repaintResourcePiles();
     repaintHand();
 
-    if (response !== null)
-        modifyGameStatus(response);
+    if (response !== null) {
+        //modifyGameStatus(response);
+        updateGameStatistics(response);
+    }
+
 }
 
+function updateGameStatistics (response) {
+    gameStatistics.html(createGameStatisticsContent(response));
+}
+
+function createGameStatisticsContent (response) {
+    var statistics = '<p> Players Points:  <br>' + response.playersPoints + '</p>';
+    statistics += '<p> Player on the move: <br>' + response.currentPlayerId + '</p>';
+    statistics += '<p> Beginnning card drawn: <br>' + response.beginningCardDrawn + '</p>';
+    statistics += '<p> Resource card played: <br>' + response.resourceCardPlayed + '</p>';
+    return statistics;
+}
 
 request.onError = function (response) {
-    content.html($('<p>', { text:'Sorry, but there\'s some problem with your socket or the server is down' }));
+    gameConsole.html($('<p>', { text:'Sorry, but there\'s some problem with your socket or the server is down' }));
 };
 
 function modifyGameStatus(gameStatusResponse) {
-    content.append('<p>PlayerID / lastAction / cardID: ' + gameStatusResponse.lastAction["userId"] + ' / ' + gameStatusResponse.lastAction["action"] + ' / ' + gameStatusResponse.lastAction["cardId"] + '</p>');
+    gameConsole.append('<p>PlayerID / lastAction / cardID: ' + gameStatusResponse.lastAction["userId"] + ' / ' + gameStatusResponse.lastAction["action"] + ' / ' + gameStatusResponse.lastAction["cardId"] + '</p>');
 }
 
 var subSocket = socket.subscribe(request);
@@ -339,5 +381,4 @@ function setPlayer() {
             });
         });
     }
-
 });
