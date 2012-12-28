@@ -19,102 +19,105 @@
     
 </head>
 <body>
-<div class="container">
-    <div class="container-fluid">
-        <div class="row-fluid">
-            <div class="alert" id="turnInfo">
-                <button type="button" class="close" data-dismiss="alert">close</button>
-                <strong>Game not started...</strong>
-            </div>
-            <div id="welcomeScreen" class="hero-unit">
-                <h1>Uskoci</h1>
+    <div class="container">
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="alert" id="turnInfo">
+                    <button type="button" class="close" data-dismiss="alert">close</button>
+                    <strong>Game not started...</strong>
+                </div>
+                <div id="welcomeScreen" class="hero-unit">
+                    <h1>Uskoci</h1>
 
-                <p>a card game of Croatian Pirates</p>
+                    <p>a car game of Croatian Pirates</p>
 
-                <div id="gameNavigation">
-                    <button id="startGame" class="btn btn-primary btn-large">Start</button>
-                    <select id="playerSelect" class="hidden">
-                        <option></option>
-                        <option>1</option>
-                        <option>2</option>
-                        <option>3</option>
-                        <option>4</option>
-                    </select>
-                </div>
-            </div>
-            <div id="game" class="span12 hidden">
-                <div id="otherResources2" class="row">
-                    <div class="span4 resource" id="resource5">
-                        <div class="span2 wood"></div>
-                        <div class="span2 food"></div>
-                        <div class="span2 weapon"></div>
-                        <div class="span2 money"></div>
-                    </div>
-                    <div class="span4 resource" id="resource3">
-                        <div class="span2 wood"></div>
-                        <div class="span2 food"></div>
-                        <div class="span2 weapon"></div>
-                        <div class="span2 money"></div>
-                    </div>
-                    <div class="span4 resource" id="resource6">
-                        <div class="span2 wood"></div>
-                        <div class="span2 food"></div>
-                        <div class="span2 weapon"></div>
-                        <div class="span2 money"></div>
+                    <div id="gameNavigation">
+                        <button id="startGame" class="btn btn-primary btn-large">Start</button>
+                        <select id="playerSelect" class="hidden">
+                            <option></option>
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                        </select>
                     </div>
                 </div>
-                <div id="otherResources1" class="row">
-                    <div class="span4 resource" id="resource2">
-                        <div class="span2 wood"></div>
-                        <div class="span2 food"></div>
-                        <div class="span2 weapon"></div>
-                        <div class="span2 money"></div>
-                    </div>
-                    <div class="span4" id="emptySpace"></div>
-                    <div class="span4 resource" id="resource4">
-                        <div class="span2 wood"></div>
-                        <div class="span2 food"></div>
-                        <div class="span2 weapon"></div>
-                        <div class="span2 money"></div>
-                    </div>
-                </div>
-                <div class="row" id="control">
-                    <div class="span2">
-                        <textarea id="console"></textarea>
-                    </div>
-                    <div class="span8">
-                        <div class="row">
-                            <div id="deck" class="span2 hidden"></div>
-                            <div id="activeCard" class="span4"></div>
-                            <div id="discardPile" class="span2"></div>
+                <div id="game" class="span12 hidden">
+                    <div id="otherResources2" class="row">
+                        <div class="span4 resource" id="resource5">
+                            <div class="span2 wood"></div>
+                            <div class="span2 food"></div>
+                            <div class="span2 weapon"></div>
+                            <div class="span2 money"></div>
                         </div>
-                        <div id="resource1" class="row resource">
+                        <div class="span4 resource" id="resource3">
+                            <div class="span2 wood"></div>
+                            <div class="span2 food"></div>
+                            <div class="span2 weapon"></div>
+                            <div class="span2 money"></div>
+                        </div>
+                        <div class="span4 resource" id="resource6">
+                            <div class="span2 wood"></div>
+                            <div class="span2 food"></div>
+                            <div class="span2 weapon"></div>
+                            <div class="span2 money"></div>
+                        </div>
+                    </div>
+                    <div id="otherResources1" class="row">
+                        <div class="span4 resource" id="resource2">
+                            <div class="span2 wood"></div>
+                            <div class="span2 food"></div>
+                            <div class="span2 weapon"></div>
+                            <div class="span2 money"></div>
+                        </div>
+                        <div class="span4" id="emptySpace"></div>
+                        <div class="span4 resource" id="resource4">
+                            <div class="span2 wood"></div>
+                            <div class="span2 food"></div>
+                            <div class="span2 weapon"></div>
+                            <div class="span2 money"></div>
+                        </div>
+                    </div>
+                    <div class="row" id="control">
+                        <div class="span2">
+                            <div class="stats" id="gameStatistics">
+                            </div>
+                            <div class="stats" id="console">
+                            </div>
+                        </div>
+                        <div class="span8">
+                            <div class="row">
+                                <div id="deck" class="span2 hidden"></div>
+                                <div id="activeCard" class="span4"></div>
+                                <div id="discardPile" class="span2">Discard pile:</div>
+                            </div>
+                            <div id="resource1" class="row resource">
                                 <div class="span2 wood"></div>
                                 <div class="span2 food"></div>
                                 <div class="span2 weapon"></div>
                                 <div class="span2 money"></div>
+                            </div>
+                            <div id="playerCards" class="row"></div>
                         </div>
-                        <div id="playerCards" class="row"></div>
+                        <div id="controlButtons" class="span2"></div>
                     </div>
-                    <div id="controlButtons" class="span2"></div>
                 </div>
             </div>
+            <div id="dialog-confirm" class="hidden" title="Restart game?"></div>
         </div>
-        <div id="dialog-confirm" class="hidden" title="Restart game?"></div>
     </div>
-</div>
 
-<script id="cardTemplate" type="text/template">
+    <script id="cardTemplate" type="text/template">
     <div class="card card-flipped" data-id="{{ id }}">
-        <div class="face front"></div>
-        <div class="face back {{ id }}" style="background-position: {{ position }};"></div>
+    <div class="face front"></div>
+    <div class="face back {{ id }}" style="background-position: {{ position }};"></div>
     </div>
-</script>
-<script id="smallCardTemplate" type="text/template">
+    </script>
+    <script id="smallCardTemplate" type="text/template">
     <div class="cardSmall card-flipped" data-pattern="{{ id }}">
-        <div class="face frontSmall"></div>
-        <div class="face backSmall {{ id }}" style="background-position: {{ position }};"></div>
+    <div class="face frontSmall"></div>
+    <div class="face backSmall {{ id }}" style="background-position: {{ position }};"></div>
     </div>
-</script>
+    </script>
 </body>
 </html>
