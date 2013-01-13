@@ -8,6 +8,15 @@ import java.util.Map;
 
 public class GameStatus {
     List<Card> cardDeck;
+    List<Card> discardedCards;
+    Map<String, List<Card>> playerCardMap;
+    boolean beginningCardDrawn;
+    int currentPlayerId;
+    boolean gameStarted;
+    int numberOfPlayersJoined;
+    boolean resourceCardPlayed;
+    Map<String, ResourcePile> playersResources;
+    LinkedList<Card> cardStack;
 
     public List<Card> getCardDeck() {
         return cardDeck;
@@ -17,8 +26,6 @@ public class GameStatus {
         this.cardDeck = cardDeck;
     }
 
-    List<Card> discardedCards;
-
     public List<Card> getDiscardedCards() {
         return discardedCards;
     }
@@ -26,8 +33,6 @@ public class GameStatus {
     public void setDiscardedCards(List<Card> discardedCards) {
         this.discardedCards = discardedCards;
     }
-
-    Map<String, List<Card>> playerCardMap;
 
     public Map<String, List<Card>> getPlayerCardMap() {
         return playerCardMap;
@@ -37,8 +42,6 @@ public class GameStatus {
         this.playerCardMap = playerCardMap;
     }
 
-    int currentPlayerId;
-
     public int getCurrentPlayerId() {
         return currentPlayerId;
     }
@@ -46,8 +49,6 @@ public class GameStatus {
     public void setCurrentPlayerId(int currentPlayerId) {
         this.currentPlayerId = currentPlayerId;
     }
-
-    boolean beginningCardDrawn;
 
     public boolean isBeginningCardDrawn() {
         return beginningCardDrawn;
@@ -57,8 +58,6 @@ public class GameStatus {
         this.beginningCardDrawn = beginningCardDrawn;
     }
 
-    boolean gameStarted;
-
     public boolean isGameStarted() {
         return gameStarted;
     }
@@ -66,8 +65,6 @@ public class GameStatus {
     public void setGameStarted(boolean gameStarted) {
         this.gameStarted = gameStarted;
     }
-
-    int numberOfPlayersJoined;
 
     public int getNumberOfPlayersJoined() {
         return numberOfPlayersJoined;
@@ -77,8 +74,6 @@ public class GameStatus {
         this.numberOfPlayersJoined = numberOfPlayersJoined;
     }
 
-    boolean resourceCardPlayed;
-
     public boolean isResourceCardPlayed() {
         return resourceCardPlayed;
     }
@@ -87,17 +82,17 @@ public class GameStatus {
         this.resourceCardPlayed = resourceCardPlayed;
     }
 
-    Map<String, ResourcePile> playersResources;
-
     public Map<String, ResourcePile> getPlayersResources() {
         return playersResources;
+    }
+    
+    public ResourcePile getPlayersResources(String playerId){
+    	return playersResources.get(playerId);
     }
 
     public void setPlayersResources(Map<String, ResourcePile> playersResources) {
         this.playersResources = playersResources;
     }
-
-    LinkedList<Card> cardStack;
 
     public List<Card> getCardStack() {
         return cardStack;
@@ -105,16 +100,6 @@ public class GameStatus {
 
     public void setCardStack(List<Card> cardStack) {
         this.cardStack = (LinkedList<Card>) cardStack;
-    }
-
-    int chosenPlayer;
-
-    public int getChosenPlayer() {
-        return chosenPlayer;
-    }
-
-    public void setChosenPlayer(int chosenPlayer) {
-        this.chosenPlayer = chosenPlayer;
     }
 
     public GameStatus() {

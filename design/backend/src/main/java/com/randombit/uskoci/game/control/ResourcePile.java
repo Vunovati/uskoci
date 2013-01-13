@@ -85,14 +85,8 @@ class ResourcePileForType {
     public void add(Card card) {
         if (GameConstants.MULTIPLIER.equals(card.getType()))   {
             multiplierPresent = true;
-            addCardToBeginningOfTheResourceList(card);
-        } else {
-            resources.add(card);
         }
-    }
-
-    private void addCardToBeginningOfTheResourceList(Card card) {
-        resources.add(0, card);
+        resources.add(card);
     }
 
     public int getValue() {

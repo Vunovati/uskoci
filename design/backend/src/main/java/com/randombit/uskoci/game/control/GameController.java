@@ -3,8 +3,9 @@ package com.randombit.uskoci.game.control;
 import com.randombit.uskoci.card.dao.CardDAO;
 import com.randombit.uskoci.card.model.Card;
 import com.randombit.uskoci.game.ActionNotAllowedException;
-import com.randombit.uskoci.game.control.eventmessage.Action;
-import com.randombit.uskoci.game.control.eventmessage.Response;
+import com.randombit.uskoci.game.control.eventHandling.Action;
+import com.randombit.uskoci.game.control.eventHandling.Response;
+
 
 import java.util.List;
 
@@ -50,27 +51,29 @@ public interface GameController {
     
     public void discardCardFromPlayersHand(int cardId, int playerId);
     
+    public void discardCardFromResourcePile(Card card, int playerId);
+
     public void discardCardFromResourcePile(int cardId, int playerId);
+    
+    public void removeCardFromResourcePile(Card card, int playerId);
 
     public void removeMultiplierFromResourcePile(int playerId, int cardId ) throws ActionNotAllowedException;
 
     public Card flipCardFaceUp();
 
     public List<Card> getCardStack();
-    
-    public List<Action> resolveCardsOnStack();
-    
-    public List<Action> responseToEvent(Card event, int playerId, List<Response> responseList);
 
     public void setCardDeck(List<Card> cards);
-    
-    public void moveCard(Action action);
     
     public void moveCards(Action action);
     
     public void changeValue(Card card);
+    
+    public Action resolveEventOnStack(int eventPlayerId);
 
     public List<Card> getPlayersResourcesByType(int playerId, String resourceType);
 
     public ResourcePile getPlayersResourcePile(int playerId);
+    
+    public Action sendResponse(Response response);
 }
