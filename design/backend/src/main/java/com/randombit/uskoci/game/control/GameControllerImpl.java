@@ -118,6 +118,8 @@ public class GameControllerImpl implements GameController {
             //cardPlayed.setCardOwner(String.valueOf(playerId));
             putCardOnStack(cardPlayed);
         }
+
+        resolveEventOnStack(playerId);
     }
     
     @Override

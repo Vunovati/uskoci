@@ -18,12 +18,10 @@ public class EventHandler {
 
 	List<Action> listOfActions;
 	Response response;
-	private GameStatus gameStatus = new GameStatus();
 	
 	public EventHandler() {}
 	
     public List<Action> resolveEvent(Card event,String eventPlayerId){
-    	Action action;
     	createEventActions(event,eventPlayerId);
     	return this.listOfActions;
     }
@@ -36,16 +34,16 @@ public class EventHandler {
 	
 	private void createEventActions(Card event,String eventPlayerId){
 	    	this.listOfActions = new ArrayList<Action>();
-	    	String cardSummary = event.getSummary();
+	    	String cardId = event.getId();
 	    	
-	    	switch(Integer.parseInt(cardSummary)) {
+	    	switch(Integer.parseInt(cardId)) {
 	    	
 	    			//  WILL  
 	    	//case 1: createAction(new Action("A","remove event from stack"));
 	    	//		break;
 	    			
 	    			//  STORM  
-	    	case 2: listOfActions.add(new Action(ACTION.MOVE_CARDS.toString(),AREA.RESOURCE.toString() + "-all",AREA.DISCARDPILE.toString(),QUANTITY.ALL.toString()));
+	    	case 41: listOfActions.add(new Action(ACTION.MOVE_CARDS.toString(),AREA.RESOURCE.toString() + "-all",AREA.DISCARDPILE.toString(),QUANTITY.ALL.toString()));
 	    			break;
 	    	
 	    			// SPYGLASS
