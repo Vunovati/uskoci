@@ -63,7 +63,7 @@ public class EventHandler {
 					break;*/
 					
 					//THEFT	
-	    	case 6: listOfActions.add(new Action("Q1",QUESTION.CHOOSE_PLAYER.toString()));
+	    	case 53: listOfActions.add(new Action("Q1",QUESTION.CHOOSE_PLAYER.toString()));
 	    	        listOfActions.add(new Action("Q2",QUESTION.CHOOSE_CARDS.toString(), AREA.RESOURCE.toString() +"-Q1",1));
 	    	        listOfActions.add(new Action(ACTION.MOVE_CARDS.toString(),AREA.RESOURCE.toString() + "-Q1",AREA.RESOURCE.toString() + "-" + eventPlayerId,QUANTITY.CARD.toString()));
 					break;

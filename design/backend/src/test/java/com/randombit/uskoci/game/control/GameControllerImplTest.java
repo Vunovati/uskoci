@@ -672,7 +672,7 @@ public void testEventTheft() throws Exception {
         cardDAO = EasyMock.createMock(CardDAO.class);
         gameController.setCardDAO(cardDAO);
         EasyMock.expect(cardDAO.getCard(Integer.valueOf(testCardId))).andReturn(testCard);
-        EasyMock.expect(testCard.getId()).andReturn("6");
+        EasyMock.expect(testCard.getId()).andReturn("53");
         EasyMock.replay(cardDAO, testCard);
         
         List<Card> stack = gameStatus.getCardStack();
