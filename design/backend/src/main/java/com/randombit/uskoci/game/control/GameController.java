@@ -69,11 +69,17 @@ public interface GameController {
     
     public void changeValue(Card card);
     
-    public Action resolveEventOnStack(int eventPlayerId);
+    public void resolveEventOnStack(int eventPlayerId, Card event);
 
     public List<Card> getPlayersResourcesByType(int playerId, String resourceType);
 
     public ResourcePile getPlayersResourcePile(int playerId);
     
-    public Action sendResponse(Response response);
+    public void sendResponse(String playerID, String cardID);
+    
+    public String getTimerVal();
+    
+    public String getEventArea();
+    
+    public String getEventMessage();
 }

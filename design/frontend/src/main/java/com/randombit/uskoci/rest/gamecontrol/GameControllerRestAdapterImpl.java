@@ -93,6 +93,12 @@ public class GameControllerRestAdapterImpl implements GameControllerRestAdapter 
             public void perform(GameStatusMessage message, GameController gameController) throws ActionNotAllowedException {
                 gameController.startGame(4);
             }
+        },
+        EVENT_RESPONSE("eventresponse"){
+            @Override
+            public void perform(GameStatusMessage message, GameController gameController) throws ActionNotAllowedException {
+                gameController.sendResponse(message.userId,message.cardId);
+            }
         };
 
         private String actionName;

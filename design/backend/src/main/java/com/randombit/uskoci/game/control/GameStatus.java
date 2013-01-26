@@ -17,7 +17,29 @@ public class GameStatus {
     boolean resourceCardPlayed;
     Map<String, ResourcePile> playersResources;
     LinkedList<Card> cardStack;
-
+    String eventStatus;
+    String eventArea;
+    String timer;
+    
+    public void setEventMessage(String status){
+    	this.eventStatus = status;
+    }
+    public String getEventMessage(){
+    	return this.eventStatus; 
+    }
+    public void setTimer(String timer){
+    	this.timer = timer;
+    }
+    public String getTimer(){
+    	return this.timer; 
+    }
+    public void setEventArea(String area){
+    	this.eventArea = area;
+    }
+    public String getEventArea(){
+    	return this.eventArea; 
+    }
+    
     public List<Card> getCardDeck() {
         return cardDeck;
     }
@@ -103,5 +125,8 @@ public class GameStatus {
     }
 
     public GameStatus() {
+    	this.timer ="";
+    	this.eventArea = "";
+    	this.eventStatus = "";
     }
 }

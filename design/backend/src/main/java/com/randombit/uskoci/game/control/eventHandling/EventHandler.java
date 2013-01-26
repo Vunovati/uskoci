@@ -156,6 +156,7 @@ public class EventHandler {
     private void decodeResponse(Response response) {
     	Action action;
 	   	String responseType = response.getResponseType();
+    	//String responseType = "Q1";
 	   	String playerId = response.getPlayerId();
 	   	String area1,area2,delimiter;
 	   	List<Action> actions = getListOfActions();

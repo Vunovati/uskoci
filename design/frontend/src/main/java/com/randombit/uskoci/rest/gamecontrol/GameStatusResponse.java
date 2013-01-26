@@ -27,6 +27,9 @@ public class GameStatusResponse {
     private List<String> playersPoints;
     private GameStatusMessage lastAction;
     private String actionStatus;
+    private String eventStatus;
+    private String eventArea;
+    private String timer;
 
     @XmlElement
     public boolean isGameStarted() {
@@ -162,6 +165,9 @@ public class GameStatusResponse {
         this.playersCards = getPlayersCardIdMap(gameController);
         this.playersPoints = getPlayersPoints(gameController);
         generatePlayerResourcesByType(gameController);
+        this.eventArea = gameController.getEventArea();
+        this.eventStatus = gameController.getEventMessage();
+        this.timer = gameController.getTimerVal();
     }
 
     private List<String> getPlayersPoints(GameController gameController) {
@@ -230,6 +236,9 @@ public class GameStatusResponse {
                 lineSeparator + " playersPoints=" + playersPoints +
                 lineSeparator + " lastAction=" + lastAction +
                 lineSeparator + " actionStatus='" + actionStatus + '\'' +
+                lineSeparator + " eventStatus='" + eventStatus + '\'' +
+                lineSeparator + " eventArea='" + eventArea + '\'' +
+                lineSeparator + " timer='" + timer + '\'' +
                 '}';
     }
 }

@@ -100,7 +100,7 @@ public class GameControllerImpl implements GameController {
     }
 
     private void playEventCard(Card cardPlayed, int playerId) throws ActionNotAllowedException {
-        List<Card> currentCardStack = getCardStack();
+       /* List<Card> currentCardStack = getCardStack();
         String cardSummary = cardPlayed.getSummary();
 
 
@@ -117,22 +117,50 @@ public class GameControllerImpl implements GameController {
             }
             //cardPlayed.setCardOwner(String.valueOf(playerId));
             putCardOnStack(cardPlayed);
-        }
-
-        resolveEventOnStack(playerId);
+        }*/
+        resolveEventOnStack(playerId,cardPlayed);
     }
     
     @Override
-    public Action resolveEventOnStack(int eventPlayerId){
-    	Card event = getFirstCardOnStack();
+    public void resolveEventOnStack(int eventPlayerId, Card event){
+    	//Card event = getFirstCardOnStack();
     	Action action = resolveActions(eventHandler.resolveEvent(event, Integer.toString(eventPlayerId)));
-    	return action;
+    	if (action.getSummary() != "") {
+    		gameStatus.setTimer("25");
+    	}
+    	gameStatus.setEventArea(action.getArea1());
+    	gameStatus.setEventMessage(action.getSummary());
     }
     
     @Override
-    public Action sendResponse(Response response){
+    public String getTimerVal(){
+    	return gameStatus.getTimer();
+    }
+    @Override
+    public String getEventArea(){
+    	return gameStatus.getEventArea();
+    }
+    @Override
+    public String getEventMessage(){
+    	return gameStatus.getEventMessage();
+    }
+    
+    @Override
+    public void sendResponse(String playerId, String cardId){
+    	Response response;
+    	if (cardId == ""){
+    		response = new Response(playerId,"Q1");
+    	}
+    	else {
+    		Card cardPlayed = cardDAO.getCard(Integer.parseInt(cardId));
+    		response = new Response(cardPlayed,"Q1");
+    	}
     	Action action = resolveActions(eventHandler.resolveResponseToEvent(response));
-    	return action;
+    	if (action.getSummary() != "") {
+    		gameStatus.setTimer("25");
+    	}
+    	gameStatus.setEventArea(action.getArea1());
+    	gameStatus.setEventMessage(action.getSummary());
     }
     
     private Action resolveActions(List<Action> listOfActions){
